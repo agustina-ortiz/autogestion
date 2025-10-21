@@ -14,6 +14,13 @@ Route::get('/', function () {
     }
 });
 
+Route::post('/logout', function () {
+    Auth::logout();                 // Cierra la sesión del usuario
+    request()->session()->invalidate();  // Invalida la sesión
+    request()->session()->regenerateToken(); // Regenera el token CSRF
+    return redirect()->route('login');  // Redirige al login
+})->name('logout');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
