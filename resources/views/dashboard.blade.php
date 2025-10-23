@@ -82,14 +82,14 @@
         <!-- Buttons Grid -->
         <div class="grid grid-cols-4 gap-12 mt-auto">
             <!-- Recibos -->
-            <a href="#" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a href="{{ route('recibos') }}" class="action-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                     <polyline points="14 2 14 8 20 8"/>
                     <line x1="16" y1="13" x2="8" y2="13"/>
                     <line x1="16" y1="17" x2="8" y2="17"/>
                 </svg>
-                <span class="font-semibold text-[0.9rem] text-white">Recibos</span>
+                <span>Recibos</span>
             </a>
 
             <!-- Asistencias -->
