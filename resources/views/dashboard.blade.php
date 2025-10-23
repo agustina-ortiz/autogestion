@@ -1,208 +1,127 @@
 <x-layouts.autogestion>
     <x-slot:title>Inicio - Sistema Autogestión</x-slot:title>
 
-    @push('styles')
-    <style>
-        main {
-            padding: 2rem;
-            overflow: hidden;
+    @php
+        function zerofill($valor, $longitud){
+            $res = str_pad($valor, $longitud, '0', STR_PAD_LEFT);
+            return $res;
         }
 
-        .content-wrapper {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
-            margin-top: 2rem;
+        $foto = 'https://autogestion.mercedes.gob.ar/fotos-licencias/fotos-empleados/'.zerofill(auth()->user()->LEGAJO,8).'.jpg';
+        $tieneFoto = is_array(@getimagesize($foto));
+        
+        if (!$tieneFoto) { 
+            $foto = asset('images/no-foto.png');
         }
+    @endphp
 
-        .employee-section {
-            flex: 0 0 30%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+    <!-- Main Container -->
+    <main class="overflow-hidden">
+        <!-- Content Wrapper -->
+        <div class="flex gap-8">
+            <!-- Employee Section -->
+            <div class="flex-[0_0_30%] flex flex-col items-center bg-gradient-to-br from-gray-50 to-gray-200 p-6 rounded-2xl shadow-md">
+                <!-- Employee Photo -->
+                <div class="w-[120px] h-[120px] rounded-full bg-gradient-to-br from-[#91D5E2] to-[#77BF43] mb-4 flex items-center justify-center text-white text-5xl font-bold border-4 border-white shadow-lg">
+                    <img 
+                        src="{{ $foto }}" 
+                        alt="Foto Empleado" 
+                        class="w-full h-full rounded-full object-cover {{ !$tieneFoto ? 'brightness-0 invert' : '' }}"
+                    >
+                </div>
 
-        .employee-photo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #91D5E2, #77BF43);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            font-weight: bold;
-            border: 4px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .employee-info {
-            width: 100%;
-            text-align: left;
-        }
-
-        .employee-info p {
-            margin: 0.5rem 0;
-            font-size: 0.95rem;
-            color: #333;
-        }
-
-        .employee-info strong {
-            color: #77BF43;
-            display: inline-block;
-            width: 80px;
-        }
-
-        .welcome-section {
-            flex: 1;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .welcome-section h1 {
-            color: #77BF43;
-            margin-bottom: 1rem;
-            font-size: 1.8rem;
-        }
-
-        .welcome-section p {
-            color: #555;
-            line-height: 1.6;
-            font-size: 1rem;
-        }
-
-        .welcome-section strong {
-            color: #91D5E2;
-        }
-
-        .buttons-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
-        }
-
-        .action-card {
-            background: linear-gradient(135deg, #77BF43, #BED630);
-            color: white;
-            padding: 1.5rem 1rem;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-        }
-
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-        }
-
-        .action-card svg {
-            width: 32px;
-            height: 32px;
-            stroke: white;
-        }
-
-        .action-card span {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: white;
-        }
-    </style>
-    @endpush
-
-    <div class="content-wrapper">
-        <div class="employee-section">
-            <div class="employee-photo">
-                {{ strtoupper(substr(auth()->user()->name ?? 'JD', 0, 2)) }}
+                <!-- Employee Info -->
+                <div class="w-full text-left">
+                    <p class="my-2 text-[0.95rem] text-gray-800">
+                        <strong class="text-[#77BF43] inline-block w-20">Empleado:</strong> 
+                        {{ auth()->user()->NOMBRE ?? 'Sin nombre' }}
+                    </p>
+                    <p class="my-2 text-[0.95rem] text-gray-800">
+                        <strong class="text-[#77BF43] inline-block w-20">DNI:</strong> 
+                        {{ auth()->user()->DNI ?? 'Sin DNI' }}
+                    </p>
+                    <p class="my-2 text-[0.95rem] text-gray-800">
+                        <strong class="text-[#77BF43] inline-block w-20">Legajo:</strong> 
+                        {{ auth()->user()->LEGAJO ?? 'Sin legajo' }}
+                    </p>
+                    <p class="my-2 text-[0.95rem] text-gray-800">
+                        <strong class="text-[#77BF43] inline-block w-20">Perfil:</strong> 
+                        Empleado
+                    </p>
+                    <p class="my-2 text-[0.95rem] text-gray-800">
+                        <strong class="text-[#77BF43] inline-block w-20">Categoría:</strong> 
+                        {{ auth()->user()->CATEGORIA ?? 'Sin categoría' }}
+                    </p>
+                    @if(auth()->user()->HIJOS)
+                        <p class="my-2 text-[0.95rem] text-gray-800">
+                            <strong class="text-[#77BF43] inline-block w-20">Hijos:</strong> 
+                            {{ auth()->user()->HIJOS}}
+                        </p>
+                    @endif
+                </div>
             </div>
-            <div class="employee-info">
-                <p><strong>Empleado:</strong> {{ auth()->user()->name ?? 'Juan Pérez' }}</p>
-                <p><strong>DNI:</strong> {{ auth()->user()->dni ?? '12.345.678' }}</p>
-                <p><strong>Legajo:</strong> {{ auth()->user()->legajo ?? '001234' }}</p>
-                <p><strong>Perfil:</strong> {{ auth()->user()->perfil ?? 'Administrativo' }}</p>
-                <p><strong>Categoría:</strong> {{ auth()->user()->categoria ?? 'A3' }}</p>
+
+            <!-- Welcome Section -->
+            <div class="flex-1 bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl shadow-md flex flex-col justify-center">
+                <h1 class="text-[#77BF43] mb-4 text-[1.8rem] font-bold">
+                    Bienvenido al sistema AUTOGESTIÓN
+                </h1>
+                <p class="text-gray-600 leading-relaxed text-base">
+                    En esta página los empleados de la <strong class="text-[#91D5E2]">Municipalidad de Mercedes</strong>, podrán consultar 
+                    sus <strong class="text-[#91D5E2]">recibos de sueldos</strong> como así también, otros temas de interés.
+                </p>
+                <p class="text-gray-600 leading-relaxed text-base mt-4">
+                    Si tiene dudas, puede consultar la sección de <strong class="text-[#91D5E2]">Preguntas frecuentes</strong>
+                </p>
+                <p class="text-gray-600 leading-relaxed text-base mt-2">
+                    Si necesita informar algo puede dirigirse a la sección <strong class="text-[#91D5E2]">Contacto</strong>
+                </p>
             </div>
         </div>
 
-        <div class="welcome-section">
-            <h1>Bienvenido al sistema AUTOGESTIÓN</h1>
-            <p>
-                En esta página los empleados de la <strong>Municipalidad de Mercedes</strong>, podrán consultar 
-                sus <strong>recibos de sueldos</strong> como así también, otros temas de interés.
-            </p>
-            <p style="margin-top: 1rem;">
-                Si tiene dudas, puede consultar la sección de <strong>Preguntas frecuentes</strong>
-            </p>
-            <p style="margin-top: 0.5rem;">
-                Si necesita informar algo puede dirigirse a la sección <strong>Contacto</strong>
-            </p>
+        <!-- Buttons Grid -->
+        <div class="grid grid-cols-4 gap-12 mt-auto">
+            <!-- Recibos -->
+            <a href="#" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
+                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span class="font-semibold text-[0.9rem] text-white">Recibos</span>
+            </a>
+
+            <!-- Asistencias -->
+            <a href="{{ route('asistencias') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
+                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span class="font-semibold text-[0.9rem] text-white">Asistencias</span>
+            </a>
+
+            <!-- Compensatorios -->
+            <a href="#" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
+                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span class="font-semibold text-[0.9rem] text-white">Compensatorios</span>
+            </a>
+
+            <!-- Solicitudes -->
+            <a href="#" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
+                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+                <span class="font-semibold text-[0.9rem] text-white">Solicitudes</span>
+            </a>
         </div>
-    </div>
-
-    <div class="buttons-grid">
-        <a href="#" class="action-card">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            <span>Recibos</span>
-        </a>
-
-        <a href="#" class="action-card">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            <span>Asistencias</span>
-        </a>
-
-        <a href="#" class="action-card">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span>Compensatorios</span>
-        </a>
-
-        <a href="#" class="action-card">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="12" y1="18" x2="12" y2="12"/>
-                <line x1="9" y1="15" x2="15" y2="15"/>
-            </svg>
-            <span>Solicitudes</span>
-        </a>
-
-        <a href="#" class="action-card">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-            <span>Preguntas Frecuentes</span>
-        </a>
-    </div>
+    </main>
 </x-layouts.autogestion>

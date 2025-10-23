@@ -24,7 +24,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'LEGAJO',
+        'NOMBRE',
         'DNI',
+        'CATEGORIA',
         'CLAVEWEB',
     ];
 
@@ -48,6 +51,12 @@ class User extends Authenticatable
     public function getAuthPassword()
     {
         return $this->CLAVEWEB;
+    }
+
+    public function getNameAttribute()
+    {
+        // Ajusta según el campo real que tengas para el nombre
+        return $this->NOMBRE ?? $this->DNI;
     }
 
     /**

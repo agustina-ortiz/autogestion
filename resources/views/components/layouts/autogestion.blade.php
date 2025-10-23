@@ -35,11 +35,10 @@
 
             .logo {
                 height: 50px;
-                width: 150px;
+                width: 160px;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
-                margin-left: 80px;
                 justify-content: center;
             }
 
@@ -49,11 +48,46 @@
                 align-items: center;
             }
 
+            .btn-autogestion {
+                background: linear-gradient(135deg, #77BF43 0%, #5da832 100%);
+                color: white;
+                font-weight: 600;
+                transition: all 0.3s ease-in-out;
+                box-shadow: 0 2px 4px rgba(119, 191, 67, 0.3);
+                border: none;
+            }
+
+            .btn-autogestion:hover {
+                background: linear-gradient(135deg, #5da832 0%, #77BF43 100%);
+                box-shadow: 0 4px 8px rgba(119, 191, 67, 0.5);
+                transform: translateY(-3px);
+            }
+
+            .btn-logout {
+                background: linear-gradient(135deg, #72c0cf 0%, #3493a6 100%);
+                color: white;
+                font-weight: 600;
+                transition: all 0.3s ease-in-out;
+                box-shadow: 0 2px 4px rgba(120, 228, 250, 0.3);
+                border: none;
+            }
+
+            .btn-logout:hover {
+                background: linear-gradient(135deg, #3493a6 0%, #72c0cf 100%);
+                box-shadow: 0 4px 8px rgba(145, 213, 226, 0.5);
+                transform: translateY(-2px);
+            }
+
             /* Main Content */
             main {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
+                gap: 2rem;
+                margin-bottom: 1rem;
+                margin-top: 1rem;
+                padding-right: 1.5rem;
+                padding-left: 1.5rem
             }
 
             /* Footer */
@@ -111,11 +145,13 @@
         <!-- Header -->
         <header class="custom-header">
             <div class="logo">
-                <img src="{{ asset('images/logo-muni.svg') }}" alt="Logo Municipalidad">
+                <a href="{{ route('dashboard') }}">
+                    <img src="{{ asset('images/logo-muni.svg') }}" alt="Logo Municipalidad">
+                </a>
             </div>
             <div class="header-right">
                 <flux:dropdown>
-                    <flux:button style="background-color: white; color: #77BF43;">Autogestión</flux:button>
+                    <flux:button class="btn-autogestion">Autogestión</flux:button>
                     <flux:menu>
                         <flux:menu.item href="{{ route('dashboard') }}">Inicio</flux:menu.item>
                         <flux:menu.item href="#">Mi Perfil</flux:menu.item>
@@ -124,7 +160,7 @@
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <flux:button type="submit"  style="background-color: #BED630; color: #333;">
+                    <flux:button type="submit" icon="arrow-right-start-on-rectangle" class="btn-logout">
                         Salir
                     </flux:button>
                 </form>
