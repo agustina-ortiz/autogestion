@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Recibos;
+use App\Livewire\ReciboDetalle;
 
 Route::view('/', 'welcome');
 
@@ -28,5 +30,23 @@ Route::view('dashboard', 'dashboard')
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+Route::get('recibos', \App\Livewire\Recibos::class)
+    ->middleware(['auth'])
+    ->name('recibos');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/recibos', Recibos::class)->name('recibos');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/recibos', Recibos::class)->name('recibos');
+    Route::get('/recibo/{numero}/{anio}/{mes}/{tipo}', [Recibos::class, 'mostrarRecibo'])->name('recibo');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/recibos', Recibos::class)->name('recibos');
+    Route::get('/recibo/{numero}/{anio}/{mes}/{tipo}', ReciboDetalle::class)->name('recibo');
+});
 
 require __DIR__.'/auth.php';
