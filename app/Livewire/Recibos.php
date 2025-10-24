@@ -17,55 +17,6 @@ class Recibos extends Component
     public $perPage = 5;
     protected $paginationTheme = 'tailwind';
 
-    // Método estático para mostrar el detalle del recibo (se llama desde la ruta)
-    public static function mostrarRecibo($numero, $anio, $mes, $tipo)
-    {
-        // Aquí puedes obtener los datos del recibo y mostrar la vista
-        try {
-            // Datos de conexión
-            $host = "10.0.0.22";
-            $port = "1521";
-            $sid = "MMERC10G";
-            $username = "autogestion";
-            $password = "autgest19";
-
-            $dsn = "odbc:Driver={Oracle in instantclient_19_28};Dbq={$host}:{$port}/{$sid};Uid={$username};Pwd={$password};";
-
-            $pdo = new PDO($dsn);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            $legajo = Auth::user()->LEGAJO;
-
-            // Consulta para obtener el detalle del recibo
-            $sql = "SELECT * FROM per_recibo_cab 
-                    WHERE legajo = :legajo 
-                    AND nro_recibo = :numero 
-                    AND anio = :anio 
-                    AND mes = :mes 
-                    AND tipo_liq = :tipo";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'legajo' => $legajo,
-                'numero' => $numero,
-                'anio' => $anio,
-                'mes' => $mes,
-                'tipo' => $tipo
-            ]);
-
-            $recibo = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$recibo) {
-                abort(404, 'Recibo no encontrado');
-            }
-
-            return view('recibo-detalle', compact('recibo'));
-
-        } catch (PDOException $e) {
-            abort(500, 'Error al obtener el recibo: ' . $e->getMessage());
-        }
-    }
-
     public function getRecibosData()
     {
         try {

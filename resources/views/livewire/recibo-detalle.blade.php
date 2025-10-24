@@ -1,16 +1,5 @@
 <div class="min-h-screen py-4">
     <div class="container mx-auto px-4 max-w-7xl">
-        
-        {{-- Botón volver --}}
-        <div class="mb-3">
-            <a href="{{ route('recibos') }}" 
-               class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#6BA939] font-semibold transition-all duration-300 text-sm hover:gap-3 group">
-                <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-                </svg>
-                Volver a Mis Recibos
-            </a>
-        </div>
 
         {{-- Mensaje de error si existe --}}
         @if ($error)
@@ -23,47 +12,40 @@
             {{-- Header del recibo con glassmorphism --}}
             <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 mb-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
                 <div class="flex items-center justify-between">
-                    {{-- Título con efecto de brillo --}}
-                    <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
-                        <div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    {{-- Izquierda: Icono de volver + título --}}
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('recibos') }}" 
+                        class="text-white hover:text-white/80 transition-transform transform hover:-translate-x-1">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                             </svg>
-                        </div>
-                        <span class="tracking-tight">Detalle del Recibo</span>
-                    </h1>
+                        </a>
 
-                    {{-- Botones con efectos modernos --}}
+                        {{-- Título con efecto de brillo --}}
+                        <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
+                            
+                            <span class="tracking-tight">Detalle del Recibo</span>
+                        </h1>
+                    </div>
+
+                    {{-- Derecha: Botones PDF, Imprimir, Email --}}
                     <div class="flex gap-2">
-                        <button class="group relative inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-[#77BF43] font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-xs overflow-hidden">
-                            <span class="absolute inset-0 bg-gradient-to-r from-[#77BF43]/0 to-[#77BF43]/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                            <svg class="w-4 h-4 relative z-10 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                            </svg>
-                            <span class="relative z-10">PDF</span>
-                        </button>
-
-                        <button class="group relative inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-xs overflow-hidden">
+                        <button 
+                            wire:click="abrirModalImpresion"
+                            class="group relative inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-xs overflow-hidden"
+                        >
                             <span class="absolute inset-0 bg-gradient-to-r from-gray-500/0 to-gray-500/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
                             <svg class="w-4 h-4 relative z-10 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                             </svg>
                             <span class="relative z-10">Imprimir</span>
                         </button>
-
-                        <button class="group relative inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-xs overflow-hidden">
-                            <span class="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-blue-500/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                            <svg class="w-4 h-4 relative z-10 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            <span class="relative z-10">Email</span>
-                        </button>
                     </div>
                 </div>
             </div>
 
             {{-- Grid de tablas 2x2 --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-8 mt-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6 mt-6">
                 
                 {{-- TABLA 1: Datos Personales --}}
                 <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.02] transition-all duration-300">
@@ -86,14 +68,16 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($reciboVisualizacion as $persona)
                                 <tr class="hover:bg-[#91D5E2]/10 transition-colors duration-200 border-t border-gray-100">
                                     <td class="px-2 py-2 font-bold text-[#77BF43]">{{ $recibo['NRO_RECIBO'] }}</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
+                                    <td class="px-2 py-2 text-gray-600">{{ $persona['APELLIDO'] }}, {{ $persona['NOMBRES'] }}</td>
                                     <td class="px-2 py-2 text-gray-800 font-semibold">{{ $recibo['LEGAJO'] }}</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
+                                    <td class="px-2 py-2 text-gray-600">{{ $persona['NRO_DOC'] }}</td>
+                                    <td class="px-2 py-2 text-gray-600">{{ $persona['NRO_CUIT'] }}</td>
                                     <td class="px-2 py-2 text-gray-800 font-semibold">{{ $recibo['MES'] }}/{{ $recibo['ANIO'] }}</td>
                                 </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -121,10 +105,12 @@
                             <tbody>
                                 <tr class="hover:bg-[#91D5E2]/10 transition-colors duration-200 border-t border-gray-100">
                                     <td class="px-2 py-2 text-gray-600">{{ $recibo['NRO_CARGO'] }}</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
-                                    <td class="px-2 py-2 text-gray-600">-</td>
+                                    <td class="px-2 py-2 text-gray-600">
+                                        {{ date('d / m / Y', strtotime($persona['FECH_ANTIG'])) }}
+                                    </td>
+                                    <td class="px-2 py-2 text-gray-600">{{ $recibo['ITEM'] }}</td>
+                                    <td class="px-2 py-2 text-gray-600">{{ $persona['DES_TIPO_PLANTA'] }}</td>
+                                    <td class="px-2 py-2 text-gray-600">{{ $persona['JURISDICCION'] }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -141,7 +127,7 @@
                         Detalle de Conceptos
                     </h2>
                 </div>
-                <div class="overflow-x-auto max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-[#77BF43] scrollbar-track-gray-100">
+                <div class="overflow-x-auto max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-[#77BF43] scrollbar-track-gray-100">
                     <table class="w-full text-xs">
                         <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold sticky top-0 z-10">
                             <tr>
@@ -158,9 +144,9 @@
                                     <tr class="hover:bg-[#91D5E2]/10 transition-colors duration-200 border-t border-gray-100">
                                         <td class="px-2 py-2 text-center text-gray-600">{{ $concepto['CANTIDAD'] ?? '-' }}</td>
                                         <td class="px-2 py-2 text-center text-gray-600">{{ $concepto['CONCEPTO'] ?? '-' }}</td>
-                                        <td class="px-2 py-2 text-left text-gray-600">{{ $concepto['DESCRIPCION'] ?? '-' }}</td>
-                                        <td class="px-2 py-2 text-right text-gray-600">{{ isset($concepto['HABERES']) ? '$'.number_format($concepto['HABERES'],2,',','.') : '-' }}</td>
-                                        <td class="px-2 py-2 text-right text-gray-600">{{ isset($concepto['DESCUENTOS']) ? '$'.number_format($concepto['DESCUENTOS'],2,',','.') : '-' }}</td>
+                                        <td class="px-2 py-2 text-left text-gray-600">{{ $concepto['DESC_CONCEPTO'] ?? '-' }}</td>
+                                        <td class="px-2 py-2 text-right text-gray-600">{{ $concepto['MONTO'] > 0 ? '$'.number_format($concepto['MONTO'],2,',','.') : '-' }}</td>
+                                        <td class="px-2 py-2 text-right text-gray-600">{{ $concepto['MONTO'] < 0 ? '$'.number_format($concepto['MONTO'],2,',','.') : '-' }}</td>
                                     </tr>
                                 @endforeach
                             @else
@@ -187,6 +173,7 @@
                     <table class="w-full text-xs">
                         <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold">
                             <tr>
+                                <th class="px-3 py-2 text-left text-[10px]">Tipo de Liquidación</th>
                                 <th class="px-3 py-2 text-left text-[10px]">Remuneración con Aporte</th>
                                 <th class="px-3 py-2 text-left text-[10px]">Remuneración sin Aporte</th>
                                 <th class="px-3 py-2 text-left text-[10px]">Retenciones</th>
@@ -195,6 +182,7 @@
                         </thead>
                         <tbody>
                             <tr class="hover:bg-[#77BF43]/5 transition-colors duration-200">
+                                <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['TIPO_LIQ'] }}</td>
                                 <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['REMUN_C_AP'] }}</td>
                                 <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['REMUN_S_AP'] }}</td>
                                 <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['RETENCIONES'] }}</td>
@@ -212,5 +200,92 @@
             </div>
 
         @endif
+    </div>
+
+    <!-- Modal de impresión del recibo -->
+    <div 
+        x-data="{ open: false, cerrarDespuesDeImprimir() { window.onafterprint = () => { this.open = false; } } }"
+        x-init="cerrarDespuesDeImprimir()"
+        x-on:abrir-modal-impresion-recibo.window="open = true; setTimeout(() => window.print(), 500);"
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
+    >
+        <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-4xl mx-4 print:w-full print:h-auto print:shadow-none print:p-4 text-xs">
+            @if($recibo)
+            <div class="print-area">
+
+                <!-- Header -->
+                <div class="flex justify-between items-center border-b pb-2 mb-8 text-sm">
+                    <h1 class="text-lg font-bold text-gray-800">Detalle del Recibo</h1>
+                    <p class="text-gray-600 mr-8">Tipo de Liquidación: {{ $recibo['TIPO_LIQ'] }} - Período: {{ $recibo['MES'] }}/{{ $recibo['ANIO'] }}</p>
+                </div>
+
+                <!-- Datos Personales y Laborales lado a lado -->
+                <div class="flex justify-between mb-4 text-sm gap-4">
+                    <!-- Datos Personales -->
+                    <div class="w-1/2">
+                        <h2 class="font-semibold mb-2 border-b pb-1">Datos Personales</h2>
+                        <p><strong>Nombre:</strong> {{ $reciboVisualizacion[0]['APELLIDO'] }}, {{ $reciboVisualizacion[0]['NOMBRES'] }}</p>
+                        <p><strong>Legajo:</strong> {{ $recibo['LEGAJO'] }}</p>
+                        <p><strong>DNI:</strong> {{ $reciboVisualizacion[0]['NRO_DOC'] }}</p>
+                        <p><strong>CUIL:</strong> {{ $reciboVisualizacion[0]['NRO_CUIT'] }}</p>
+                    </div>
+
+                    <!-- Datos Laborales -->
+                    <div class="w-1/2">
+                        <h2 class="font-semibold mb-2 border-b pb-1">Datos Laborales</h2>
+                        <p><strong>Cargo:</strong> {{ $recibo['NRO_CARGO'] }}</p>
+                        <p><strong>Fecha Ingreso:</strong> {{ date('d/m/Y', strtotime($reciboVisualizacion[0]['FECH_ANTIG'])) }}</p>
+                        <p><strong>Categoría:</strong> {{ $recibo['ITEM'] }}</p>
+                        <p><strong>Planta:</strong> {{ $reciboVisualizacion[0]['DES_TIPO_PLANTA'] }}</p>
+                        <p><strong>Jurisdicción:</strong> {{ $reciboVisualizacion[0]['JURISDICCION'] }}</p>
+                    </div>
+                </div>
+
+                <!-- Detalle de conceptos -->
+                <div class="mb-4 text-xs">
+                    <h2 class="font-semibold mb-2 border-b pb-1">Detalle de Conceptos</h2>
+                    <table class="w-full border border-gray-300 text-xs">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-1 border text-center">Cant.</th>
+                                <th class="p-1 border text-center">Código</th>
+                                <th class="p-1 border text-left">Concepto</th>
+                                <th class="p-1 border text-right">Haberes</th>
+                                <th class="p-1 border text-right">Descuento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($conceptos as $concepto)
+                            <tr>
+                                <td class="p-1 border text-center">{{ $concepto['CANTIDAD'] ?? '-' }}</td>
+                                <td class="p-1 border text-center">{{ $concepto['CONCEPTO'] ?? '-' }}</td>
+                                <td class="p-1 border text-left">{{ $concepto['DESC_CONCEPTO'] ?? '-' }}</td>
+                                <td class="p-1 border text-right">{{ $concepto['MONTO'] > 0 ? '$'.number_format($concepto['MONTO'],2,',','.') : '-' }}</td>
+                                <td class="p-1 border text-right">{{ $concepto['MONTO'] < 0 ? '$'.number_format($concepto['MONTO'],2,',','.') : '-' }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Resumen -->
+                <div class="text-right text-sm">
+                    <p class="font-bold mr-32">Líquido a Cobrar: ${{ number_format($recibo['LIQUIDO'],2,',','.') }}</p>
+                </div>
+
+            </div>
+            @endif
+        </div>
+
+        <style>
+            @media print {
+                body * { visibility: hidden; }
+                .print-area, .print-area * { visibility: visible; }
+                .print-area { position: absolute; left: 0; top: 0; width: 210mm; padding: 15mm; background: white; }
+                @page { size: A4; margin: 10mm; }
+            }
+        </style>
     </div>
 </div>

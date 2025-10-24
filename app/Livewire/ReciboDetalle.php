@@ -17,8 +17,8 @@ class ReciboDetalle extends Component
     public $tipo;
     public $recibo;
     public $error;
-
     public $conceptos = [];
+    public $reciboVisualizacion = []; // nueva propiedad para guardar esa consulta
 
     public function mount($numero, $anio, $mes, $tipo)
     {
@@ -33,6 +33,7 @@ class ReciboDetalle extends Component
     public function cargarRecibo()
     {
         try {
+            // Datos de conexión Oracle
             $host = "10.0.0.22";
             $port = "1521";
             $sid  = "MMERC10G";
@@ -46,13 +47,13 @@ class ReciboDetalle extends Component
 
             $legajo = Auth::user()->LEGAJO;
 
-            // Encabezado del recibo
+            // Consulta cabecera
             $sqlCab = "SELECT * FROM per_recibo_cab 
-                    WHERE legajo = :legajo 
-                    AND nro_recibo = :numero 
-                    AND anio = :anio 
-                    AND mes = :mes 
-                    AND tipo_liq = :tipo";
+                        WHERE legajo = :legajo 
+                        AND nro_recibo = :numero 
+                        AND anio = :anio 
+                        AND mes = :mes 
+                        AND tipo_liq = :tipo";
 
             $stmtCab = $pdo->prepare($sqlCab);
             $stmtCab->execute([
@@ -69,12 +70,12 @@ class ReciboDetalle extends Component
                 abort(404, 'Recibo no encontrado');
             }
 
-            // Detalle de conceptos
+            // Consulta detalle de conceptos
             $sqlDet = "SELECT * FROM per_recibo_det 
-                    WHERE nro_recibo = :numero 
-                    AND anio = :anio 
-                    AND concepto < 90000 
-                    ORDER BY orden";
+                        WHERE nro_recibo = :numero 
+                        AND anio = :anio 
+                        AND concepto < 90000 
+                        ORDER BY orden";
 
             $stmtDet = $pdo->prepare($sqlDet);
             $stmtDet->execute([
@@ -84,9 +85,36 @@ class ReciboDetalle extends Component
 
             $this->conceptos = $stmtDet->fetchAll(PDO::FETCH_ASSOC);
 
+            $sqlVis = "SELECT * FROM per_vis_recibos_cab 
+                        WHERE legajo = :legajo
+                        AND anio = :anio
+                        AND mes = :mes
+                        AND tipo_liq = :tipo";
+
+            $stmtVis = $pdo->prepare($sqlVis);
+            $stmtVis->execute([
+                'legajo' => $legajo,
+                'anio'   => $this->anio,
+                'mes'    => $this->mes,
+                'tipo'   => $this->tipo
+            ]);
+
+            $this->reciboVisualizacion = $stmtVis->fetchAll(PDO::FETCH_ASSOC);
+
+            // dd([
+            //     'recibo' => $this->recibo,
+            //     'conceptos' => $this->conceptos,
+            //     'reciboVisualizacion' => $this->reciboVisualizacion
+            // ]);
+
         } catch (PDOException $e) {
             $this->error = 'Error al obtener el recibo: ' . $e->getMessage();
         }
+    }
+
+    public function abrirModalImpresion()
+    {
+        $this->dispatch('abrir-modal-impresion-recibo');
     }
 
     public function render()
