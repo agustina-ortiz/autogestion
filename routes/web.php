@@ -1,54 +1,50 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Livewire\Recibos;
 use App\Livewire\ReciboDetalle;
+use App\Livewire\Asistencias;
+use App\Livewire\Compensatorios;
 
-Route::view('/', 'welcome');
 
+// Ruta principal
 Route::get('/', function () {
     if (auth()->check()) {
-        // Si está logueado, mostrar la pantalla de inicio
-        return view('welcome');
-    } else {
-        // Si no está logueado, ir al login
-        return redirect()->route('login');
+        return redirect()->route('dashboard');
     }
+    return redirect()->route('login');
 });
 
+// Ruta de logout
 Route::post('/logout', function () {
-    Auth::logout();                 // Cierra la sesión del usuario
-    request()->session()->invalidate();  // Invalida la sesión
-    request()->session()->regenerateToken(); // Regenera el token CSRF
-    return redirect()->route('login');  // Redirige al login
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('login');
 })->name('logout');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
-
-Route::get('/asistencias', App\Livewire\Asistencias::class)->name('asistencias');
-
-Route::get('recibos', \App\Livewire\Recibos::class)
-    ->middleware(['auth'])
-    ->name('recibos');
-
-Route::middleware(['auth'])->group(function () {
+// Rutas protegidas por autenticación
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Dashboard
+    Route::view('dashboard', 'dashboard')->name('dashboard');
+    
+    // Perfil
+    Route::view('profile', 'profile')->name('profile');
+    
+    // Recibos (Livewire)
     Route::get('/recibos', Recibos::class)->name('recibos');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/recibos', Recibos::class)->name('recibos');
-    Route::get('/recibo/{numero}/{anio}/{mes}/{tipo}', [Recibos::class, 'mostrarRecibo'])->name('recibo');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/recibos', Recibos::class)->name('recibos');
+    
+    // Detalle de recibo (Livewire)
     Route::get('/recibo/{numero}/{anio}/{mes}/{tipo}', ReciboDetalle::class)->name('recibo');
+    
+    // Asistencias (Livewire)
+    Route::get('/asistencias', Asistencias::class)->name('asistencias');
+
+    // Compensatorios (Livewire)
+    Route::get('/compensatorios', Compensatorios::class)->name('compensatorios');
+    
 });
 
 require __DIR__.'/auth.php';
