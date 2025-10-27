@@ -14,13 +14,6 @@
                 <div class="flex items-center justify-between">
                     {{-- Izquierda: Icono de volver + título --}}
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('recibos') }}" 
-                        class="text-white hover:text-white/80 transition-transform transform hover:-translate-x-1">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                        </a>
-
                         {{-- Título con efecto de brillo --}}
                         <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
                             
@@ -162,7 +155,7 @@
             </div>
 
             {{-- TABLA 4: Resumen de Liquidación con efecto destacado --}}
-            <div class="bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-2xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
+            <div class="mb-8 bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-2xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
                 <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
@@ -183,9 +176,9 @@
                         <tbody>
                             <tr class="hover:bg-[#77BF43]/5 transition-colors duration-200">
                                 <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['TIPO_LIQ'] }}</td>
-                                <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['REMUN_C_AP'] }}</td>
-                                <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['REMUN_S_AP'] }}</td>
-                                <td class="px-3 py-3 text-gray-600 font-semibold">{{ $recibo['RETENCIONES'] }}</td>
+                                <td class="px-3 py-3 text-gray-600 font-semibold">${{ number_format($recibo['REMUN_C_AP'], 2, ',', '.') }}</td>
+                                <td class="px-3 py-3 text-gray-600 font-semibold">${{ number_format($recibo['REMUN_S_AP'], 2, ',', '.') }}</td>
+                                <td class="px-3 py-3 text-gray-600 font-semibold">${{ number_format($recibo['RETENCIONES'], 2, ',', '.') }}</td>
                                 <td class="px-3 py-3">
                                     <div class="flex items-center justify-center gap-2 w-full h-full">
                                         <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white font-black text-base px-4 py-2 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
@@ -198,8 +191,19 @@
                     </table>
                 </div>
             </div>
-
         @endif
+
+        {{-- Botón Volver --}}
+        <div class="flex justify-center">
+            <a 
+                href="{{ route('recibos') }}" 
+                class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Volver a Recibos
+            </a>
+        </div>
     </div>
 
     <!-- Modal de impresión del recibo -->
