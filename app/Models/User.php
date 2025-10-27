@@ -29,6 +29,7 @@ class User extends Authenticatable
         'DNI',
         'CATEGORIA',
         'CLAVEWEB',
+        'FECHABAJ'
     ];
 
     /**
@@ -40,6 +41,38 @@ class User extends Authenticatable
         'CLAVEWEB',
         'remember_token',
     ];
+
+    // Relacion con Familia
+    public function familia()
+    {
+        return $this->hasMany(Familia::class, 'LEGAJO', 'LEGAJO');
+    }
+
+    // Relacion solo con hijos
+    public function hijos()
+    {
+        return $this->hasMany(Familia::class, 'LEGAJO', 'LEGAJO')->where('TIPOFAMI', '>', 1);
+    }
+
+    // Obtener cantidad de hijos
+    public function getCantidadHijosAttribute()
+    {
+        return Familia::contarHijos($this->LEGAJO);
+    }
+
+    // Verificar si tiene hijos
+    public function getTieneHijosAttribute()
+    {
+        return Familia::tieneHijos($this->LEGAJO);
+    }
+
+    // Verificar si está inactivo (fechabaj no nula)
+    public function getEstaInactivoAttribute()
+    {
+        return !empty($this->FECHABAJ) 
+           && $this->FECHABAJ !== '0000-00-00' 
+           && $this->FECHABAJ !== '0000-00-00 00:00:00';
+    }
 
     // Indicar a Laravel qué campo usar para el username
     public function getAuthIdentifierName()
