@@ -1,10 +1,18 @@
 <div class="min-h-screen">
     {{-- Header con nombre de usuario --}}
-    <div class="mb-6">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6 rounded-xl shadow-[0_2px_8px_rgba(119,191,67,0.3)]">
-            <h3 class="text-xl font-semibold m-0">
-                Bienvenido/a, {{ Auth::user()->NOMBRE }}
-            </h3>
+    <div class="mb-4">
+        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
+                        <span class="tracking-tight">Compensatorios</span>
+                    </h1>
+                </div>
+                <p class="text-white/90 text-sm font-medium">
+                    Bienvenido/a, 
+                    <span class="font-bold drop-shadow-md">{{ Auth::user()->NOMBRE }}</span>
+                </p>
+            </div>
         </div>
     </div>
 

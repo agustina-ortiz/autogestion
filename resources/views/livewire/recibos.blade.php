@@ -1,4 +1,4 @@
-<div class="min-h-screen py-4">
+<div class="min-h-screen">
     {{-- Header con nombre de usuario --}}
     <div class="mb-3">
         <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
