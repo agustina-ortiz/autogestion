@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use PDO;
 use PDOException;
 
-#[Layout('layouts.app')]
 class ReciboDetalle extends Component
 {
     public $numero;
@@ -119,6 +118,6 @@ class ReciboDetalle extends Component
 
     public function render()
     {
-        return view('livewire.recibo-detalle');
+        return view('livewire.recibo-detalle')->layout('components.layouts.autogestion');
     }
 }

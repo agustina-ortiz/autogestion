@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use PDO;
 use PDOException;
 
-#[Layout('layouts.app')]
 class Recibos extends Component
 {
     use WithPagination;
@@ -94,6 +93,6 @@ class Recibos extends Component
             'offset' => $data['offset'],
             'totalPages' => $totalPages,
             'currentPage' => $currentPage
-        ]);
+        ])->layout('components.layouts.autogestion');
     }
 }

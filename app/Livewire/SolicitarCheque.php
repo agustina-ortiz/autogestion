@@ -171,6 +171,6 @@ class SolicitarCheque extends Component
     public function render()
     {
         return view('livewire.solicitar-cheque')
-            ->layout('layouts.app');
+            ->layout('components.layouts.autogestion');
     }
 }
