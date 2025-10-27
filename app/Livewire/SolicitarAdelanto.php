@@ -170,6 +170,6 @@ class SolicitarAdelanto extends Component
     public function render()
     {
         return view('livewire.solicitar-adelanto')
-            ->layout('layouts.app');
+            ->layout('components.layouts.autogestion');
     }
 }

@@ -17,10 +17,6 @@
             </flux:button>
         </div>
 
-        <!-- Card del empleado -->
-        <div class="empleado-card">
-            <h3>{{ $empleado->name ?? 'Empleado' }}</h3>
-        </div>
 
         <!-- Tabla de Fichadas -->
         <h2 class="section-title">Fichadas</h2>
@@ -123,6 +119,17 @@
             @else
                 <div class="no-data">No hay novedades para mostrar en el período seleccionado</div>
             @endif
+        </div>
+        {{-- Botón Volver --}}
+        <div class="flex justify-center">
+            <a 
+                href="{{ route('dashboard') }}" 
+                class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Volver al Inicio
+            </a>
         </div>
     </div>
 </div>

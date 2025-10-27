@@ -91,6 +91,6 @@ class Solicitudes extends Component
     public function render()
     {
         return view('livewire.solicitudes')
-            ->layout('layouts.app');
+            ->layout('components.layouts.autogestion');
     }
 }
