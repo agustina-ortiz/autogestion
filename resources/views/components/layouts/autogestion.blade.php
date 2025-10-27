@@ -43,7 +43,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 mt-[72px] mb-[64px] overflow-auto px-6 py-4">
+        <main class="flex-1 overflow-auto px-6 py-20">
             {{ $slot }}
         </main>
 

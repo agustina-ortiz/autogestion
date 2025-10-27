@@ -96,6 +96,6 @@ class Compensatorios extends Component
             'offset' => $offset,
             'totalPages' => $totalPages,
             'currentPage' => $this->currentPage
-        ])->layout('layouts.app');
+        ])->layout('components.layouts.autogestion');
     }
 }
