@@ -6,6 +6,9 @@ use App\Livewire\Recibos;
 use App\Livewire\ReciboDetalle;
 use App\Livewire\Asistencias;
 use App\Livewire\Compensatorios;
+use App\Livewire\Solicitudes;
+use App\Livewire\SolicitarAdelanto;
+use App\Livewire\SolicitarCheque;
 
 
 // Ruta principal
@@ -44,6 +47,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Compensatorios (Livewire)
     Route::get('/compensatorios', Compensatorios::class)->name('compensatorios');
+
+    // Solicitudes (Livewire)
+    Route::middleware('auth')->group(function () {
+    Route::get('/solicitudes', Solicitudes::class)->name('solicitudes');
+    Route::get('/solicitudes/adelanto', SolicitarAdelanto::class)->name('solicitudes.adelanto');
+    Route::get('/solicitudes/cheque', SolicitarCheque::class)->name('solicitudes.cheque');
+});
     
 });
 
