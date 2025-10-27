@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class Compensatorio extends Model
 {
-    protected $connection = 'mysql1';
+    protected $connection = 'mysql';
     protected $table = 'munimer_inasi.in_compensa';
     protected $primaryKey = 'CODTAR';
     public $timestamps = false;

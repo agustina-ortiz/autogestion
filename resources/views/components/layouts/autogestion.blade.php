@@ -13,137 +13,12 @@
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
-            }
-
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background-color: #ffffff;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
-
-            /* Header */
-            .custom-header {
-                background: linear-gradient(150deg, #77BF43 0%, #91D5E2 20%, #BED630 100%);
-                padding: 1rem 2rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-
-            .logo {
-                height: 50px;
-                width: 160px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .header-right {
-                display: flex;
-                gap: 1rem;
-                align-items: center;
-            }
-
-            .btn-autogestion {
-                background: linear-gradient(135deg, #77BF43 0%, #5da832 100%);
-                color: white;
-                font-weight: 600;
-                transition: all 0.3s ease-in-out;
-                box-shadow: 0 2px 4px rgba(119, 191, 67, 0.3);
-                border: none;
-            }
-
-            .btn-autogestion:hover {
-                background: linear-gradient(135deg, #5da832 0%, #77BF43 100%);
-                box-shadow: 0 4px 8px rgba(119, 191, 67, 0.5);
-                transform: translateY(-3px);
-            }
-
-            .btn-logout {
-                background: linear-gradient(135deg, #72c0cf 0%, #3493a6 100%);
-                color: white;
-                font-weight: 600;
-                transition: all 0.3s ease-in-out;
-                box-shadow: 0 2px 4px rgba(120, 228, 250, 0.3);
-                border: none;
-            }
-
-            .btn-logout:hover {
-                background: linear-gradient(135deg, #3493a6 0%, #72c0cf 100%);
-                box-shadow: 0 4px 8px rgba(145, 213, 226, 0.5);
-                transform: translateY(-2px);
-            }
-
-            /* Main Content */
-            main {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 2rem;
-                margin-bottom: 1rem;
-                margin-top: 1rem;
-                padding-right: 1.5rem;
-                padding-left: 1.5rem
-            }
-
-            /* Footer */
-            .custom-footer {
-                background: linear-gradient(90deg, #91D5E2 0%, #91D5E2 2%, #77BF43 25%, #77BF43 75%, #91D5E2 98%, #91D5E2 100%);
-                padding: 1rem 2rem;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                position: relative;
-            }
-
-            .footer-logo {
-                height: 30px;
-                width: 60px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            /* WhatsApp Button */
-            .whatsapp-btn {
-                position: fixed;
-                bottom: 0.5rem;
-                right: 1rem;
-                width: 50px;
-                height: 50px;
-                background-color: #25D366;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                transition: transform 0.3s;
-                z-index: 1000;
-                text-decoration: none;
-            }
-
-            .whatsapp-btn:hover {
-                transform: scale(1.1);
-            }
-
-            .whatsapp-btn svg {
-                width: 32px;
-                height: 32px;
-                fill: white;
-            }
-
-            @stack('styles')
+            }   
         </style>
     </head>
     <body>
         <!-- Header -->
-        <header class="custom-header">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-[linear-gradient(150deg,#77BF43_0%,#91D5E2_20%,#BED630_100%)] shadow-md flex justify-between items-center px-8 py-4">
             <div class="logo">
                 <a href="{{ route('dashboard') }}">
                     <img src="{{ asset('images/logo-muni.svg') }}" alt="Logo Municipalidad">
@@ -168,12 +43,13 @@
         </header>
 
         <!-- Main Content -->
-        <main>
+        <main class="flex-1 mt-[72px] mb-[64px] overflow-auto px-6 py-4">
             {{ $slot }}
         </main>
 
         <!-- Footer -->
-        <footer class="custom-footer">
+        <footer class="fixed bottom-0 left-0 right-0 z-50 flex justify-center items-center p-4 px-8
+                   bg-[linear-gradient(90deg,#91D5E2_0%,#91D5E2_2%,#77BF43_25%,#77BF43_75%,#91D5E2_98%,#91D5E2_100%)]">
             <div class="footer-logo">
                 <img src="{{ asset('images/logo-muni-M.svg') }}" alt="Logo Municipalidad">
             </div>

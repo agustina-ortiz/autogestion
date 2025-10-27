@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Maestro extends Model
 {
-    protected $connection = 'mysql1';
+    protected $connection = 'mysql';
     protected $table = 'munimer_inasi.in_maestro';
     protected $primaryKey = 'LEGAJO';
     public $timestamps = false;
