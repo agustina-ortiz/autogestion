@@ -248,7 +248,7 @@
                 </div>
 
                 <!-- Detalle de conceptos -->
-                <div class="mb-4 text-xs">
+                <div class="mb-4 mr-6 text-xs">
                     <h2 class="font-semibold mb-2 border-b pb-1">Detalle de Conceptos</h2>
                     <table class="w-full border border-gray-300 text-xs">
                         <thead class="bg-gray-100">
