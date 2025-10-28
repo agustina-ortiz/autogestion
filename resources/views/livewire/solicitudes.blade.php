@@ -41,7 +41,7 @@
             <div class="p-6">
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded">
                     <p class="text-sm text-gray-700 leading-relaxed">
-                        <span class="font-bold text-yellow-700">ATENCIÓN!</span> Se le informa que los adelantos correspondientes al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> deberán solicitarse entre el día <span class="font-semibold">{{ $fechaDesdeAdelantos }}</span> y el <span class="font-semibold">{{ $fechaHastaAdelantos }}</span> y no podrán superar el valor de <span class="font-semibold">${{ number_format($montoMaximoAdelanto, 2, ',', '.') }}</span>.
+                        <span class="font-bold text-yellow-700">¡ATENCIÓN!</span> Se le informa que los adelantos correspondientes al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> deberán solicitarse entre el día <span class="font-semibold">{{ $fechaDesdeAdelantos }}</span> y el <span class="font-semibold">{{ $fechaHastaAdelantos }}</span> y no podrán superar el valor de <span class="font-semibold">${{ number_format($montoMaximoAdelanto, 2, ',', '.') }}</span>.
                     </p>
                     <p class="text-sm text-gray-700 mt-2">
                         Serán depositados en el transcurso del día <span class="font-semibold">{{ $fechaDepositoAdelantos }}</span>.
@@ -63,7 +63,7 @@
             <div class="p-6 flex flex-col flex-grow">
                 <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded flex-grow">
                     <p class="text-sm text-gray-700 leading-relaxed">
-                        <span class="font-bold text-blue-700">IMPORTANTE!</span> Se le informa que la fecha tope para solicitar que el sueldo correspondiente al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> sea abonado por <span class="font-semibold">CHEQUE</span> es <span class="font-semibold">{{ $fechaTopeCheque }}</span>.
+                        <span class="font-bold text-blue-700">¡IMPORTANTE!</span> Se le informa que la fecha tope para solicitar que el sueldo correspondiente al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> sea abonado por <span class="font-semibold">CHEQUE</span> es <span class="font-semibold">{{ $fechaTopeCheque }}</span>.
                     </p>
                     <p class="text-sm text-gray-700 mt-2">
                         Caso contrario, se depositará en su cuenta sueldo del <span class="font-semibold">BANCO PROVINCIA</span>.

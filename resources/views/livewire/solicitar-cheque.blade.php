@@ -1,5 +1,5 @@
 <div class="min-h-screen">
-    <div class="p-8 max-w-[1000px] mx-auto">
+    <div class="p-8 max-w-[1400px] mx-auto">
 
         {{-- Header con nombre de usuario --}}
         <div class="mb-6">

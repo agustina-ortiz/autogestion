@@ -1,4 +1,4 @@
-<div class="min-h-screen">
+<div class="">
     {{-- Header con nombre de usuario --}}
     <div class="mb-3">
         <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
@@ -23,21 +23,16 @@
         </div>
     @endif
 
+    {{-- Header --}}
+    <div class="flex flex-row justify-between">
+        <h2 class="text-[#77BF43] text-2xl font-bold mb-4 uppercase">
+            Lista de Recibos
+        </h2>
+    </div>
+
     {{-- Tabla de recibos --}}
     <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
         
-        {{-- Header --}}
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-6 py-3 border-b border-white/30">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-white uppercase tracking-wide flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    Lista de Recibos
-                </h2>
-                <div class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-lg">
-                    <span class="text-xs font-semibold text-white drop-shadow-md">{{ $totalRecords }} registros</span>
-                </div>
-            </div>
-        </div>
 
         {{-- Tabla --}}
         <div class="overflow-x-auto">
@@ -202,7 +197,7 @@
     </div>
 
     {{-- Botón Volver --}}
-    <div class="flex justify-center mt-4">
+    <div class="flex justify-center mt-10">
         <a 
             href="{{ route('dashboard') }}" 
             class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center gap-2">
