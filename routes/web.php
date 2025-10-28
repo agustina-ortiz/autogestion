@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\AnticipoJubilatorio;
+use App\Livewire\AnticipoJubilatorioDetalle;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Livewire\Recibos;
@@ -53,6 +55,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/solicitudes', Solicitudes::class)->name('solicitudes');
     Route::get('/solicitudes/adelanto', SolicitarAdelanto::class)->name('solicitudes.adelanto');
     Route::get('/solicitudes/cheque', SolicitarCheque::class)->name('solicitudes.cheque');
+
+    // Ver Anticipo
+    Route::get('/anticipo', AnticipoJubilatorio::class)->name('anticipo.jubilatorio');
+
+    // Detalle de Anticipo
+    Route::get('/anticipo/{anio}/{mes}/{tipo}/{sub}', AnticipoJubilatorioDetalle::class)->name('anticipo.detalle');
 });
     
 });

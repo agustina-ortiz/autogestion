@@ -5,6 +5,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Familia;
 
 class Dashboard extends Component
@@ -21,6 +22,13 @@ class Dashboard extends Component
         
         // Contar hijos
         $this->cantidadHijos = Familia::contarHijos($this->user->LEGAJO);
+
+        // Verificar si es jubilado
+        $jub = DB::connection('mysql')->table('in_anti_jubila')
+                ->where('legajo', '=', $this->user->LEGAJO)
+                ->get();
+
+        $this->esJubilado = $jub->isNotEmpty();
     }
 
     public function descargarPlanilla()
@@ -37,7 +45,7 @@ class Dashboard extends Component
     public function verAnticipo()
     {
         // Lógica para ver anticipo
-        return redirect()->route('anticipo.show');
+        return redirect()->route('anticipo.jubilatorio');
     }
 
     public function render()

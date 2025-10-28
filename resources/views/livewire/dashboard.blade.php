@@ -83,6 +83,12 @@
                 <p class="text-gray-600 leading-relaxed text-base mt-2">
                     Si necesita informar algo puede dirigirse a la sección <strong class="text-[#91D5E2]">Contacto</strong>
                 </p>
+                @if($esJubilado)
+                    <button wire:click="verAnticipo" 
+                            class="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                        Ver Anticipo
+                    </button>
+                @endif
             </div>
         </div>
 
