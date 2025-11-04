@@ -63,7 +63,7 @@ class Planillas extends Component
         try {
             $campoPlanilla = 'PLANILLA' . $this->planillaActual;
             
-            $this->hijos = DB::connection('mysql')
+            $this->hijos = DB::connection('mysql1')
                 ->table('in_familia')
                 ->select(
                     'NOMBRE as nombre',
@@ -173,7 +173,7 @@ class Planillas extends Component
         $legajo = Auth::user()->LEGAJO;
 
         try {
-            $hijo = DB::connection('mysql')
+            $hijo = DB::connection('mysql1')
                 ->table('in_familia')
                 ->where('LEGAJO', '=', $legajo)
                 ->where('DNI', '=', $dni)
@@ -225,7 +225,7 @@ class Planillas extends Component
         $legajo = Auth::user()->LEGAJO;
         
         try {
-            DB::connection('mysql')->beginTransaction();
+            DB::connection('mysql1')->beginTransaction();
 
             // Siempre guardar como JPG
             $nombreArchivo = $this->zerofill($this->selectedDni, 8) .
@@ -263,18 +263,6 @@ class Planillas extends Component
                 throw new \Exception('La imagen no se guardó correctamente en: ' . $rutaCompleta);
             }
 
-            // 1️⃣ Actualizar en in_familia
-            $campoActualizar = 'PLANILLA' . $this->planillaActual;
-            DB::connection('mysql')
-                ->table('in_familia')
-                ->where('LEGAJO', '=', $legajo)
-                ->where('DNI', '=', $this->selectedDni)
-                ->update([
-                    $campoActualizar => 'S'
-                ]);
-
-            // 2️⃣ Insertar o reemplazar en in_planillas
-            DB::connection('mysql')->table('in_planillas')
             // Insertar o reemplazar en in_planillas (no modificar in_familia)
             DB::connection('mysql1')->table('in_planillas')
                 ->where('legajo', '=', $legajo)
@@ -283,7 +271,7 @@ class Planillas extends Component
                 ->where('dni', '=', $this->selectedDni)
                 ->delete();
 
-            DB::connection('mysql')->table('in_planillas')->insert([
+            DB::connection('mysql1')->table('in_planillas')->insert([
                 'legajo'      => $legajo,
                 'anio'        => $this->anioActual,
                 'planilla'    => $this->planillaActual,
@@ -292,7 +280,7 @@ class Planillas extends Component
                 'confirmada'  => false,
             ]);
 
-            DB::connection('mysql')->commit();
+            DB::connection('mysql1')->commit();
 
             // Limpiar estado y refrescar vista
             $this->reset(['foto', 'selectedDni', 'selectedNombre']);
@@ -301,7 +289,7 @@ class Planillas extends Component
             session()->flash('mensaje', 'Planilla subida exitosamente');
 
         } catch (\Exception $e) {
-            DB::connection('mysql')->rollBack();
+            DB::connection('mysql1')->rollBack();
 
             \Log::error('Error al subir planilla', [
                 'error' => $e->getMessage(),
