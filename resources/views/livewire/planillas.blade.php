@@ -1,16 +1,61 @@
 <div class="container mx-auto p-6">
     {{-- Mensajes de éxito/error --}}
     @if (session()->has('mensaje'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" role="alert">
+        <div id="flash-mensaje" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 transition-opacity duration-500" role="alert">
             <span class="block sm:inline">{{ session('mensaje') }}</span>
         </div>
     @endif
 
     @if (session()->has('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+        <div id="flash-error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 transition-opacity duration-500" role="alert">
             <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ocultar mensaje de éxito
+            const mensajeExito = document.getElementById('flash-mensaje');
+            if (mensajeExito) {
+                setTimeout(function() {
+                    mensajeExito.style.opacity = '0';
+                    setTimeout(() => mensajeExito.remove(), 500);
+                }, 2500);
+            }
+
+            // Ocultar mensaje de error
+            const mensajeError = document.getElementById('flash-error');
+            if (mensajeError) {
+                setTimeout(function() {
+                    mensajeError.style.opacity = '0';
+                    setTimeout(() => mensajeError.remove(), 500);
+                }, 2500);
+            }
+        });
+
+        // Para mensajes que aparecen después de acciones de Livewire
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                succeed(({ snapshot, effect }) => {
+                    setTimeout(() => {
+                        const mensajeExito = document.getElementById('flash-mensaje');
+                        if (mensajeExito) {
+                            mensajeExito.style.opacity = '0';
+                            setTimeout(() => mensajeExito.remove(), 500);
+                        }
+
+                        const mensajeError = document.getElementById('flash-error');
+                        if (mensajeError) {
+                            mensajeError.style.opacity = '0';
+                            setTimeout(() => mensajeError.remove(), 500);
+                        }
+                    }, 8500);
+                });
+            });
+        });
+    </script>
+    @endpush
 
     {{-- Verificar si es temporada de planillas --}}
     @if($planillaActual == 0)
