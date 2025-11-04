@@ -3,6 +3,7 @@
 use App\Livewire\AnticipoJubilatorio;
 use App\Livewire\AnticipoJubilatorioDetalle;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Livewire\Recibos;
 use App\Livewire\ReciboDetalle;
@@ -11,6 +12,7 @@ use App\Livewire\Compensatorios;
 use App\Livewire\Solicitudes;
 use App\Livewire\SolicitarAdelanto;
 use App\Livewire\SolicitarCheque;
+use App\Livewire\Planillas;
 
 
 // Ruta principal
@@ -61,6 +63,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Detalle de Anticipo
     Route::get('/anticipo/{anio}/{mes}/{tipo}/{sub}', AnticipoJubilatorioDetalle::class)->name('anticipo.detalle');
+
+    Route::get('/planillas', Planillas::class)->name('planillas');
+
 });
     
 });

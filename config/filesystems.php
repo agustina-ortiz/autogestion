@@ -60,6 +60,13 @@ return [
             'report' => false,
         ],
 
+        'planillas' => [
+            'driver' => 'local',
+            'root' => public_path('fotos-licencias/fotos-empleados/planillas'),
+            'url' => env('APP_URL').'/fotos-licencias/fotos-empleados/planillas',
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
