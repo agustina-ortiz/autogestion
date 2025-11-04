@@ -25,15 +25,17 @@ class Planillas extends Component
     // Nuevas propiedades para ver planilla
     public $modalVerPlanilla = false;
     public $rutaPlanillaVer = null;
+    public $extensionPlanillaVer = null;
     
     protected $rules = [
-        'foto' => 'required|image|max:5120',
+        'foto' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
     ];
 
     protected $messages = [
-        'foto.required' => 'Debe seleccionar una imagen',
-        'foto.image' => 'El archivo debe ser una imagen',
-        'foto.max' => 'La imagen no debe superar 5MB',
+        'foto.required' => 'Debe seleccionar un archivo',
+        'foto.file' => 'El archivo no es válido',
+        'foto.mimes' => 'El archivo debe ser JPG, PNG o PDF',
+        'foto.max' => 'El archivo no debe superar 5MB',
     ];
 
     public function mount()
@@ -71,19 +73,46 @@ class Planillas extends Component
                     'TIPOESCO as tipoesco',
                     'CURSO as curso',
                     'ESCUELA as escuela',
-                    DB::raw("CASE 
-                        WHEN {$campoPlanilla} IS NOT NULL 
-                        AND {$campoPlanilla} != '' 
-                        AND {$campoPlanilla} != '\\N'
-                        THEN 1 
-                        ELSE 0 
-                    END as tiene_planilla"),
                     DB::raw("{$campoPlanilla} as archivo_planilla")
                 )
                 ->where('LEGAJO', '=', $legajo)
                 ->where('TIPOFAMI', '=', 2)
                 ->orderBy('FECHA_NAC', 'asc')
                 ->get();
+            
+            // Verificar si existe el archivo físico para cada hijo
+            foreach ($this->hijos as $hijo) {
+                $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
+                $archivoExiste = false;
+                
+                foreach ($extensiones as $ext) {
+                    $nombreArchivo = $this->zerofill($hijo->dni, 8) . 
+                                   $this->planillaActual . '-' . 
+                                   $this->anioActual . '.' . $ext;
+                    
+                    $rutaCompleta = public_path('fotos-licencias/fotos-empleados/planillas/' . $nombreArchivo);
+                    
+                    if (file_exists($rutaCompleta)) {
+                        $archivoExiste = true;
+                        break;
+                    }
+                }
+                
+                // Log para debugging
+                \Log::info('Verificando planilla para hijo', [
+                    'dni' => $hijo->dni,
+                    'nombre' => $hijo->nombre,
+                    'archivo_planilla_bd' => $hijo->archivo_planilla,
+                    'archivo_existe' => $archivoExiste,
+                    'valor_es_S' => $hijo->archivo_planilla === 'S'
+                ]);
+                
+                // Marcar si tiene planilla basándose en si existe el archivo Y si está en BD
+                $hijo->tiene_planilla = (
+                    $archivoExiste && 
+                    $hijo->archivo_planilla === 'S'
+                );
+            }
             
             \Log::info('Hijos cargados', [
                 'legajo' => $legajo,
@@ -186,28 +215,49 @@ class Planillas extends Component
         try {
             DB::connection('mysql1')->beginTransaction();
 
+            // Detectar la extensión del archivo
+            $extension = strtolower($this->foto->getClientOriginalExtension());
+            
             $nombreArchivo = $this->zerofill($this->selectedDni, 8) .
                             $this->planillaActual . '-' .
-                            $this->anioActual . '.jpg';
+                            $this->anioActual . '.' . $extension;
 
-            $rutaRelativa = 'fotos-licencias/fotos-empleados/planillas/' . $nombreArchivo;
-            $rutaCompleta = public_path($rutaRelativa);
+            // Usar DIRECTORY_SEPARATOR para compatibilidad con Windows y Linux
+            $directorioRelativo = 'fotos-licencias' . DIRECTORY_SEPARATOR . 
+                                 'fotos-empleados' . DIRECTORY_SEPARATOR . 
+                                 'planillas';
+            
+            $rutaCompleta = public_path($directorioRelativo . DIRECTORY_SEPARATOR . $nombreArchivo);
+            $directorio = public_path($directorioRelativo);
 
             // Crear directorio si no existe
-            $directorio = dirname($rutaCompleta);
             if (!file_exists($directorio)) {
                 mkdir($directorio, 0755, true);
             }
 
-            // Guardar imagen
-            $image = Image::read($this->foto->getRealPath());
-            $image->save($rutaCompleta);
+            // Guardar archivo según su tipo
+            if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                // Es una imagen - usar Intervention Image
+                $image = Image::read($this->foto->getRealPath());
+                $image->save($rutaCompleta);
+            } else {
+                // Es un PDF - copiar el archivo usando copy
+                copy($this->foto->getRealPath(), $rutaCompleta);
+            }
 
-            \Log::info('Imagen guardada', [
+            \Log::info('Archivo guardado', [
+                'nombre' => $nombreArchivo,
                 'ruta' => $rutaCompleta,
+                'tipo' => $extension,
                 'existe' => file_exists($rutaCompleta),
-                'permisos' => substr(sprintf('%o', fileperms($rutaCompleta)), -4)
+                'tamaño' => file_exists($rutaCompleta) ? filesize($rutaCompleta) : 0,
+                'permisos' => file_exists($rutaCompleta) ? substr(sprintf('%o', fileperms($rutaCompleta)), -4) : 'N/A'
             ]);
+
+            // Verificar que el archivo realmente se guardó
+            if (!file_exists($rutaCompleta)) {
+                throw new \Exception('El archivo no se guardó correctamente en: ' . $rutaCompleta);
+            }
 
             // 1️⃣ Actualizar en in_familia
             $campoActualizar = 'PLANILLA' . $this->planillaActual;
@@ -261,23 +311,36 @@ class Planillas extends Component
         $legajo = Auth::user()->LEGAJO;
         
         try {
-            $nombreArchivo = $this->zerofill($dni, 8) . 
-                           $this->planillaActual . '-' . 
-                           $this->anioActual . '.jpg';
+            // Buscar el archivo con diferentes extensiones
+            $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
+            $archivoEncontrado = null;
+            $extensionEncontrada = null;
             
-            $rutaRelativa = 'fotos-licencias/fotos-empleados/planillas/' . $nombreArchivo;
-            $rutaCompleta = public_path($rutaRelativa);
+            foreach ($extensiones as $ext) {
+                $nombreArchivo = $this->zerofill($dni, 8) . 
+                               $this->planillaActual . '-' . 
+                               $this->anioActual . '.' . $ext;
+                
+                $rutaCompleta = public_path('fotos-licencias/fotos-empleados/planillas/' . $nombreArchivo);
+                
+                if (file_exists($rutaCompleta)) {
+                    $archivoEncontrado = $rutaCompleta;
+                    $extensionEncontrada = $ext;
+                    break;
+                }
+            }
             
             \Log::info('Intentando ver planilla', [
                 'dni' => $dni,
-                'nombre_archivo' => $nombreArchivo,
-                'ruta_completa' => $rutaCompleta,
-                'existe' => file_exists($rutaCompleta)
+                'archivo_encontrado' => $archivoEncontrado,
+                'extension' => $extensionEncontrada
             ]);
             
-            if (file_exists($rutaCompleta)) {
+            if ($archivoEncontrado) {
                 // Guardamos la ruta relativa para mostrar en el modal
+                $rutaRelativa = 'fotos-licencias/fotos-empleados/planillas/' . basename($archivoEncontrado);
                 $this->rutaPlanillaVer = asset($rutaRelativa);
+                $this->extensionPlanillaVer = $extensionEncontrada;
                 $this->modalVerPlanilla = true;
             } else {
                 session()->flash('error', 'Planilla no encontrada en el servidor. Verifica que se haya subido correctamente.');
@@ -297,6 +360,7 @@ class Planillas extends Component
     {
         $this->modalVerPlanilla = false;
         $this->rutaPlanillaVer = null;
+        $this->extensionPlanillaVer = null;
     }
 
     private function zerofill($num, $zerofill = 8)

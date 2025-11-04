@@ -175,6 +175,19 @@
                                 <p class="text-sm text-gray-600 mb-2">Vista previa:</p>
                                 <img src="{{ $foto->temporaryUrl() }}" class="max-w-full border rounded">
                             </div>
+                        @elseif($extension === 'pdf')
+                            <div class="bg-blue-50 border border-blue-200 rounded p-4 mt-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                                    </svg>
+                                    <div>
+                                        <p class="font-semibold text-gray-700">Archivo PDF seleccionado</p>
+                                        <p class="text-sm text-gray-600">{{ $foto->getClientOriginalName() }}</p>
+                                        <p class="text-xs text-gray-500">Tamaño: {{ number_format($foto->getSize() / 1024, 2) }} KB</p>
+                                    </div>
+                                </div>
+                            </div>
                         @else
                             <div class="text-sm text-gray-600 mt-2">
                                 Archivo cargado: <strong>{{ $foto->getClientOriginalName() }}</strong>
@@ -206,7 +219,7 @@
         {{-- Modal para VER planilla subida --}}
         @if($modalVerPlanilla && $rutaPlanillaVer)
         <div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50" wire:click="cerrarModalVer">
-            <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto p-6" wire:click.stop>
+            <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[80vh] overflow-y-auto p-6 mb-10" wire:click.stop>
                 <div class="flex justify-between items-center mb-4 border-b pb-3">
                     <h2 class="text-xl font-semibold text-gray-800">
                         Planilla de Escolaridad Subida
@@ -219,11 +232,24 @@
                 </div>
 
                 <div class="flex justify-center items-center bg-gray-100 p-4 rounded">
-                    <img 
-                        src="{{ $rutaPlanillaVer }}" 
-                        alt="Planilla de Escolaridad"
-                        class="max-w-full h-auto border-2 border-gray-300 rounded shadow-lg"
-                    >
+                    @if(in_array($extensionPlanillaVer, ['jpg', 'jpeg', 'png']))
+                        {{-- Mostrar imagen --}}
+                        <img 
+                            src="{{ $rutaPlanillaVer }}" 
+                            alt="Planilla de Escolaridad"
+                            class="max-w-full h-auto border-2 border-gray-300 rounded shadow-lg"
+                        >
+                    @elseif($extensionPlanillaVer === 'pdf')
+                        {{-- Mostrar PDF con visor embebido --}}
+                        <iframe 
+                            src="{{ $rutaPlanillaVer }}" 
+                            class="w-full border-2 border-gray-300 rounded shadow-lg"
+                            style="height: 600px;"
+                            type="application/pdf"
+                        ></iframe>
+                    @else
+                        <p class="text-gray-600">Formato de archivo no compatible para vista previa</p>
+                    @endif
                 </div>
 
                 <div class="mt-4 flex justify-end gap-2">
@@ -231,7 +257,17 @@
                         href="{{ $rutaPlanillaVer }}" 
                         target="_blank"
                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        🔍 Ver en tamaño completo
+                        @if($extensionPlanillaVer === 'pdf')
+                            📄 Abrir PDF
+                        @else
+                            🔍 Ver en tamaño completo
+                        @endif
+                    </a>
+                    <a 
+                        href="{{ $rutaPlanillaVer }}" 
+                        download
+                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        💾 Descargar
                     </a>
                     <button 
                         wire:click="cerrarModalVer"
