@@ -94,7 +94,7 @@
                                 <tr class="border-b border-gray-100">
                                     <td class="px-3 py-2 text-left text-gray-600 pl-8">Descuento I.O.M.A</td>
                                     <td class="px-3 py-2 text-center text-gray-600">
-                                        ${{ number_format($concepto['ioma'], 2, ',', '.') }}
+                                        - ${{ number_format($concepto['ioma'], 2, ',', '.') }}
                                     </td>
                                 </tr>
                             @endif
@@ -103,7 +103,7 @@
                                 <tr class="border-b border-gray-100">
                                     <td class="px-3 py-2 text-left text-gray-600 pl-8">I.O.M.A Cónyuge</td>
                                     <td class="px-3 py-2 text-center text-gray-600">
-                                        ${{ number_format($concepto['iomaconyuge'], 2, ',', '.') }}
+                                        - ${{ number_format($concepto['iomaconyuge'], 2, ',', '.') }}
                                     </td>
                                 </tr>
                             @endif
@@ -112,7 +112,7 @@
                                 <tr class="border-b border-gray-100">
                                     <td class="px-3 py-2 text-left text-gray-600 pl-8">Cuenta Alimentaria</td>
                                     <td class="px-3 py-2 text-center text-gray-600">
-                                        ${{ number_format($concepto['ctaalim'], 2, ',', '.') }}
+                                        - ${{ number_format($concepto['ctaalim'], 2, ',', '.') }}
                                     </td>
                                 </tr>
                             @endif
@@ -121,7 +121,7 @@
                                 <tr class="border-b border-gray-100">
                                     <td class="px-3 py-2 text-left text-gray-600 pl-8">Ajuste Cuenta Alimentaria</td>
                                     <td class="px-3 py-2 text-center text-gray-600">
-                                        ${{ number_format($concepto['ajctaalim'], 2, ',', '.') }}
+                                        - ${{ number_format($concepto['ajctaalim'], 2, ',', '.') }}
                                     </td>
                                 </tr>
                             @endif
@@ -133,7 +133,16 @@
                                 NETO A COBRAR:
                             </td>
                             <td class="px-3 py-3 text-center font-bold text-lg text-[#77BF43]">
-                                ${{ number_format($netoACobrar, 2, ',', '.') }}
+                                ${{ number_format(
+                                    $concepto['bruto']
+                                    - (
+                                        ($concepto['ioma'] ?? 0)
+                                        + ($concepto['iomaconyuge'] ?? 0)
+                                        + ($concepto['ctaalim'] ?? 0)
+                                        + ($concepto['ajctaalim'] ?? 0)
+                                    ),
+                                    2, ',', '.'
+                                ) }}
                             </td>
                         </tr>
                     @else

@@ -59,12 +59,6 @@ class AnticipoJubilatorioDetalle extends Component
         }
     }
 
-    public function generarPdf()
-    {
-        // Lógica para generar PDF
-        session()->flash('info', 'Funcionalidad de PDF en desarrollo');
-    }
-
     public function render()
     {
         return view('livewire.anticipo-jubilatorio-detalle')

@@ -10,7 +10,7 @@
             </div>
         </div>
 
-        @if(date('j') >= 1 && date('j') <= 29)
+        @if(date('j') >= 1 && date('j') <= 7)
             {{-- VISTA PARA DÍAS 1 AL 7 DEL MES --}}
             
             {{-- Sección de alerta --}}
