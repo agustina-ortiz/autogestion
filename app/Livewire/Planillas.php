@@ -90,7 +90,7 @@ class Planillas extends Component
                 $archivoExiste = file_exists($rutaCompleta);
                 
                 // Verificar si existe en in_planillas
-                $existeEnPlanillas = DB::connection('mysql1')
+                $existeEnPlanillas = DB::connection('mysql')
                     ->table('in_planillas')
                     ->where('legajo', '=', $legajo)
                     ->where('dni', '=', $hijo->dni)
@@ -264,7 +264,7 @@ class Planillas extends Component
             }
 
             // Insertar o reemplazar en in_planillas (no modificar in_familia)
-            DB::connection('mysql1')->table('in_planillas')
+            DB::connection('mysql')->table('in_planillas')
                 ->where('legajo', '=', $legajo)
                 ->where('anio', '=', $this->anioActual)
                 ->where('planilla', '=', $this->planillaActual)
