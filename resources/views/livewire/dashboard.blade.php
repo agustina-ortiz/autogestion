@@ -140,6 +140,11 @@
             <a href="{{ route('planillas') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
                 <span class="font-semibold text-[0.9rem] text-white">Planillas</span>
             </a>
+
+            <!-- Planillas -->
+            <a href="{{ route('asignaciones.familiares') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
+                <span class="font-semibold text-[0.9rem] text-white">DDJJ para asignaciones familiares para madres</span>
+            </a>
         </div>
     </main>
 </div>

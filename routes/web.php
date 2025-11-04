@@ -13,6 +13,7 @@ use App\Livewire\Solicitudes;
 use App\Livewire\SolicitarAdelanto;
 use App\Livewire\SolicitarCheque;
 use App\Livewire\Planillas;
+use App\Livewire\AsignacionesFamiliares;
 
 
 // Ruta principal
@@ -64,8 +65,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Detalle de Anticipo
     Route::get('/anticipo/{anio}/{mes}/{tipo}/{sub}', AnticipoJubilatorioDetalle::class)->name('anticipo.detalle');
 
+    // Planillas
     Route::get('/planillas', Planillas::class)->name('planillas');
 
+    // Asignaciones Familiares
+    Route::get('/asignaciones-familiares', AsignacionesFamiliares::class)->name('asignaciones.familiares');
 });
     
 });
