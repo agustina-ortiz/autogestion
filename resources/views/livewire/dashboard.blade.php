@@ -1,4 +1,3 @@
-<!-- resources/views/livewire/dashboard.blade.php -->
 <div>
     <x-slot:title>Inicio - Sistema Autogestión</x-slot:title>
 
@@ -17,128 +16,127 @@
     @endphp
 
     <!-- Main Container -->
-    <main class="overflow-hidden">
+    <main class="overflow-hidden relative">
         <!-- Content Wrapper -->
-        <div class="flex gap-8">
+        <div class="flex gap-8 relative z-10">
             <!-- Employee Section -->
-            <div class="flex-[0_0_30%] flex flex-col items-center bg-gradient-to-br from-gray-50 to-gray-200 p-6 rounded-2xl shadow-md">
-                <!-- Employee Photo -->
-                <div class="w-[120px] h-[120px] rounded-full bg-gradient-to-br from-[#91D5E2] to-[#77BF43] mb-4 flex items-center justify-center text-white text-5xl font-bold border-4 border-white shadow-lg">
-                    <img 
-                        src="{{ $foto }}" 
-                        alt="Foto Empleado" 
-                        class="w-full h-full rounded-full object-cover {{ !$tieneFoto ? 'brightness-0 invert' : '' }}"
-                    >
+            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 rounded-2xl shadow-md overflow-hidden">
+                <!-- Sección Superior -->
+                <div class="flex items-center gap-6 p-6">
+                    <!-- Employee Photo -->
+                    <div class="w-[100px] h-[100px] rounded-full bg-white flex items-center justify-center text-white text-5xl font-bold border-2 border-[#77bf43] shadow-lg flex-shrink-0">
+                        <img 
+                            src="{{ $foto }}" 
+                            alt="Foto Empleado" 
+                            class="w-full h-full rounded-full object-cover"
+                        >
+                    </div>
+
+                    <!-- Empleado y Nombre -->
+                    <div class="flex flex-col">
+                        <p class="text-sm font-semibold text-[#77BF43] uppercase tracking-wide">Empleado</p>
+                        <p class="text-xl font-bold text-gray-800 mt-1">{{ auth()->user()->NOMBRE ?? 'Sin nombre' }}</p>
+                    </div>
                 </div>
 
-                <!-- Employee Info -->
-                <div class="w-full text-left">
-                    <p class="my-2 text-[0.95rem] text-gray-800">
-                        <strong class="text-[#77BF43] inline-block w-20">Empleado:</strong> 
-                        {{ auth()->user()->NOMBRE ?? 'Sin nombre' }}
-                    </p>
-                    <p class="my-2 text-[0.95rem] text-gray-800">
-                        <strong class="text-[#77BF43] inline-block w-20">DNI:</strong> 
-                        {{ auth()->user()->DNI ?? 'Sin DNI' }}
-                    </p>
-                    <p class="my-2 text-[0.95rem] text-gray-800">
-                        <strong class="text-[#77BF43] inline-block w-20">Legajo:</strong> 
-                        {{ auth()->user()->LEGAJO ?? 'Sin legajo' }}
-                    </p>
-                    <p class="my-2 text-[0.95rem] text-gray-800">
-                        <strong class="text-[#77BF43] inline-block w-20">Perfil:</strong> 
-                        Empleado
-                    </p>
-                    <p class="my-2 text-[0.95rem] text-gray-800">
-                        <strong class="text-[#77BF43] inline-block w-20">Categoría:</strong> 
-                        {{ auth()->user()->CATEGORIA ?? 'Sin categoría' }}
-                    </p>
-                    @if($cantidadHijos > 0)
-                        <p class="my-2 text-[0.95rem] text-gray-800">
-                            <strong class="text-[#77BF43] inline-block w-20">Hijos:</strong> 
-                            {{ $cantidadHijos }}
+                <!-- Barra Divisora Verde -->
+                <hr class="border-t-2 border-[#77BF43] mx-1">
+
+                <!-- Sección Inferior - 2 Columnas -->
+                <div class="grid grid-cols-2 gap-x-8 p-6">
+                    <!-- Columna Izquierda -->
+                    <div class="space-y-3">
+                        <p class="text-sm text-gray-800">
+                            <strong class="text-[#77BF43] block mb-1">DNI: <span class="text-[#333333] font-semibold">{{ auth()->user()->DNI ?? 'Sin DNI' }}</span></strong> 
                         </p>
-                    @endif
-                    @if($user->esta_inactivo)
-                        <p class="my-2 text-[0.95rem] text-gray-800">
-                            <strong class="text-[#77BF43] inline-block w-20">Estado:</strong> 
-                            Inactivo
+                        <p class="text-sm text-gray-800">
+                            <strong class="text-[#77BF43] block mb-1">Legajo: <span class="text-[#333333] font-semibold">{{ auth()->user()->LEGAJO ?? 'Sin legajo' }}</span></strong> 
                         </p>
-                    @endif
+                        @if($cantidadHijos > 0)
+                            <p class="text-sm text-gray-800">
+                                <strong class="text-[#77BF43] block mb-1">Hijos: <span  class="text-[#333333] font-semibold">{{ $cantidadHijos }}</span></strong> 
+                            </p>
+                        @endif
+                    </div>
+
+                    <!-- Columna Derecha -->
+                    <div class="space-y-3">
+                        <p class="text-sm text-gray-800">
+                            <strong class="text-[#77BF43] block mb-1">Perfil: <span class="text-[#333333] font-semibold">Empleado</span></strong> 
+                        </p>
+                        <p class="text-sm text-gray-800">
+                            <strong class="text-[#77BF43] block mb-1">Categoría: <span class="text-[#333333] font-semibold">{{ auth()->user()->CATEGORIA ?? 'Sin categoría' }}</span></strong> 
+                        </p>
+                        @if($user->esta_inactivo)
+                            <p class="text-sm text-gray-800">
+                                <strong class="text-[#77BF43] block mb-1">Estado: Inactivo</strong> 
+                            </p>
+                        @endif
+                    </div>
                 </div>
             </div>
-
             <!-- Welcome Section -->
-            <div class="flex-1 bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl shadow-md flex flex-col justify-center">
-                <h1 class="text-[#77BF43] mb-4 text-[1.8rem] font-bold">
-                    Bienvenido al sistema AUTOGESTIÓN
+            <div class="flex-1 p-8 flex flex-col justify-center items-center">
+                <h1 class="text-white text-left mb-4 text-[2.5rem] font-bold">
+                    <span class="block">SISTEMA</span>
+                    <span class="block">AUTOGESTIÓN</span>
                 </h1>
-                <p class="text-gray-600 leading-relaxed text-base">
-                    En esta página los empleados de la <strong class="text-[#91D5E2]">Municipalidad de Mercedes</strong>, podrán consultar 
-                    sus <strong class="text-[#91D5E2]">recibos de sueldos</strong> como así también, otros temas de interés.
-                </p>
-                <p class="text-gray-600 leading-relaxed text-base mt-4">
-                    Si tiene dudas, puede consultar la sección de <strong class="text-[#91D5E2]">Preguntas frecuentes</strong>
-                </p>
-                <p class="text-gray-600 leading-relaxed text-base mt-2">
-                    Si necesita informar algo puede dirigirse a la sección <strong class="text-[#91D5E2]">Contacto</strong>
-                </p>
-                @if($esJubilado)
-                    <button wire:click="verAnticipo" 
-                            class="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
-                        Ver Anticipo
-                    </button>
-                @endif
             </div>
         </div>
 
         <!-- Buttons Grid -->
-        <div class="grid grid-cols-5 gap-10 mt-auto">
+        <div class="grid grid-cols-5 gap-10 mt-auto relative z-10">
             <!-- Recibos -->
-            <a href="{{ route('recibos') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                     <polyline points="14 2 14 8 20 8"/>
                     <line x1="16" y1="13" x2="8" y2="13"/>
                     <line x1="16" y1="17" x2="8" y2="17"/>
                 </svg>
-                <span class="font-semibold text-[0.9rem] text-white">Recibos</span>
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">RECIBOS</span>
             </a>
 
             <!-- Asistencias -->
-            <a href="{{ route('asistencias') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a href="{{ route('asistencias') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                     <line x1="16" y1="2" x2="16" y2="6"/>
                     <line x1="8" y1="2" x2="8" y2="6"/>
                     <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                <span class="font-semibold text-[0.9rem] text-white">Asistencias</span>
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">ASISTENCIAS</span>
             </a>
 
             <!-- Compensatorios -->
-            <a href="{{ route('compensatorios') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a href="{{ route('compensatorios') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <svg class="w-10 h-10 scale-125 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                 </svg>
-                <span class="font-semibold text-[0.9rem] text-white">Compensatorios</span>
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">COMPENSATORIOS</span>
             </a>
 
             <!-- Solicitudes -->
-            <a href="{{ route('solicitudes') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <svg class="w-8 h-8 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a href="{{ route('solicitudes') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                     <polyline points="14 2 14 8 20 8"/>
                     <line x1="12" y1="18" x2="12" y2="12"/>
                     <line x1="9" y1="15" x2="15" y2="15"/>
                 </svg>
-                <span class="font-semibold text-[0.9rem] text-white">Solicitudes</span>
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">SOLICITUDES</span>
             </a>
 
             <!-- Planillas -->
-            <a href="{{ route('planillas') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <span class="font-semibold text-[0.9rem] text-white">Planillas</span>
+            <a href="{{ route('planillas') }}" 
+            class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/>
+                    <line x1="9" y1="21" x2="9" y2="9"/>
+                </svg>
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">PLANILLAS</span>
             </a>
 
             <!-- Planillas -->
