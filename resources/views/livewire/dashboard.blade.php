@@ -43,7 +43,7 @@
                 <hr class="border-t-2 border-[#77BF43] mx-1">
 
                 <!-- Sección Inferior - 2 Columnas -->
-                <div class="grid grid-cols-2 gap-x-8 p-6">
+                <div class="grid grid-cols-2 gap-x-8 px-6 pt-4 pb-6">
                     <!-- Columna Izquierda -->
                     <div class="space-y-3">
                         <p class="text-sm text-gray-800">
@@ -69,7 +69,7 @@
                         </p>
                         @if($user->esta_inactivo)
                             <p class="text-sm text-gray-800">
-                                <strong class="text-[#77BF43] block mb-1">Estado: Inactivo</strong> 
+                                <strong class="text-[#77BF43] block mb-1">Estado: <span class="text-[#333333] font-semibold">Inactivo</span></strong> 
                             </p>
                         @endif
                     </div>
@@ -77,9 +77,9 @@
             </div>
             <!-- Welcome Section -->
             <div class="flex-1 p-8 flex flex-col justify-center items-center">
-                <h1 class="text-white text-left mb-4 text-[2.5rem] font-bold">
+                <h1 class="text-white text-left text-[2.5rem] font-bold">
                     <span class="block">SISTEMA</span>
-                    <span class="block">AUTOGESTIÓN</span>
+                    <span class="block -mt-4">AUTOGESTIÓN</span>
                 </h1>
             </div>
         </div>
