@@ -4,9 +4,11 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\DB;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Familia;
+use App\Models\Planilla;
 
 class Planillas extends Component
 {
@@ -22,7 +24,7 @@ class Planillas extends Component
     public $mostrarModalImpresion = false;
     public $contenidoImpresion = null;
     
-    // Nuevas propiedades para ver planilla
+    // Propiedades para ver planilla
     public $modalVerPlanilla = false;
     public $rutaPlanillaVer = null;
     public $extensionPlanillaVer = null;
@@ -61,76 +63,31 @@ class Planillas extends Component
         }
 
         try {
-            $campoPlanilla = 'PLANILLA' . $this->planillaActual;
+            // Obtener hijos usando el modelo Familia
+            $hijosQuery = Familia::obtenerHijosParaPlanillas($legajo);
             
-            $this->hijos = DB::connection('mysql1')
-                ->table('in_familia')
-                ->select(
-                    'NOMBRE as nombre',
-                    'DNI as dni',
-                    'FECHA_NAC as fecha_nac',
-                    'TIPOFAMI as tipofami',
-                    'TIPOESCO as tipoesco',
-                    'CURSO as curso',
-                    'ESCUELA as escuela',
-                    DB::raw("{$campoPlanilla} as archivo_planilla")
-                )
-                ->where('LEGAJO', '=', $legajo)
-                ->where('TIPOFAMI', '=', 2)
-                ->orderBy('FECHA_NAC', 'asc')
-                ->get();
+            $this->hijos = $hijosQuery->map(function ($hijo) {
+                // Obtener el estado de la planilla
+                $estado = $hijo->getEstadoPlanilla($this->planillaActual, $this->anioActual);
+                
+                return (object)[
+                    'nombre' => $hijo->NOMBRE,
+                    'dni' => $hijo->DNI,
+                    'fecha_nac' => $hijo->FECHA_NAC,
+                    'tipofami' => $hijo->TIPOFAMI,
+                    'tipoesco' => $hijo->TIPOESCO,
+                    'curso' => $hijo->CURSO,
+                    'escuela' => $hijo->ESCUELA,
+                    'archivo_planilla' => $hijo->{'PLANILLA' . $this->planillaActual},
+                    'estado_planilla' => $estado['estado'],
+                    'tiene_planilla' => $estado['tiene_planilla'],
+                ];
+            })->toArray();
             
-            // Verificar si existe el archivo físico para cada hijo
-            foreach ($this->hijos as $hijo) {
-                $nombreArchivo = $this->zerofill($hijo->dni, 8) . 
-                               $this->planillaActual . '-' . 
-                               $this->anioActual . '.jpg';
-                
-                $rutaCompleta = public_path('fotos-licencias/fotos-empleados/planillas/' . $nombreArchivo);
-                $archivoExiste = file_exists($rutaCompleta);
-                
-                // Verificar si existe en in_planillas
-                $existeEnPlanillas = DB::connection('mysql1')
-                    ->table('in_planillas')
-                    ->where('legajo', '=', $legajo)
-                    ->where('dni', '=', $hijo->dni)
-                    ->where('planilla', '=', $this->planillaActual)
-                    ->where('anio', '=', $this->anioActual)
-                    ->exists();
-                
-                // Determinar el estado de la planilla
-                $campoBD = $hijo->archivo_planilla; // Valor del campo PLANILLA1 o PLANILLA2
-                
-                if ($archivoExiste && $existeEnPlanillas && $campoBD === 'S') {
-                    // Archivo existe + Registro en BD + Aprobado en in_familia = SUBIDA
-                    $hijo->estado_planilla = 'subida';
-                    $hijo->tiene_planilla = true;
-                } elseif ($archivoExiste && $existeEnPlanillas) {
-                    // Archivo existe + Registro en BD pero NO aprobado = EN PROCESO
-                    $hijo->estado_planilla = 'proceso';
-                    $hijo->tiene_planilla = true;
-                } else {
-                    // No hay archivo o no está en BD = PENDIENTE
-                    $hijo->estado_planilla = 'pendiente';
-                    $hijo->tiene_planilla = false;
-                }
-                
-                // Log para debugging
-                \Log::info('Verificando planilla para hijo', [
-                    'dni' => $hijo->dni,
-                    'nombre' => $hijo->nombre,
-                    'archivo_existe' => $archivoExiste,
-                    'existe_en_planillas' => $existeEnPlanillas,
-                    'campo_bd' => $campoBD,
-                    'estado_final' => $hijo->estado_planilla
-                ]);
-            }
-            
-            \Log::info('Hijos cargados', [
+            \Log::info('Hijos cargados con modelos', [
                 'legajo' => $legajo,
                 'planilla' => $this->planillaActual,
-                'count' => count($this->hijos),
-                'hijos' => $this->hijos->toArray()
+                'count' => count($this->hijos)
             ]);
             
         } catch (\Exception $e) {
@@ -143,6 +100,9 @@ class Planillas extends Component
         }
     }
 
+    /**
+     * Determina qué planilla corresponde según el mes actual
+     */
     private function obtenerPlanillaActual()
     {
         $mes = now()->month;
@@ -156,11 +116,15 @@ class Planillas extends Component
         return 0;
     }
 
+    /**
+     * Obtiene el año de la planilla según el mes actual
+     */
     private function obtenerAnioActual()
     {
         $mes = now()->month;
         $anio = now()->year;
         
+        // Si estamos en enero, la planilla es del año anterior
         if ($mes == 1) {
             return $anio - 1;
         }
@@ -168,16 +132,18 @@ class Planillas extends Component
         return $anio;
     }
 
+    /**
+     * Genera una planilla en blanco para imprimir
+     */
     public function descargarPlanilla($dni, $nombre)
     {
         $legajo = Auth::user()->LEGAJO;
 
         try {
-            $hijo = DB::connection('mysql1')
-                ->table('in_familia')
-                ->where('LEGAJO', '=', $legajo)
-                ->where('DNI', '=', $dni)
-                ->where('TIPOFAMI', '=', 2)
+            // Buscar el hijo usando el modelo Familia
+            $hijo = Familia::porLegajo($legajo)
+                ->soloHijos()
+                ->where('DNI', $dni)
                 ->first();
 
             if (!$hijo) {
@@ -198,7 +164,7 @@ class Planillas extends Component
             // Mostrar modal de impresión
             $this->mostrarModalImpresion = true;
 
-            // Esperar a que el DOM se actualice y abrir diálogo de impresión
+            // Emitir evento para abrir el diálogo de impresión
             $this->dispatch('abrirModalImpresion');
 
         } catch (\Exception $e) {
@@ -211,6 +177,9 @@ class Planillas extends Component
         }
     }
 
+    /**
+     * Selecciona un hijo para subir su planilla
+     */
     public function seleccionarHijo($dni, $nombre)
     {
         $this->selectedDni = $dni;
@@ -218,6 +187,9 @@ class Planillas extends Component
         $this->foto = null;
     }
 
+    /**
+     * Sube la planilla escaneada
+     */
     public function subirPlanilla()
     {
         $this->validate();
@@ -225,14 +197,14 @@ class Planillas extends Component
         $legajo = Auth::user()->LEGAJO;
         
         try {
-            DB::connection('mysql1')->beginTransaction();
+            DB::connection('mysql')->beginTransaction();
 
-            // Siempre guardar como JPG
+            // Generar nombre del archivo (siempre JPG)
             $nombreArchivo = $this->zerofill($this->selectedDni, 8) .
                             $this->planillaActual . '-' .
                             $this->anioActual . '.jpg';
 
-            // Usar DIRECTORY_SEPARATOR para compatibilidad con Windows y Linux
+            // Definir rutas
             $directorioRelativo = 'fotos-licencias' . DIRECTORY_SEPARATOR . 
                                  'fotos-empleados' . DIRECTORY_SEPARATOR . 
                                  'planillas';
@@ -254,8 +226,7 @@ class Planillas extends Component
                 'nombre' => $nombreArchivo,
                 'ruta' => $rutaCompleta,
                 'existe' => file_exists($rutaCompleta),
-                'tamaño' => file_exists($rutaCompleta) ? filesize($rutaCompleta) : 0,
-                'permisos' => file_exists($rutaCompleta) ? substr(sprintf('%o', fileperms($rutaCompleta)), -4) : 'N/A'
+                'tamaño' => file_exists($rutaCompleta) ? filesize($rutaCompleta) : 0
             ]);
 
             // Verificar que el archivo realmente se guardó
@@ -263,24 +234,23 @@ class Planillas extends Component
                 throw new \Exception('La imagen no se guardó correctamente en: ' . $rutaCompleta);
             }
 
-            // Insertar o reemplazar en in_planillas (no modificar in_familia)
-            DB::connection('mysql1')->table('in_planillas')
-                ->where('legajo', '=', $legajo)
-                ->where('anio', '=', $this->anioActual)
-                ->where('planilla', '=', $this->planillaActual)
-                ->where('dni', '=', $this->selectedDni)
+            // Eliminar registro previo si existe (usando modelo Planilla)
+            Planilla::porLegajo($legajo)
+                ->porPeriodo($this->anioActual, $this->planillaActual)
+                ->porDni($this->selectedDni)
                 ->delete();
 
-            DB::connection('mysql1')->table('in_planillas')->insert([
+            // Insertar nuevo registro usando el modelo Planilla
+            Planilla::create([
                 'legajo'      => $legajo,
                 'anio'        => $this->anioActual,
                 'planilla'    => $this->planillaActual,
                 'dni'         => $this->selectedDni,
-                'fecha'       => DB::raw('CURDATE()'),
+                'fecha'       => now()->toDateString(),
                 'confirmada'  => false,
             ]);
 
-            DB::connection('mysql1')->commit();
+            DB::connection('mysql')->commit();
 
             // Limpiar estado y refrescar vista
             $this->reset(['foto', 'selectedDni', 'selectedNombre']);
@@ -289,7 +259,7 @@ class Planillas extends Component
             session()->flash('mensaje', 'Planilla subida exitosamente');
 
         } catch (\Exception $e) {
-            DB::connection('mysql1')->rollBack();
+            DB::connection('mysql')->rollBack();
 
             \Log::error('Error al subir planilla', [
                 'error' => $e->getMessage(),
@@ -300,10 +270,11 @@ class Planillas extends Component
         }
     }
 
+    /**
+     * Muestra la planilla subida en un modal
+     */
     public function verPlanilla($dni)
     {
-        $legajo = Auth::user()->LEGAJO;
-        
         try {
             $nombreArchivo = $this->zerofill($dni, 8) . 
                            $this->planillaActual . '-' . 
@@ -338,6 +309,9 @@ class Planillas extends Component
         }
     }
 
+    /**
+     * Cierra el modal de visualización de planilla
+     */
     public function cerrarModalVer()
     {
         $this->modalVerPlanilla = false;
@@ -345,6 +319,9 @@ class Planillas extends Component
         $this->extensionPlanillaVer = null;
     }
 
+    /**
+     * Rellena con ceros a la izquierda
+     */
     private function zerofill($num, $zerofill = 8)
     {
         return str_pad($num, $zerofill, '0', STR_PAD_LEFT);
