@@ -22,13 +22,13 @@
             <!-- Employee Section -->
             <div class="flex-[0_0_40%] flex flex-col bg-white px-16 rounded-2xl shadow-md overflow-hidden">
                 <!-- Sección Superior -->
-                <div class="flex items-center gap-6 p-6">
+                <div class="flex items-center gap-6 p-4">
                     <!-- Employee Photo -->
-                    <div class="w-[100px] h-[100px] rounded-full bg-white flex items-center justify-center text-white text-5xl font-bold border-2 border-[#77bf43] shadow-lg flex-shrink-0">
+                    <div class="w-[85px] h-[85px] rounded-full bg-white flex items-center justify-center text-white text-5xl font-bold border-2 border-[#77bf43] shadow-lg flex-shrink-0">
                         <img 
                             src="{{ $foto }}" 
                             alt="Foto Empleado" 
-                            class="w-full h-full rounded-full object-cover"
+                            class="w-[90%] h-[90%] rounded-full object-cover"
                         >
                     </div>
 
@@ -85,7 +85,7 @@
         </div>
 
         <!-- Buttons Grid -->
-        <div class="grid grid-cols-5 gap-10 mt-auto relative z-10">
+        <div class="grid grid-cols-4 gap-x-8 mt-auto relative z-10">
             <!-- Recibos -->
             <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
                 <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -110,7 +110,7 @@
 
             <!-- Compensatorios -->
             <a href="{{ route('compensatorios') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <svg class="w-10 h-10 scale-125 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="w-10 h-10 scale-110 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                 </svg>
@@ -139,10 +139,17 @@
                 <span class="ml-2 font-bold text-[1rem] text-[#333333]">PLANILLAS</span>
             </a>
 
-            <!-- Planillas -->
-            <a href="{{ route('asignaciones.familiares') }}" class="bg-gradient-to-br from-[#77BF43] to-[#BED630] text-white p-4 px-2 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full">
-                <span class="font-semibold text-[0.9rem] text-white">DDJJ para asignaciones familiares para madres</span>
+            <!-- DDJJ Asignaciones -->
+            <a href="{{ route('asignaciones.familiares') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">DDJJ para asignaciones familiares para madres</span>
             </a>
+            
+            @if($esJubilado)
+                <!-- DDJJ Jubilados -->
+                <a href="{{ route('anticipo.jubilatorio') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">DDJJ para jubilados</span>
+                </a>
+            @endif
         </div>
     </main>
 </div>

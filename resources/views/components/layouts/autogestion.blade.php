@@ -33,6 +33,12 @@
                     <img src="{{ asset('images/icono-perfil.png') }}" class="w-5 h-5 rounded-full text-[#bdd632]" alt="Foto de Perfil">
                     Mi Perfil
                 </button>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <flux:button type="submit" icon="arrow-right-start-on-rectangle" class="btn-logout">
+                        Salir
+                    </flux:button>
+                </form>
             </div>
         </header>
 
@@ -46,11 +52,6 @@
                         alt="Fondo" 
                         class="w-full h-full object-cover"
                     >
-                    <div class="bg-pink-500 h-1/6">
-                        ---
-                    </div>
-                    <!-- Overlay opcional para oscurecer la imagen -->
-                    <div class="absolute inset-0 bg-black/20"></div>
                 </div>
             @endif
             {{ $slot }}
