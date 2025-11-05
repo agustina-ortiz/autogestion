@@ -245,25 +245,24 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Botón guardar -->
-                    <div class="mt-6 flex justify-end">
-                        <button 
-                            wire:click="guardarFormulario({{ $index }})"
-                            wire:loading.attr="disabled"
-                            wire:target="guardarFormulario({{ $index }})"
-                            class="px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#6AB03A] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <span wire:loading.remove wire:target="guardarFormulario({{ $index }})">
-                                Guardar Información
-                            </span>
-                            <span wire:loading wire:target="guardarFormulario({{ $index }})">
-                                Guardando...
-                            </span>
-                        </button>
-                    </div>
                 </div>
             @endforeach
+            <!-- Botón guardar TODOS los formularios -->
+            <div class="mt-6 flex justify-center">
+                <button 
+                    wire:click="guardarTodosLosFormularios"
+                    wire:loading.attr="disabled"
+                    wire:target="guardarTodosLosFormularios"
+                    class="px-8 py-3 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#6AB03A] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <span wire:loading.remove wire:target="guardarTodosLosFormularios">
+                        Guardar toda la información
+                    </span>
+                    <span wire:loading wire:target="guardarTodosLosFormularios">
+                        Guardando...
+                    </span>
+                </button>
+            </div>
         @endif
 
         <!-- Botón volver -->
