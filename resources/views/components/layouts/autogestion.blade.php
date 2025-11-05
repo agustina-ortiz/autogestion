@@ -18,13 +18,13 @@
     </head>
     <body>
         <!-- Header -->
-        <header class="fixed top-0 left-0 right-0 z-50 bg-[#bdd632] shadow-md flex justify-between items-center px-8 py-4">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-[#bdd632] shadow-md flex justify-between items-center px-40 py-4">
             <div class="logo">
                 <a href="{{ route('dashboard') }}">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo Municipalidad">
                 </a>
             </div>
-            <div class="header-right">
+            <div class="header-right flex items-center gap-3">
                 <button class="bg-white text-black rounded-full px-3 py-1 hover:bg-gray-100 transition-colors text-xs font-bold">
                     Preguntas Frecuentes
                 </button>
@@ -33,11 +33,15 @@
                     <img src="{{ asset('images/icono-perfil.png') }}" class="w-5 h-5 rounded-full text-[#bdd632]" alt="Foto de Perfil">
                     Mi Perfil
                 </button>
-                <form method="POST" action="{{ route('logout') }}">
+                
+                <form method="POST" action="{{ route('logout') }}" class="inline-block">
                     @csrf
-                    <flux:button type="submit" icon="arrow-right-start-on-rectangle" class="btn-logout">
+                    <button type="submit" class="bg-[#81af00] text-[#333333] rounded-full px-3 py-1 flex items-center gap-2 text-xs font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
                         Salir
-                    </flux:button>
+                    </button>
                 </form>
             </div>
         </header>
