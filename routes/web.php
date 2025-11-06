@@ -14,12 +14,9 @@ use App\Livewire\SolicitarAdelanto;
 use App\Livewire\SolicitarCheque;
 use App\Livewire\Planillas;
 use App\Livewire\AsignacionesFamiliares;
-<<<<<<< HEAD
 use App\Livewire\PreguntasFrecuentes;
-=======
 use App\Livewire\Perfil;
 
->>>>>>> f77b93a (Actualizar datos de mi perfil)
 
 // Ruta principal
 Route::get('/', function () {
