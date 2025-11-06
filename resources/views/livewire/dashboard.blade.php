@@ -75,13 +75,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Welcome Section -->
-            <div class="flex-1 flex flex-col justify-center items-end">
-                <h1 class="text-white text-left text-[2.5rem] font-bold">
-                    <span class="block">AUTOGESTIÓN</span>
-                    <span class="block -mt-4">RECURSOS HUMANOS</span>
-                </h1>
-            </div>
         </div>
 
         <!-- Buttons Grid -->
