@@ -18,7 +18,7 @@
     <!-- Main Container -->
     <main class="overflow-hidden relative">
         <!-- Content Wrapper -->
-        <div class="flex gap-8 relative z-10">
+        <div class="flex gap-8 relative z-10 px-[110px]">
             <!-- Employee Section -->
             <div class="flex-[0_0_40%] flex flex-col bg-white px-16 rounded-2xl shadow-md overflow-hidden">
                 <!-- Sección Superior -->
@@ -76,16 +76,16 @@
                 </div>
             </div>
             <!-- Welcome Section -->
-            <div class="flex-1 p-8 flex flex-col justify-center items-center">
+            <div class="flex-1 flex flex-col justify-center items-end">
                 <h1 class="text-white text-left text-[2.5rem] font-bold">
-                    <span class="block">SISTEMA</span>
-                    <span class="block -mt-4">AUTOGESTIÓN</span>
+                    <span class="block">AUTOGESTIÓN</span>
+                    <span class="block -mt-4">RECURSOS HUMANOS</span>
                 </h1>
             </div>
         </div>
 
         <!-- Buttons Grid -->
-        <div class="grid grid-cols-4 gap-x-8 mt-auto relative z-10">
+        <div class="grid grid-cols-4 gap-x-8 mt-auto relative z-10 px-[110px]">
             <!-- Recibos -->
             <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
                 <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -129,20 +129,22 @@
             </a>
 
             <!-- Planillas -->
-            <a href="{{ route('planillas') }}" 
-            class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="3" y1="9" x2="21" y2="9"/>
-                    <line x1="9" y1="21" x2="9" y2="9"/>
-                </svg>
-                <span class="ml-2 font-bold text-[1rem] text-[#333333]">PLANILLAS</span>
-            </a>
+            @if($cantidadHijos > 0)
+                <a href="{{ route('planillas') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                    <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">PLANILLAS</span>
+                </a>
+                
+                <!-- DDJJ Asignaciones -->
+                <a href="{{ route('asignaciones.familiares') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">DDJJ para asignaciones familiares para madres</span>
+                </a>
+            @endif
 
-            <!-- DDJJ Asignaciones -->
-            <a href="{{ route('asignaciones.familiares') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <span class="ml-2 font-bold text-[1rem] text-[#333333]">DDJJ para asignaciones familiares para madres</span>
-            </a>
             
             @if($esJubilado)
                 <!-- DDJJ Jubilados -->

@@ -47,7 +47,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-auto px-6 py-20">
+        <main class="flex-1 overflow-auto px-6 pt-20">
             <!-- Imagen de fondo que ocupa el 45% superior - Solo en Dashboard -->
             @if(request()->routeIs('dashboard'))
                 <div class="absolute top-0 left-0 right-0 h-[43%] z-0">
@@ -62,7 +62,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="fixed bottom-0 left-0 right-0 z-50 flex justify-between items-center p-4 px-40 bg-[#333333]">
+        <footer class="bottom-0 left-0 right-0 z-50 flex justify-between items-center p-4 px-40 bg-[#333333]">
             
             <!-- Lado izquierdo -->
             <div class="flex flex-col gap-2">
