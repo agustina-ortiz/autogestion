@@ -18,7 +18,7 @@
     </head>
     <body>
         <!-- Header -->
-        <header class="fixed top-0 left-0 right-0 z-50 bg-[#bdd632] shadow-md flex justify-between items-center px-40 py-4">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-[#BED630] shadow-md flex justify-between items-center px-40 py-4">
             <div class="logo">
                 <a href="{{ route('dashboard') }}">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo Municipalidad">

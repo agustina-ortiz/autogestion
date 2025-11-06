@@ -2,7 +2,7 @@
 
     {{-- Header con nombre de usuario --}}
     <div class="mb-4">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+        <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
@@ -29,9 +29,9 @@
             <flux:input type="date" wire:model="fechaHasta" />
         </flux:field>
 
-        <flux:button wire:click="mostrar" class="btn-mostrar">
+        <button wire:click="mostrar" class="btn-mostrar">
             Mostrar
-        </flux:button>
+        </button>
     </div>
 
 

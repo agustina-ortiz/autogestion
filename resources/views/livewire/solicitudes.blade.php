@@ -1,11 +1,11 @@
 <div class="min-h-screen">
     {{-- Header con nombre de usuario --}}
     <div class="mb-4">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+        <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
-                        <span class="tracking-tight">Compensatorios</span>
+                        <span class="tracking-tight">Solicitudes</span>
                     </h1>
                 </div>
                 <p class="text-white/90 text-sm font-medium">
@@ -35,7 +35,7 @@
         
         {{-- Sección ADELANTOS --}}
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden">
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6">
+            <div class="bg-[#77BF43] text-white p-4 px-6">
                 <h2 class="text-xl font-bold m-0 uppercase">Adelantos</h2>
             </div>
             <div class="p-6">
@@ -49,7 +49,7 @@
                 </div>
                 <a 
                     href="{{ route('solicitudes.adelanto') }}" 
-                    class="w-1/2 bg-gradient-to-r from-[#77BF43] to-[#5da832] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
+                    class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
                     Solicitar Adelanto
                 </a>
             </div>
@@ -57,7 +57,7 @@
 
         {{-- Sección SUELDOS POR CHEQUE --}}
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col">
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6">
+            <div class="bg-[#77BF43] text-white p-4 px-6">
                 <h2 class="text-xl font-bold m-0 uppercase">Sueldos por Cheque</h2>
             </div>
             <div class="p-6 flex flex-col flex-grow">
@@ -71,7 +71,7 @@
                 </div>
                 <a 
                     href="{{ route('solicitudes.cheque') }}" 
-                    class="w-1/2 bg-gradient-to-r from-[#77BF43] to-[#5da832] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
+                    class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
                     Solicitar Sueldo por Cheque
                 </a>
             </div>
@@ -87,7 +87,7 @@
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
-                    <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white">
+                    <thead class="bg-[#77BF43] text-white">
                         <tr>
                             <th class="p-4 text-left font-semibold text-sm">#</th>
                             <th class="p-4 text-left font-semibold text-sm">Tipo</th>

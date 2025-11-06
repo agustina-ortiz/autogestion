@@ -1,7 +1,7 @@
 <div class="">
     {{-- Header con nombre de usuario --}}
     <div class="mb-3">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+        <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
@@ -37,7 +37,7 @@
         {{-- Tabla --}}
         <div class="overflow-x-auto">
             <table class="w-full text-xs">
-                <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold">
+                <thead class="bg-[#77BF43] text-white uppercase font-bold">
                     <tr>
                         <th class="px-3 py-2 text-center text-[10px]">#</th>
                         <th class="px-3 py-2 text-center text-[10px]">Año</th>
@@ -141,7 +141,7 @@
                         @for ($i = $startPage; $i <= $endPage; $i++)
                             @if ($i == $currentPage)
                                 <button 
-                                    class="px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-bold bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white border border-[#77BF43] shadow-md">
+                                    class="px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-bold bg-[#77BF43] text-white border border-[#77BF43] shadow-md">
                                     {{ $i }}
                                 </button>
                             @else
