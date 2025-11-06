@@ -4,7 +4,7 @@
 
     <main class="max-w-5xl mx-auto p-6">
         <!-- Header -->
-        <div class="mb-8">
+        <div class="mb-4">
             <h1 class="text-3xl font-bold text-[#77BF43] mb-3">
                 Preguntas Frecuentes
             </h1>
@@ -15,7 +15,7 @@
         </div>
 
         <!-- Buscador -->
-        <div class="mb-6">
+        <div class="mb-1">
             <div class="relative">
                 <input 
                     type="text" 
@@ -51,19 +51,19 @@
             @forelse($preguntasFiltradas as $pregunta)
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md">
                     <button 
-                        wire:click="togglePregunta({{ $pregunta['id'] }})"
+                        wire:click="togglePregunta({{ $pregunta->id }})"
                         class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
                     >
                         <div class="flex items-start gap-4 flex-1">
                             <span class="flex-shrink-0 w-8 h-8 bg-[#77BF43] text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                                {{ $pregunta['id'] }}
+                                {{ $pregunta->id }}
                             </span>
                             <h3 class="font-semibold text-gray-800 text-lg">
-                                {{ $pregunta['pregunta'] }}
+                                {{ $pregunta->pregunta }}
                             </h3>
                         </div>
                         <svg 
-                            class="w-6 h-6 text-[#77BF43] flex-shrink-0 transition-transform duration-200 {{ $preguntaExpandida === $pregunta['id'] ? 'transform rotate-180' : '' }}"
+                            class="w-6 h-6 text-[#77BF43] flex-shrink-0 transition-transform duration-200 {{ $preguntaExpandida === $pregunta->id ? 'transform rotate-180' : '' }}"
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
@@ -72,11 +72,11 @@
                         </svg>
                     </button>
                     
-                    @if($preguntaExpandida === $pregunta['id'])
+                    @if($preguntaExpandida === $pregunta->id)
                         <div class="px-6 pb-5 pt-2 bg-gray-50 border-t border-gray-100">
                             <div class="ml-12">
                                 <p class="text-gray-700 leading-relaxed">
-                                    {{ $pregunta['respuesta'] }}
+                                    {{ $pregunta->respuesta }}
                                 </p>
                             </div>
                         </div>
