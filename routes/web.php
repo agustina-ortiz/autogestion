@@ -76,12 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Asignaciones Familiares
     Route::get('/asignaciones-familiares', AsignacionesFamiliares::class)->name('asignaciones.familiares');
 
-<<<<<<< HEAD
     // Preguntas Frecuentes
     Route::get('/preguntas-frecuentes', PreguntasFrecuentes::class)->name('preguntas.frecuentes');
-=======
     Route::get('/perfil', Perfil::class)->name('perfil');
->>>>>>> f77b93a (Actualizar datos de mi perfil)
 });
     
 });
