@@ -32,9 +32,16 @@ class AsignacionesFamiliares extends Component
     public function mount()
     {
         $this->anio = Carbon::now()->year;
-        $this->periodo = Carbon::now()->month;
+        $this->periodo = $this->calcularPeriodo();
         $this->cargarHijos();
         $this->inicializarFormularios();
+    }
+
+    // Nuevo método para calcular el período según el semestre
+    private function calcularPeriodo()
+    {
+        $mes = Carbon::now()->month;
+        return $mes <= 6 ? 1 : 2;
     }
 
     public function cargarHijos()
@@ -58,6 +65,7 @@ class AsignacionesFamiliares extends Component
         $legajo = Auth::user()->LEGAJO;
         
         foreach ($this->hijos as $index => $hijo) {
+            // Buscar DDJJ del período actual
             $ddjj = DB::connection('mysql')
                 ->table('in_ddjj_fami')
                 ->where('legajo', $legajo)
@@ -66,6 +74,8 @@ class AsignacionesFamiliares extends Component
                 ->where('dnihijo', $hijo['dni'])
                 ->first();
             
+            // Si existe registro para este período, cargar datos
+            // Si NO existe, inicializar vacío (nuevo semestre)
             $this->formularios[$index] = [
                 'dnihijo' => $hijo['dni'],
                 'nombre' => $hijo['nombre'],
@@ -93,48 +103,37 @@ class AsignacionesFamiliares extends Component
         }
     }
 
-    // Nuevo método: cuando cambia el tipo de adjunto
     public function updatedFormularios($value, $key)
     {
-        // Detectar si cambió el tipoadjunto
         if (strpos($key, '.tipoadjunto') !== false) {
             preg_match('/(\d+)\.tipoadjunto/', $key, $matches);
             $index = $matches[1];
             
-            // Si selecciona "No tengo acceso a esa información" (opción 4)
             if ($value == 4) {
-                // Limpiar archivo temporal
                 if (isset($this->archivos[$index])) {
                     unset($this->archivos[$index]);
                 }
                 
-                // Eliminar archivo físico si existe
                 $this->eliminarArchivoFisico($index);
                 
-                // Marcar que no hay archivo actual
                 $this->formularios[$index]['archivo_actual'] = null;
             }
         }
     }
 
-    // Nuevo método: eliminar archivo seleccionado
     public function eliminarArchivo($index)
     {
-        // Limpiar archivo temporal
         if (isset($this->archivos[$index])) {
             unset($this->archivos[$index]);
         }
         
-        // Eliminar archivo físico
         $this->eliminarArchivoFisico($index);
         
-        // Actualizar estado
         $this->formularios[$index]['archivo_actual'] = null;
         
         session()->flash('success', 'Archivo eliminado correctamente');
     }
 
-    // Método auxiliar para eliminar archivo físico
     private function eliminarArchivoFisico($index)
     {
         $nombreArchivo = auth()->user()->LEGAJO . '' . $this->anio . '' . $this->periodo . '_' . $this->formularios[$index]['dnihijo'];
@@ -159,9 +158,7 @@ class AsignacionesFamiliares extends Component
             $reglas["formularios.{$index}.cuilpadre"] = 'required|digits:11';
             $reglas["formularios.{$index}.tipoadjunto"] = 'required';
             
-            // Validar archivo solo si NO es la opción "No tengo acceso"
             if ($formulario['tipoadjunto'] != 4) {
-                // Debe haber un archivo nuevo O un archivo actual
                 if (!isset($this->archivos[$index]) && !$formulario['archivo_actual']) {
                     $reglas["formularios.{$index}.archivo_requerido"] = 'required';
                     $mensajes["formularios.{$index}.archivo_requerido.required"] = "Debe cargar un archivo para el Hijo/a " . ($index + 1);
@@ -181,7 +178,6 @@ class AsignacionesFamiliares extends Component
         $legajo = Auth::user()->LEGAJO;
         
         foreach ($this->formularios as $index => $formulario) {
-            // Guardar archivo si hay uno nuevo
             if (isset($this->archivos[$index]) && $this->archivos[$index]) {
                 $nombreArchivo = "{$legajo}{$this->anio}{$this->periodo}_{$formulario['dnihijo']}.{$this->archivos[$index]->extension()}";
                 $this->archivos[$index]->storeAs('asignaciones-familiares', $nombreArchivo, 'public');
