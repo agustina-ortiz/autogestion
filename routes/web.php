@@ -14,7 +14,7 @@ use App\Livewire\SolicitarAdelanto;
 use App\Livewire\SolicitarCheque;
 use App\Livewire\Planillas;
 use App\Livewire\AsignacionesFamiliares;
-
+use App\Livewire\PreguntasFrecuentes;
 
 // Ruta principal
 Route::get('/', function () {
@@ -70,6 +70,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Asignaciones Familiares
     Route::get('/asignaciones-familiares', AsignacionesFamiliares::class)->name('asignaciones.familiares');
+
+    // Preguntas Frecuentes
+    Route::get('/preguntas-frecuentes', PreguntasFrecuentes::class)->name('preguntas.frecuentes');
 });
     
 });

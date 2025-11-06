@@ -25,9 +25,9 @@
                 </a>
             </div>
             <div class="header-right flex items-center gap-3">
-                <button class="bg-white text-black rounded-full px-3 py-1 hover:bg-gray-100 transition-colors text-xs font-bold">
+                <a href="{{ route('preguntas.frecuentes') }}" class="bg-white text-black rounded-full px-3 py-1 hover:bg-gray-100 transition-colors text-xs font-bold">
                     Preguntas Frecuentes
-                </button>
+                </a>
 
                 <button class="bg-black text-[#bdd632] rounded-full px-3 py-1 hover:bg-gray-800 transition-colors flex items-center gap-2 text-xs font-bold">
                     <img src="{{ asset('images/icono-perfil.png') }}" class="w-5 h-5 rounded-full text-[#bdd632]" alt="Foto de Perfil">
