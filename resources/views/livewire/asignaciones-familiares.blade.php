@@ -161,7 +161,7 @@
                                         Estoy adjuntando: <span class="text-red-500">*</span>
                                     </label>
                                     <select 
-                                        wire:model="formularios.{{ $index }}.tipoadjunto"
+                                        wire:model.live="formularios.{{ $index }}.tipoadjunto"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#77BF43] focus:border-transparent"
                                     >
                                         <option value="">Seleccione una opción</option>
@@ -176,25 +176,47 @@
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Seleccionar archivo:
+                                        Seleccionar archivo: 
+                                        @if($formularios[$index]['tipoadjunto'] != 4)
+                                            <span class="text-red-500">*</span>
+                                        @endif
                                     </label>
-                                   <input 
+                                    <input 
                                         type="file" 
                                         wire:model="archivos.{{ $index }}"
                                         accept="image/*,application/pdf"
-                                        class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#77BF43] file:text-white hover:file:bg-[#6AB03A] cursor-pointer"
+                                        @if($formularios[$index]['tipoadjunto'] == 4) disabled @endif
+                                        class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#77BF43] file:text-white hover:file:bg-[#6AB03A] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                     />
-                                    @error("formularios.{$index}.nuevo_archivo")
+                                    @error("formularios.{$index}.archivo_requerido")
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
                                     
-                                   @if(isset($archivos[$index]))
-                                        <div class="mt-2 flex items-center text-sm text-green-600">
-                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span>Archivo seleccionado</span>
+                                    @if(isset($archivos[$index]))
+                                        <div class="mt-2 flex items-center justify-between text-sm">
+                                            <div class="flex items-center text-green-600">
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                <span>Archivo seleccionado</span>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                wire:click="eliminarArchivo({{ $index }})"
+                                                class="text-red-600 hover:text-red-800 p-1"
+                                                title="Eliminar archivo"
+                                            >
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
                                         </div>
+                                    @endif
+                                    
+                                    @if($formularios[$index]['tipoadjunto'] == 4)
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            No es necesario cargar archivo para esta opción
+                                        </p>
                                     @endif
                                 </div>
                             </div>
@@ -204,7 +226,7 @@
                                 <p class="font-medium text-gray-800 mb-2">Archivo actual:</p>
                                 @if($formularios[$index]['archivo_actual'] && $formularios[$index]['tipoadjunto'] != 4)
                                     @php
-                                        $nombreArchivo = auth()->user()->LEGAJO . '_' . $anio . '_' . $periodo . '_' . $formularios[$index]['dnihijo'];
+                                        $nombreArchivo = auth()->user()->LEGAJO . '' . $anio . '' . $periodo . '_' . $formularios[$index]['dnihijo'];
                                         $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
                                         $archivoEncontrado = null;
                                         
@@ -217,53 +239,71 @@
                                         }
                                     @endphp
                                     
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                        </svg>
-                                        <div>
-                                            <p class="text-sm text-gray-700">
-                                                {{ $tiposAdjunto[$formularios[$index]['archivo_actual']] ?? 'Archivo cargado' }}
-                                            </p>
-                                            @if($archivoEncontrado)
-                                                <a href="{{ Storage::url($archivoEncontrado) }}" 
-                                                   target="_blank" 
-                                                   class="text-xs text-blue-600 hover:underline">
-                                                    Ver archivo
-                                                </a>
-                                            @endif
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm text-gray-700">
+                                                    {{ $tiposAdjunto[$formularios[$index]['archivo_actual']] ?? 'Archivo cargado' }}
+                                                </p>
+                                                @if($archivoEncontrado)
+                                                    <a href="{{ Storage::url($archivoEncontrado) }}" 
+                                                       target="_blank" 
+                                                       class="text-xs text-blue-600 hover:underline">
+                                                        Ver archivo
+                                                    </a>
+                                                @endif
+                                            </div>
                                         </div>
+                                        <button 
+                                            type="button"
+                                            wire:click="eliminarArchivo({{ $index }})"
+                                            class="text-red-600 hover:text-red-800 p-1"
+                                            title="Eliminar archivo"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
                                     </div>
                                 @else
                                     <div class="flex items-center gap-2 text-gray-400">
                                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
-                                        <p class="text-sm">No hay archivo cargado</p>
+                                        <p class="text-sm">
+                                            @if($formularios[$index]['tipoadjunto'] == 4)
+                                                No es necesario cargar archivo
+                                            @else
+                                                No hay archivo cargado
+                                            @endif
+                                        </p>
                                     </div>
                                 @endif
                             </div>
                         </div>
                     </div>
-
-                    <!-- Botón guardar -->
-                    <div class="mt-6 flex justify-end">
-                        <button 
-                            wire:click="guardarFormulario({{ $index }})"
-                            wire:loading.attr="disabled"
-                            wire:target="guardarFormulario({{ $index }})"
-                            class="px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#6AB03A] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <span wire:loading.remove wire:target="guardarFormulario({{ $index }})">
-                                Guardar Información
-                            </span>
-                            <span wire:loading wire:target="guardarFormulario({{ $index }})">
-                                Guardando...
-                            </span>
-                        </button>
-                    </div>
                 </div>
             @endforeach
+            
+            <!-- Botón guardar TODOS los formularios -->
+            <div class="mt-6 flex justify-center">
+                <button 
+                    wire:click="guardarTodosLosFormularios"
+                    wire:loading.attr="disabled"
+                    wire:target="guardarTodosLosFormularios"
+                    class="px-8 py-3 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#6AB03A] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <span wire:loading.remove wire:target="guardarTodosLosFormularios">
+                        Guardar toda la información
+                    </span>
+                    <span wire:loading wire:target="guardarTodosLosFormularios">
+                        Guardando...
+                    </span>
+                </button>
+            </div>
         @endif
 
         <!-- Botón volver -->

@@ -18,13 +18,13 @@
     </head>
     <body>
         <!-- Header -->
-        <header class="fixed top-0 left-0 right-0 z-50 bg-[#bdd632] shadow-md flex justify-between items-center px-8 py-4">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-[#bdd632] shadow-md flex justify-between items-center px-40 py-4">
             <div class="logo">
                 <a href="{{ route('dashboard') }}">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo Municipalidad">
                 </a>
             </div>
-            <div class="header-right">
+            <div class="header-right flex items-center gap-3">
                 <button class="bg-white text-black rounded-full px-3 py-1 hover:bg-gray-100 transition-colors text-xs font-bold">
                     Preguntas Frecuentes
                 </button>
@@ -33,6 +33,16 @@
                     <img src="{{ asset('images/icono-perfil.png') }}" class="w-5 h-5 rounded-full text-[#bdd632]" alt="Foto de Perfil">
                     Mi Perfil
                 </button>
+                
+                <form method="POST" action="{{ route('logout') }}" class="inline-block">
+                    @csrf
+                    <button type="submit" class="bg-[#81af00] text-[#333333] rounded-full px-3 py-1 flex items-center gap-2 text-xs font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        Salir
+                    </button>
+                </form>
             </div>
         </header>
 
@@ -40,17 +50,12 @@
         <main class="flex-1 overflow-auto px-6 py-20">
             <!-- Imagen de fondo que ocupa el 45% superior - Solo en Dashboard -->
             @if(request()->routeIs('dashboard'))
-                <div class="absolute top-0 left-0 right-0 h-[45%] z-0">
+                <div class="absolute top-0 left-0 right-0 h-[43%] z-0">
                     <img 
                         src="{{ asset('images/fondo.png') }}" 
                         alt="Fondo" 
                         class="w-full h-full object-cover"
                     >
-                    <div class="bg-pink-500 h-1/6">
-                        ---
-                    </div>
-                    <!-- Overlay opcional para oscurecer la imagen -->
-                    <div class="absolute inset-0 bg-black/20"></div>
                 </div>
             @endif
             {{ $slot }}
