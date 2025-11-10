@@ -75,13 +75,12 @@
                     {{-- Forma de cobro --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            Seleccione forma de cobro
+                            Forma de cobro
                         </label>
                         <select 
                             wire:model="formaCobro"
+                            disabled
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#77BF43] focus:border-[#77BF43] outline-none">
-                            <option value="">- Seleccione una opción -</option>
-                            <option value="deposito">Por Depósito en su cuenta sueldo</option>
                             <option value="cheque">Por Cheque</option>
                         </select>
                     </div>
