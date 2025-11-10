@@ -84,14 +84,14 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-auto px-6 pt-20">
+        <main class="flex-1 px-6 pt-20">
             <!-- Imagen de fondo que ocupa el 45% superior - Solo en Dashboard -->
             @if(request()->routeIs('dashboard'))
                 <div class="absolute top-0 left-0 right-0 h-[43%] z-0">
                     <img 
                         src="{{ asset('images/fondo.png') }}" 
                         alt="Fondo" 
-                        class="w-full h-full object-cover"
+                        class="w-full h-[113%] object-cover"
                     >
                 </div>
             @endif

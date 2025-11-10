@@ -16,7 +16,7 @@
     @endphp
 
     <!-- Main Container -->
-    <main class="overflow-hidden relative">
+    <main class="w-full translate-y-16">
         <!-- Content Wrapper -->
         <div class="flex gap-8 relative z-10 px-[110px]">
             <!-- Employee Section -->
@@ -78,7 +78,7 @@
         </div>
 
         <!-- Buttons Grid -->
-        <div class="grid grid-cols-4 gap-x-8 mt-auto relative z-10 px-[110px]">
+        <div class="grid grid-cols-4 gap-x-8 relative z-10 px-[110px]">
             <!-- Recibos -->
             <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
                 <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
