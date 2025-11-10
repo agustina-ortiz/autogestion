@@ -20,7 +20,7 @@
         <!-- Content Wrapper -->
         <div class="flex gap-8 relative z-10 px-[110px]">
             <!-- Employee Section -->
-            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 rounded-2xl shadow-md overflow-hidden">
+            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 rounded-2xl translate-y-20 shadow-md overflow-hidden">
                 <!-- Sección Superior -->
                 <div class="flex items-center gap-6 p-4">
                     <!-- Employee Photo -->
@@ -77,8 +77,84 @@
             </div>
         </div>
 
+        <!-- Sección de Noticias - Solo en Dashboard -->
+        @php
+            $noticia = DB::table('in_noticia')
+                ->where('FECHAVTO', '>=', now())
+                ->orderBy('FECHA', 'desc')
+                ->first();
+        @endphp
+
+        @if($noticia)
+            <div class="grid grid-cols-2 -mt-20 -mx-12">
+                <!-- Columna Izquierda -->
+                <div>
+                    <!-- Parte Superior Verde (vacía) -->
+                    <div class="bg-[#77BF43] px-6 py-4 h-1/3">
+                        <!-- Espacio vacío para alinearse con el título -->
+                        <div class="h-full"></div>
+                    </div>
+                    <!-- Parte Inferior Blanca (vacía) -->
+                    <div class="bg-white px-6 py-6">
+                        <!-- Espacio vacío -->
+                    </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div>
+                    <!-- Parte Superior Verde: Título de la Noticia -->
+                    <div class="bg-[#77BF43] px-6 py-4 h-1/3 flex items-center">
+                        <div class="flex justify-between w-full">
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                {{ $noticia->TITULO }}
+                            </h2>
+                            <span class="text-xs text-white bg-white bg-opacity-20 px-2 py-1 rounded-full h-fit">
+                                {{ \Carbon\Carbon::parse($noticia->FECHA)->format('d/m/Y') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Parte Inferior Blanca: Contenido de la Noticia -->
+                    <div class="bg-white px-6 py-6">
+                        <div class="text-sm text-gray-700 leading-relaxed">
+                            {!! nl2br(e($noticia->DETALLE)) !!}
+                        </div>
+
+                        @if($noticia->LINK)
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <a href="{{ $noticia->LINK }}" 
+                                target="_blank"
+                                class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                    Ver más información
+                                </a>
+                            </div>
+                        @endif
+
+                        @if($noticia->ARCHIVO)
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <a href="{{ asset('storage/noticias/' . $noticia->ARCHIVO) }}" 
+                                target="_blank"
+                                class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Descargar archivo adjunto
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Buttons Grid -->
-        <div class="grid grid-cols-4 gap-x-8 relative z-10 px-[110px] pt-100">
+        <div class="grid grid-cols-4 gap-x-8 relative z-10 px-[110px] -mt-5">
             <!-- Recibos -->
             <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
                 <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
