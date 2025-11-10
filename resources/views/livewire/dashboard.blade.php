@@ -130,7 +130,7 @@
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">HIJOS</span>
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">HIJOS/AS</span>
                 </a>
             @endif
 
