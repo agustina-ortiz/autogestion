@@ -42,7 +42,7 @@ new #[Layout('layouts.guest')] class extends Component
                 </svg>
             </div>
             <h2 class="mt-4 text-2xl font-bold text-gray-800 uppercase tracking-tight">
-                Subdirección de
+                Autogestión
             </h2>
             <h2 class="text-2xl font-bold text-[#77BF43] uppercase tracking-tight">
                 Recursos Humanos
