@@ -109,7 +109,7 @@
                 <!-- Columna Izquierda -->
                 <div>
                     <!-- Parte Superior Verde (vacía) -->
-                    <div class="bg-[#77BF43] px-6 py-4 h-1/3">
+                    <div class="bg-[#ed5b9a] px-6 py-4 h-1/4">
                         <!-- Espacio vacío para alinearse con el título -->
                         <div class="h-full"></div>
                     </div>
@@ -122,7 +122,7 @@
                 <!-- Columna Derecha -->
                 <div>
                     <!-- Parte Superior Verde: Título de la Noticia -->
-                    <div class="bg-[#77BF43] px-6 py-4 h-1/3 flex items-center">
+                    <div class="bg-[#ed5b9a] px-6 py-4 h-1/4 flex items-center">
                         <div class="flex justify-between w-full">
                             <h2 class="text-lg font-bold text-white flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
