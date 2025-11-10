@@ -16,7 +16,7 @@
     @endphp
 
     <!-- Main Container -->
-    <main class="w-full translate-y-16">
+    <main class="w-full translate-y-12">
         <!-- Content Wrapper -->
         <div class="flex gap-8 relative z-10 px-[110px]">
             <!-- Employee Section -->
