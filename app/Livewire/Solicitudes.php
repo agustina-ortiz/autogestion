@@ -35,24 +35,98 @@ class Solicitudes extends Component
      */
     private function inicializarFechas()
     {
+        try {
+            $hoy = Carbon::now();
+            
+            // Mes y año actual
+            $this->anioActual = $hoy->year;
+            
+            // Obtener el nombre del mes en español y en mayúsculas
+            $mesNombre = strtoupper($hoy->locale('es')->translatedFormat('F'));
+            $this->mesActual = $mesNombre;
+            
+            // Obtener el número del mes para verificar si es aguinaldo
+            $mesNumero = $hoy->month;
+            
+            // Buscar los datos en la tabla in_datos usando el nombre del mes en mayúsculas
+            $datos = DB::table('in_datos')
+                ->where('ANIO', $this->anioActual)
+                ->where('MES', $mesNombre)
+                ->first();
+            
+            if ($datos) {
+                // Verificar si es mes de aguinaldo (junio = 6 o diciembre = 12)
+                $esAguinaldo = in_array($mesNumero, [6, 12]);
+                
+                if ($esAguinaldo) {
+                    // Para meses de aguinaldo, usar FECDES3 y FECHAS3
+                    $this->fechaDesdeAdelantos = $this->formatearFecha($datos->FECDES3);
+                    $this->fechaHastaAdelantos = $this->formatearFecha($datos->FECHAS3);
+                } else {
+                    // Para meses normales, usar FECDES y FECHAS
+                    $this->fechaDesdeAdelantos = $this->formatearFecha($datos->FECDES);
+                    $this->fechaHastaAdelantos = $this->formatearFecha($datos->FECHAS);
+                }
+                
+                // Fecha de depósito de adelantos
+                $this->fechaDepositoAdelantos = $this->formatearFecha($datos->FECACR);
+                
+                // Monto máximo para adelantos
+                $this->montoMaximoAdelanto = $datos->IMPORTE_MAX ?? 250000.00;
+                
+                // Fecha tope para cheque
+                // Para aguinaldo usar FECHAS3, para normal usar FECHAS2
+                if ($esAguinaldo) {
+                    $this->fechaTopeCheque = $this->formatearFecha($datos->FECHAS3);
+                } else {
+                    $this->fechaTopeCheque = $this->formatearFecha($datos->FECHAS2);
+                }
+            } else {
+                // Si no hay datos en la tabla, usar valores predeterminados
+                $this->usarValoresPredeterminados();
+            }
+            
+        } catch (\Exception $e) {
+            // En caso de error, usar valores predeterminados
+            $this->usarValoresPredeterminados();
+            session()->flash('error', 'Error al cargar las fechas: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Formatea una fecha de la base de datos al formato dd/mm/yyyy
+     */
+    private function formatearFecha($fecha)
+    {
+        if (!$fecha) {
+            return '-';
+        }
+
+        try {
+            // Si la fecha viene como string o como objeto DateTime/Carbon
+            if (is_string($fecha)) {
+                $carbon = Carbon::parse($fecha);
+            } else {
+                $carbon = Carbon::instance($fecha);
+            }
+            
+            return $carbon->format('d/m/Y');
+        } catch (\Exception $e) {
+            return '-';
+        }
+    }
+
+    /**
+     * Establece valores predeterminados cuando no hay datos en la tabla
+     */
+    private function usarValoresPredeterminados()
+    {
         $hoy = Carbon::now();
         
-        // Mes y año actual
-        $this->mesActual = $hoy->locale('es')->translatedFormat('F'); // Nombre del mes en español
-        $this->anioActual = $hoy->year;
-        
-        // Fechas para adelantos
-        // Del 01 al 06 del mes actual
         $this->fechaDesdeAdelantos = $hoy->copy()->startOfMonth()->format('d/m/Y');
         $this->fechaHastaAdelantos = $hoy->copy()->startOfMonth()->addDays(5)->format('d/m/Y');
-        
-        // Depósito el día 09
         $this->fechaDepositoAdelantos = $hoy->copy()->startOfMonth()->addDays(8)->format('d/m/Y');
-        
-        // Monto máximo para adelantos
         $this->montoMaximoAdelanto = 250000.00;
-        
-        // Fecha tope para cheque: día 27
         $this->fechaTopeCheque = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
     }
 
@@ -64,8 +138,6 @@ class Solicitudes extends Component
         try {
             $userId = Auth::id();
             
-            // Ajusta esta consulta según tu estructura de base de datos
-            // Este es un ejemplo genérico
             $this->solicitudes = DB::table('solicitudes')
                 ->where('user_id', $userId)
                 ->orderBy('fecha_solicitud', 'desc')
@@ -73,9 +145,9 @@ class Solicitudes extends Component
                 ->map(function ($solicitud) {
                     return (object)[
                         'id' => $solicitud->id,
-                        'tipo' => $solicitud->tipo, // 'Adelanto' o 'Cheque'
+                        'tipo' => $solicitud->tipo,
                         'fecha_solicitud' => $solicitud->fecha_solicitud,
-                        'estado' => $solicitud->estado, // 'Pendiente', 'Aprobado', 'Rechazado'
+                        'estado' => $solicitud->estado,
                         'monto' => $solicitud->monto ?? null,
                         'observaciones' => $solicitud->observaciones ?? null,
                     ];
