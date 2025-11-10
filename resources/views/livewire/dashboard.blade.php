@@ -2,16 +2,35 @@
     <x-slot:title>Inicio - Sistema Autogestión</x-slot:title>
 
     @php
+        use Illuminate\Support\Facades\Storage;
+        
         function zerofill($valor, $longitud){
             $res = str_pad($valor, $longitud, '0', STR_PAD_LEFT);
             return $res;
         }
 
-        $foto = 'https://autogestion.mercedes.gob.ar/fotos-licencias/fotos-empleados/'.zerofill(auth()->user()->LEGAJO,8).'.jpg';
-        $tieneFoto = is_array(@getimagesize($foto));
+        $legajo = zerofill(auth()->user()->LEGAJO, 8);
+        $nombreArchivo = $legajo . '.jpg';
+        $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
         
-        if (!$tieneFoto) { 
+        // Si existe el marcador de foto eliminada, mostrar imagen por defecto
+        if (Storage::disk('public')->exists($marcadorEliminada)) {
             $foto = asset('images/no-foto.png');
+            $tieneFoto = false;
+        } else {
+            // Primero verificar si existe en storage local
+            if (Storage::disk('public')->exists('fotos-empleados/' . $nombreArchivo)) {
+                $foto = asset('storage/fotos-empleados/' . $nombreArchivo);
+                $tieneFoto = true;
+            } else {
+                // Si no existe localmente, buscar en el servidor remoto
+                $foto = 'https://autogestion.mercedes.gob.ar/fotos-licencias/fotos-empleados/' . $legajo . '.jpg';
+                $tieneFoto = is_array(@getimagesize($foto));
+                
+                if (!$tieneFoto) { 
+                    $foto = asset('images/no-foto.png');
+                }
+            }
         }
     @endphp
 
