@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header de la página -->
         <div class="mb-6">
@@ -125,7 +125,7 @@
                     </button>
                     <button 
                         type="submit"
-                        class="px-6 py-2 bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center gap-2"
+                        class="px-6 py-2 bg-[#77bf43] text-white rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center gap-2"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
