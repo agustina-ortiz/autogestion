@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <a href="{{ route('planillas') }}" 
-                   class="inline-flex items-center px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#8cc4d8] transition-colors shadow-md">
+                   class="inline-flex items-center px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#5fa335] transition-colors shadow-md">
                     Ir a Planillas
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <a href="{{ route('asignaciones.familiares') }}" 
-                   class="inline-flex items-center px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#8cc4d8] transition-colors shadow-md">
+                   class="inline-flex items-center px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#5fa335] transition-colors shadow-md">
                     Ir a DDJJ
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>

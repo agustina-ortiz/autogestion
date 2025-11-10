@@ -39,7 +39,7 @@
         <!-- Content Wrapper -->
         <div class="flex gap-8 relative z-10 px-[110px]">
             <!-- Employee Section -->
-            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 rounded-2xl translate-y-20 shadow-md overflow-hidden">
+            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 pt-4 rounded-2xl translate-y-20 shadow-md overflow-hidden">
                 <!-- Sección Superior -->
                 <div class="flex items-center gap-6 p-4">
                     <!-- Employee Photo -->
