@@ -14,6 +14,7 @@ use App\Livewire\SolicitarAdelanto;
 use App\Livewire\SolicitarCheque;
 use App\Livewire\Planillas;
 use App\Livewire\AsignacionesFamiliares;
+use App\Livewire\Hijos;
 use App\Livewire\PreguntasFrecuentes;
 use App\Livewire\Perfil;
 
@@ -66,6 +67,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Detalle de Anticipo
     Route::get('/anticipo/{anio}/{mes}/{tipo}/{sub}', AnticipoJubilatorioDetalle::class)->name('anticipo.detalle');
+
+    // Hijos
+    Route::get('/hijos', Hijos::class)->name('hijos');
 
     // Planillas
     Route::get('/planillas', Planillas::class)->name('planillas');

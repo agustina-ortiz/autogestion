@@ -121,20 +121,16 @@
                 <span class="ml-2 font-bold text-[1rem] text-[#333333]">SOLICITUDES</span>
             </a>
 
-            <!-- Planillas -->
+            <!-- Hijos -->
             @if($cantidadHijos > 0)
-                <a href="{{ route('planillas') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <a href="{{ route('hijos') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
                     <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="3" y1="9" x2="21" y2="9"/>
-                        <line x1="9" y1="21" x2="9" y2="9"/>
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">PLANILLAS</span>
-                </a>
-                
-                <!-- DDJJ Asignaciones -->
-                <a href="{{ route('asignaciones.familiares') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">DDJJ para asignaciones familiares para madres</span>
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">HIJOS</span>
                 </a>
             @endif
 

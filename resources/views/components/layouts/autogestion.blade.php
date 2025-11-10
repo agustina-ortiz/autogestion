@@ -87,7 +87,7 @@
         <main class="flex-1 px-6 pt-20">
             <!-- Imagen de fondo que ocupa el 45% superior - Solo en Dashboard -->
             @if(request()->routeIs('dashboard'))
-                <div class="absolute top-0 left-0 right-0 h-[43%] z-0">
+                <div class="absolute top-0 left-0 right-0 h-[48%] z-0">
                     <img 
                         src="{{ asset('images/fondo.png') }}" 
                         alt="Fondo" 

@@ -4,7 +4,7 @@
 
     <main class="max-w-6xl mx-auto p-6">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-[#77BF43]">
+            <h1 class="text-3xl font-bold text-black">
                 DDJJ para Asignaciones Familiares para Madres
             </h1>
             <p class="text-gray-600 mt-2">
@@ -307,13 +307,13 @@
         @endif
 
         <!-- Botón volver -->
-        <div class="mt-8">
-            <a href="{{ route('dashboard') }}" 
-               class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+        <div class="mt-8 flex justify-center">
+            <a href="{{ route('hijos') }}" 
+            class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
-                Volver al inicio
+                Volver a Hijos
             </a>
         </div>
     </main>
