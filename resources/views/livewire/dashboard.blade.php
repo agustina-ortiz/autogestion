@@ -34,12 +34,19 @@
         }
     @endphp
 
+    @php
+            $noticia = DB::table('in_noticia')
+                ->where('FECHAVTO', '>=', now())
+                ->orderBy('FECHA', 'desc')
+                ->first();
+        @endphp
+
     <!-- Main Container -->
     <main class="w-full translate-y-12">
         <!-- Content Wrapper -->
         <div class="flex gap-8 relative z-10 px-[110px]">
             <!-- Employee Section -->
-            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 pt-4 rounded-2xl translate-y-20 shadow-md overflow-hidden">
+            <div class="flex-[0_0_40%] flex flex-col bg-white px-16 pt-4 rounded-2xl shadow-md overflow-hidden {{ $noticia ? 'translate-y-20' : 'translate-y-0' }}">
                 <!-- Sección Superior -->
                 <div class="flex items-center gap-6 p-4">
                     <!-- Employee Photo -->
@@ -97,15 +104,9 @@
         </div>
 
         <!-- Sección de Noticias - Solo en Dashboard -->
-        @php
-            $noticia = DB::table('in_noticia')
-                ->where('FECHAVTO', '>=', now())
-                ->orderBy('FECHA', 'desc')
-                ->first();
-        @endphp
 
         @if($noticia)
-            <div class="grid grid-cols-2 -mt-20 -mx-12">
+            <div class="grid grid-cols-2 -mt-24 -mx-12">
                 <!-- Columna Izquierda -->
                 <div>
                     <!-- Parte Superior Verde (vacía) -->
@@ -173,7 +174,7 @@
         @endif
 
         <!-- Buttons Grid -->
-        <div class="grid grid-cols-4 gap-x-8 relative z-10 px-[110px] -mt-5">
+        <div class="grid grid-cols-4 gap-x-8 relative z-10 px-[110px] -mt-3">
             <!-- Recibos -->
             <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
                 <svg class="w-10 h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
