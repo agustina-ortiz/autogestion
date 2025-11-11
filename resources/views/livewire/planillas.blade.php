@@ -57,6 +57,23 @@
     </script>
     @endpush
 
+    {{-- Header con nombre de usuario --}}
+    <div class="mb-6">
+        <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
+                        <span class="tracking-tight">Planilla de Escolaridad {{ $planillaActual }} - Año {{ $anioActual }}</span>
+                    </h1>
+                </div>
+                <p class="text-white/90 text-sm font-medium">
+                    Bienvenido/a, 
+                    <span class="font-bold drop-shadow-md">{{ Auth::user()->NOMBRE }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
     {{-- Verificar si es temporada de planillas --}}
     @if($planillaActual == 0)
         <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
@@ -69,14 +86,10 @@
         </div>
     @else
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-bold mb-4">
-                Planilla de Escolaridad {{ $planillaActual }} - Año {{ $anioActual }}
-            </h2>
-
             @if(count($hijos) > 0)
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white border border-gray-300">
-                        <thead class="bg-gray-100">
+                        <thead class="bg-[#77BF43] text-white">
                             <tr>
                                 <th class="px-4 py-2 border">Nombre</th>
                                 <th class="px-4 py-2 border">DNI</th>
@@ -96,15 +109,15 @@
                                     <td class="px-4 py-2 border text-center">
                                         @if($hijo->estado_planilla === 'subida')
                                             <span class="bg-green-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                                ✓ Subida
+                                                Subida
                                             </span>
                                         @elseif($hijo->estado_planilla === 'proceso')
                                             <span class="bg-blue-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                                ⏳ En Proceso
+                                                En Proceso
                                             </span>
                                         @else
                                             <span class="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                                ✗ Pendiente
+                                                Pendiente
                                             </span>
                                         @endif
                                     </td>
@@ -113,15 +126,15 @@
                                             {{-- Botón Descargar Planilla Vacía --}}
                                             <button 
                                                 wire:click="descargarPlanilla({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
-                                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
-                                                📄 Descargar
+                                                class="bg-[#00b3ea] hover:bg-[#07a5d5] text-white font-bold py-2 px-4 rounded text-sm">
+                                                Descargar
                                             </button>
 
                                             {{-- Botón Subir Planilla --}}
                                             <button 
                                                 wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
-                                                class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
-                                                📤 Subir
+                                                class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded text-sm">
+                                                Subir
                                             </button>
 
                                             {{-- Botón Ver Planilla (si ya está subida) --}}
