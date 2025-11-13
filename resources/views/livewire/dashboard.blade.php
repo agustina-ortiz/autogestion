@@ -175,65 +175,43 @@
         <!-- Buttons Grid -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-x-8 relative z-10 px-4 md:px-[110px] mt-4 md:-mt-3 pb-4">
             <!-- Recibos -->
-            <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
-                <svg class="w-8 h-8 md:w-10 md:h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                <span class="ml-2 font-bold text-sm md:text-[1rem] text-[#333333]">RECIBOS</span>
+            <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <img src="{{ asset('images/Recurso8.png') }}" class="w-10 h-10" alt="">
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">RECIBOS</span>
             </a>
 
             <!-- Asistencias -->
-            <a href="{{ route('asistencias') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
-                <svg class="w-8 h-8 md:w-10 md:h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <span class="ml-2 font-bold text-sm md:text-[1rem] text-[#333333]">ASISTENCIAS</span>
+            <a href="{{ route('asistencias') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <img src="{{ asset('images/Recurso7.png') }}" class="w-10 h-10" alt="">
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">ASISTENCIAS</span>
             </a>
 
             <!-- Compensatorios -->
-            <a href="{{ route('compensatorios') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
-                <svg class="w-8 h-8 md:w-10 md:h-10 scale-110 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <span class="ml-2 font-bold text-sm md:text-[1rem] text-[#333333]">COMPENSATORIOS</span>
+            <a href="{{ route('compensatorios') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <img src="{{ asset('images/Recurso5.png') }}" class="w-10 h-10" alt="">
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">COMPENSATORIOS</span>
             </a>
 
             <!-- Solicitudes -->
-            <a href="{{ route('solicitudes') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
-                <svg class="w-8 h-8 md:w-10 md:h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="12" y1="18" x2="12" y2="12"/>
-                    <line x1="9" y1="15" x2="15" y2="15"/>
-                </svg>
-                <span class="ml-2 font-bold text-sm md:text-[1rem] text-[#333333]">SOLICITUDES</span>
+            <a href="{{ route('solicitudes') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                <img src="{{ asset('images/Recurso6.png') }}" class="w-10 h-10" alt="">
+                <span class="ml-2 font-bold text-[1rem] text-[#333333]">SOLICITUDES</span>
             </a>
 
             <!-- Hijos -->
             @if($cantidadHijos > 0)
-                <a href="{{ route('hijos') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
-                    <svg class="w-8 h-8 md:w-10 md:h-10 stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    <span class="ml-2 font-bold text-sm md:text-[1rem] text-[#333333]">HIJOS/AS</span>
+                <a href="{{ route('hijos') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                    <img src="{{ asset('images/Recurso13.png') }}" class="w-8 h-10" alt="">
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">HIJOS/AS</span>
                 </a>
             @endif
 
             
             @if($esJubilado)
                 <!-- DDJJ Jubilados -->
-                <a href="{{ route('anticipo.jubilatorio') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
-                    <span class="ml-2 font-bold text-sm md:text-[1rem] text-[#333333]">JUBILADOS/AS</span>
+                <a href="{{ route('anticipo.jubilatorio') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
+                    <img src="{{ asset('images/Recurso14.png') }}" class="w-10 h-10" alt="">
+                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">JUBILADOS/AS</span>
                 </a>
             @endif
         </div>

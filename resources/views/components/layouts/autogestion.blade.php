@@ -92,7 +92,7 @@
             @if(request()->routeIs('dashboard'))
                 <div class="hidden md:block absolute top-0 left-0 right-0 h-[43%] z-0">
                     <img 
-                        src="{{ asset('images/fondo.png') }}" 
+                        src="{{ asset('images/Recurso12.png') }}" 
                         alt="Fondo" 
                         class="w-full h-[113%] object-cover"
                     >
