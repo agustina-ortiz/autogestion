@@ -42,7 +42,7 @@ new #[Layout('layouts.guest')] class extends Component
                 </svg>
             </div>
             <h2 class="mt-4 text-2xl font-bold text-gray-800 uppercase tracking-tight">
-                Autogestión
+                Subdirección de
             </h2>
             <h2 class="text-2xl font-bold text-[#77BF43] uppercase tracking-tight">
                 Recursos Humanos
@@ -130,25 +130,27 @@ new #[Layout('layouts.guest')] class extends Component
                 </div>
 
                 {{-- First Time Access Help --}}
-                <div class="pt-1 flex justify-center">
-                    <button 
-                        type="button"
-                        wire:click="$toggle('showFirstTimeHelp')"
-                        class="text-xs text-gray-600 hover:text-[#77BF43] transition-colors duration-200 flex items-center gap-1"
-                    >
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Primera vez que accedo
-                        <svg 
-                            class="h-3.5 w-3.5 transition-transform duration-200 {{ $showFirstTimeHelp ? 'rotate-180' : '' }}" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
+                <div class="pt-1">
+                    <div class="flex justify-center">
+                        <button 
+                            type="button"
+                            wire:click="$toggle('showFirstTimeHelp')"
+                            class="text-xs text-gray-600 hover:text-[#77BF43] transition-colors duration-200 flex items-center gap-1"
                         >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Primera vez que accedo
+                            <svg 
+                                class="h-3.5 w-3.5 transition-transform duration-200 {{ $showFirstTimeHelp ? 'rotate-180' : '' }}" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
 
                     {{-- First Time Help Message --}}
                     <div 
