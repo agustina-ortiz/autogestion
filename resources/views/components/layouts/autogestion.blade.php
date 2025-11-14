@@ -94,7 +94,7 @@
                     <img 
                         src="{{ asset('images/Recurso12.png') }}" 
                         alt="Fondo" 
-                        class="w-full h-[113%] object-cover"
+                        class="w-full h-full"
                     >
                 </div>
             @endif
