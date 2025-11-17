@@ -1,7 +1,7 @@
 <div>
 
     {{-- Header con nombre de usuario --}}
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
         <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">

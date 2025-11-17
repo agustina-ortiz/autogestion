@@ -42,11 +42,20 @@
     @endphp
 
     <!-- Main Container -->
-    <main class="w-full mt-4 translate-y-12 md:translate-y-12 translate-y-4">
+    <main class="w-full">
+        <!-- Imagen de fondo Mobile - 30% del viewport height, pegada a los bordes -->
+        <div class="md:hidden absolute top-14 left-0 right-0 h-[30vh] w-full overflow-hidden">
+            <img 
+                src="{{ asset('images/Recurso12.png') }}" 
+                alt="Fondo Mobile" 
+                class="w-full h-full object-cover"
+            >
+        </div>
+
         <!-- Content Wrapper -->
-        <div class="flex md:flex-row flex-col gap-4 md:gap-8 relative z-10 px-4 md:px-[110px]">
+        <div class="flex md:flex-row flex-col gap-4 md:gap-8 relative z-10 px-2 md:px-[110px] pt-[17vh] md:pt-0 pb-20 md:pb-0">
             <!-- Employee Section -->
-            <div class="flex-none md:flex-[0_0_40%] w-full flex flex-col bg-white px-4 md:px-16 pt-4 rounded-2xl shadow-md overflow-hidden {{ $noticia ? 'md:translate-y-20' : 'translate-y-0' }}">
+            <div class="flex-none md:flex-[0_0_40%] w-full flex flex-col bg-white px-4 md:px-16 pt-4 rounded-2xl shadow-md overflow-hidden {{ $noticia ? 'md:translate-y-20' : '' }}">
                 <!-- Sección Superior -->
                 <div class="flex items-center gap-3 md:gap-6 p-2 md:p-4">
                     <!-- Employee Photo -->
@@ -68,8 +77,8 @@
                 <!-- Barra Divisora Verde -->
                 <hr class="border-t-2 border-[#77BF43] mx-1">
 
-                <!-- Sección Inferior - 2 Columnas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 md:gap-x-8 px-3 md:px-6 pt-3 md:pt-4 pb-4 md:pb-6">
+                <!-- Sección Inferior - 2 Columnas en todos los dispositivos -->
+                <div class="grid grid-cols-2 gap-x-4 md:gap-x-8 px-3 md:px-6 pt-3 md:pt-4 pb-4 md:pb-6">
                     <!-- Columna Izquierda -->
                     <div class="space-y-2 md:space-y-3">
                         <p class="text-xs md:text-sm text-gray-800">
@@ -103,9 +112,26 @@
             </div>
         </div>
 
+        <!-- Botones Condicionales Mobile - Debajo de la card del empleado -->
+        <div class="md:hidden flex flex-col gap-3 px-2 mt-4 pb-4">
+            @if($cantidadHijos > 0)
+                <a href="{{ route('hijos') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-6 py-4 transition-all duration-300 shadow-md active:scale-95 no-underline cursor-pointer border-0 w-full">
+                    <img src="{{ asset('images/Recurso13.png') }}" class="w-8 h-9" alt="">
+                    <span class="font-bold text-[0.95rem] text-[#333333]">HIJOS/AS</span>
+                </a>
+            @endif
+
+            @if($esJubilado)
+                <a href="{{ route('anticipo.jubilatorio') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-6 py-4 transition-all duration-300 shadow-md active:scale-95 no-underline cursor-pointer border-0 w-full">
+                    <img src="{{ asset('images/Recurso14.png') }}" class="w-9 h-9" alt="">
+                    <span class="font-bold text-[0.95rem] text-[#333333]">JUBILADOS/AS</span>
+                </a>
+            @endif
+        </div>
+
         <!-- Sección de Noticias - Solo en Dashboard -->
         @if($noticia)
-            <div class="grid grid-cols-1 md:grid-cols-2 mt-4 md:-mt-24 mx-4 md:-mx-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 mt-4 md:-mt-24 mx-4 md:mx-0 mb-4 md:mb-0">
                 <!-- Columna Izquierda - Solo visible en desktop -->
                 <div class="hidden md:block">
                     <!-- Parte Superior Verde (vacía) -->
@@ -172,46 +198,46 @@
             </div>
         @endif
 
-        <!-- Buttons Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-x-8 relative z-10 px-4 md:px-[110px] mt-4 md:-mt-3 pb-4">
+        <!-- Buttons Grid - Solo Desktop -->
+        <div class="hidden md:grid md:grid-cols-4 gap-x-8 relative z-10 px-[110px] -mt-3 -mb-5">
             <!-- Recibos -->
-            <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <img src="{{ asset('images/Recurso8.png') }}" class="w-10 h-10" alt="">
-                <span class="ml-2 font-bold text-[1rem] text-[#333333]">RECIBOS</span>
+            <a href="{{ route('recibos') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
+                <img src="{{ asset('images/Recurso8.png') }}" class="w-9 h-9 md:w-10 md:h-10" alt="">
+                <span class="font-bold text-[0.95rem] md:text-[1rem] text-[#333333]">RECIBOS</span>
             </a>
 
             <!-- Asistencias -->
-            <a href="{{ route('asistencias') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <img src="{{ asset('images/Recurso7.png') }}" class="w-10 h-10" alt="">
-                <span class="ml-2 font-bold text-[1rem] text-[#333333]">ASISTENCIAS</span>
+            <a href="{{ route('asistencias') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
+                <img src="{{ asset('images/Recurso7.png') }}" class="w-9 h-9 md:w-10 md:h-10" alt="">
+                <span class="font-bold text-[0.95rem] md:text-[1rem] text-[#333333]">ASISTENCIAS</span>
             </a>
 
             <!-- Compensatorios -->
-            <a href="{{ route('compensatorios') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <img src="{{ asset('images/Recurso5.png') }}" class="w-10 h-10" alt="">
-                <span class="ml-2 font-bold text-[1rem] text-[#333333]">COMPENSATORIOS</span>
+            <a href="{{ route('compensatorios') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
+                <img src="{{ asset('images/Recurso5.png') }}" class="w-9 h-9 md:w-10 md:h-10" alt="">
+                <span class="font-bold text-[0.95rem] md:text-[1rem] text-[#333333]">COMPENSATORIOS</span>
             </a>
 
             <!-- Solicitudes -->
-            <a href="{{ route('solicitudes') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                <img src="{{ asset('images/Recurso6.png') }}" class="w-10 h-10" alt="">
-                <span class="ml-2 font-bold text-[1rem] text-[#333333]">SOLICITUDES</span>
+            <a href="{{ route('solicitudes') }}" class="bg-[#bdd632] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
+                <img src="{{ asset('images/Recurso6.png') }}" class="w-9 h-9 md:w-10 md:h-10" alt="">
+                <span class="font-bold text-[0.95rem] md:text-[1rem] text-[#333333]">SOLICITUDES</span>
             </a>
 
             <!-- Hijos -->
             @if($cantidadHijos > 0)
-                <a href="{{ route('hijos') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                    <img src="{{ asset('images/Recurso13.png') }}" class="w-8 h-10" alt="">
-                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">HIJOS/AS</span>
+                <a href="{{ route('hijos') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
+                    <img src="{{ asset('images/Recurso13.png') }}" class="w-8 h-9 md:w-8 md:h-10" alt="">
+                    <span class="font-bold text-[0.95rem] md:text-[1rem] text-[#333333]">HIJOS/AS</span>
                 </a>
             @endif
 
             
             @if($esJubilado)
                 <!-- DDJJ Jubilados -->
-                <a href="{{ route('anticipo.jubilatorio') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-8 py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-2/3">
-                    <img src="{{ asset('images/Recurso14.png') }}" class="w-10 h-10" alt="">
-                    <span class="ml-2 font-bold text-[1rem] text-[#333333]">JUBILADOS/AS</span>
+                <a href="{{ route('anticipo.jubilatorio') }}" class="bg-[#a4d6e7] rounded-xl flex flex-row items-center justify-start gap-3 px-6 md:px-8 py-6 md:py-8 transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-xl no-underline cursor-pointer border-0 w-full h-auto md:h-2/3">
+                    <img src="{{ asset('images/Recurso14.png') }}" class="w-9 h-9 md:w-10 md:h-10" alt="">
+                    <span class="font-bold text-[0.95rem] md:text-[1rem] text-[#333333]">JUBILADOS/AS</span>
                 </a>
             @endif
         </div>
