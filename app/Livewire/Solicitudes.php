@@ -26,6 +26,11 @@ class Solicitudes extends Component
     public $anioActual;
     public $solicitudes = [];
 
+    // Propiedades para el modal de edición
+    public $mostrarModalEdicion = false;
+    public $solicitudEditando = null;
+    public $montoEdicion = null;
+
     public function mount()
     {
         // Inicializar fechas y mes
@@ -90,8 +95,10 @@ class Solicitudes extends Component
                     return (object)[
                         'id' => $solicitud->id,
                         'tipo' => $solicitud->tipoMovimiento->tipo_movimiento ?? 'Desconocido',
+                        'tipo_movimiento_id' => $solicitud->tipo_movimiento,
                         'fecha_solicitud' => $solicitud->fecha_solicitud->format('Y-m-d H:i:s'),
                         'estado' => $solicitud->getNombreEstado(),
+                        'estado_raw' => $solicitud->estado,
                         'monto' => $solicitud->importe,
                         'observaciones' => $solicitud->forma_pago === 'cheque' 
                             ? 'Forma de pago: Cheque' 
@@ -103,6 +110,135 @@ class Solicitudes extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Error al cargar las solicitudes: ' . $e->getMessage());
             $this->solicitudes = [];
+        }
+    }
+
+    /**
+     * Abre el modal para editar el monto de un adelanto
+     */
+    public function editarMonto($solicitudId)
+    {
+        try {
+            $solicitud = Solicitud::find($solicitudId);
+            
+            // Verificar que la solicitud existe y pertenece al usuario
+            if (!$solicitud || $solicitud->legajo !== Auth::user()->LEGAJO) {
+                session()->flash('error', 'Solicitud no encontrada.');
+                return;
+            }
+
+            // Verificar que sea un adelanto
+            if ($solicitud->tipo_movimiento !== TipoMovimiento::ADELANTO_SUELDO) {
+                session()->flash('error', 'Solo se pueden editar solicitudes de adelanto.');
+                return;
+            }
+
+            // Verificar que esté pendiente
+            if ($solicitud->estado !== Solicitud::ESTADO_PENDIENTE) {
+                session()->flash('error', 'Solo se pueden editar solicitudes pendientes.');
+                return;
+            }
+
+            $this->solicitudEditando = $solicitudId;
+            $this->montoEdicion = $solicitud->importe;
+            $this->mostrarModalEdicion = true;
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al cargar la solicitud: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Guarda el monto editado
+     */
+    public function guardarEdicion()
+    {
+        try {
+            // Validar el monto
+            if (empty($this->montoEdicion) || $this->montoEdicion <= 0) {
+                session()->flash('error', 'Debe ingresar un monto válido mayor a $0.');
+                return;
+            }
+
+            // Validar que no supere el máximo
+            if ($this->montoEdicion > $this->montoMaximoAdelanto) {
+                session()->flash('error', 'El monto no puede superar $' . number_format($this->montoMaximoAdelanto, 2, ',', '.'));
+                return;
+            }
+
+            $solicitud = Solicitud::find($this->solicitudEditando);
+            
+            // Verificar que la solicitud existe y pertenece al usuario
+            if (!$solicitud || $solicitud->legajo !== Auth::user()->LEGAJO) {
+                session()->flash('error', 'Solicitud no encontrada.');
+                return;
+            }
+
+            // Verificar que esté pendiente
+            if ($solicitud->estado !== Solicitud::ESTADO_PENDIENTE) {
+                session()->flash('error', 'Solo se pueden editar solicitudes pendientes.');
+                return;
+            }
+
+            // Actualizar el monto
+            $solicitud->update([
+                'importe' => $this->montoEdicion
+            ]);
+
+            session()->flash('success', 'Monto actualizado correctamente a $' . number_format($this->montoEdicion, 2, ',', '.'));
+            
+            // Cerrar el modal y recargar solicitudes
+            $this->cerrarModal();
+            $this->cargarSolicitudes();
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al actualizar el monto: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Cierra el modal de edición
+     */
+    public function cerrarModal()
+    {
+        $this->mostrarModalEdicion = false;
+        $this->solicitudEditando = null;
+        $this->montoEdicion = null;
+    }
+
+    /**
+     * Elimina una solicitud
+     */
+    public function eliminarSolicitud($solicitudId)
+    {
+        try {
+            $solicitud = Solicitud::find($solicitudId);
+            
+            // Verificar que la solicitud existe y pertenece al usuario
+            if (!$solicitud || $solicitud->legajo !== Auth::user()->LEGAJO) {
+                session()->flash('error', 'Solicitud no encontrada.');
+                return;
+            }
+
+            // Verificar que esté pendiente
+            if ($solicitud->estado !== Solicitud::ESTADO_PENDIENTE) {
+                session()->flash('error', 'Solo se pueden eliminar solicitudes pendientes.');
+                return;
+            }
+
+            // Guardar el tipo para el mensaje
+            $tipo = $solicitud->tipoMovimiento->tipo_movimiento ?? 'solicitud';
+
+            // Eliminar la solicitud
+            $solicitud->delete();
+
+            session()->flash('success', ucfirst($tipo) . ' eliminada correctamente.');
+            
+            // Recargar solicitudes
+            $this->cargarSolicitudes();
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al eliminar la solicitud: ' . $e->getMessage());
         }
     }
 

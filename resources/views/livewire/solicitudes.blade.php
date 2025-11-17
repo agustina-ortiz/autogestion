@@ -95,6 +95,7 @@
                             <th class="p-4 text-left font-semibold text-sm">Estado</th>
                             <th class="p-4 text-left font-semibold text-sm">Monto</th>
                             <th class="p-4 text-left font-semibold text-sm">Observaciones</th>
+                            <th class="p-4 text-left font-semibold text-sm">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,6 +132,34 @@
                                     <td class="py-3 px-4 text-left text-sm text-[#374151]">
                                         {{ $solicitud->observaciones ?? '-' }}
                                     </td>
+                                    <td class="py-3 px-4 text-left text-sm">
+                                        <div class="flex items-center gap-2">
+                                            @if($solicitud->tipo_movimiento_id === 5 && $solicitud->estado_raw === 1)
+                                                <button 
+                                                    wire:click="editarMonto({{ $solicitud->id }})" title="Editar"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200 inline-flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                    </svg>
+                                                </button>
+                                            @endif
+                                            
+                                            @if($solicitud->estado_raw === 1)
+                                                <button 
+                                                    wire:click="eliminarSolicitud({{ $solicitud->id }})" title="Eliminar"
+                                                    wire:confirm="¿Está seguro que desea eliminar esta solicitud?"
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200 inline-flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                </button>
+                                            @endif
+                                            
+                                            @if($solicitud->estado_raw !== 1)
+                                                <span class="text-gray-400 text-xs italic">Sin acciones</span>
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                                 @php $i++; @endphp
                             @endforeach
@@ -158,6 +187,42 @@
             Volver al Inicio
         </a>
     </div>
+
+    {{-- Modal de Edición de Monto --}}
+    @if($mostrarModalEdicion)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Editar Monto del Adelanto</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nuevo Monto (Máximo: ${{ number_format($montoMaximoAdelanto, 2, ',', '.') }})
+                    </label>
+                    <input 
+                        type="number" 
+                        wire:model="montoEdicion"
+                        step="0.01"
+                        min="0"
+                        max="{{ $montoMaximoAdelanto }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#77BF43] focus:border-transparent"
+                        placeholder="Ingrese el nuevo monto">
+                </div>
+
+                <div class="flex gap-3 justify-end">
+                    <button 
+                        wire:click="cerrarModal"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200 font-medium">
+                        Cancelar
+                    </button>
+                    <button 
+                        wire:click="guardarEdicion"
+                        class="px-4 py-2 bg-[#77BF43] text-white rounded-lg hover:bg-[#5da832] transition-colors duration-200 font-medium">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <script>
         setTimeout(function () {
