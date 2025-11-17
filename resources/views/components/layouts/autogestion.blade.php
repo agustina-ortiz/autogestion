@@ -155,25 +155,25 @@
 
                 <!-- Recibos -->
                 <a href="{{ route('recibos') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('recibos') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ asset('images/Recurso8mobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
+                    <img src="{{ request()->routeIs('recibos') ? asset('images/recibosactivo.png') : asset('images/recibosmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
                     <span class="text-[10px] mt-1 font-semibold">Recibos</span>
                 </a>
 
                 <!-- Asistencias -->
                 <a href="{{ route('asistencias') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('asistencias') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ asset('images/Recurso7mobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
+                    <img src="{{ request()->routeIs('asistencias') ? asset('images/asistenciasactivo.png') : asset('images/asistenciasmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
                     <span class="text-[10px] mt-1 font-semibold">Asistencias</span>
                 </a>
 
                 <!-- Compensatorios -->
                 <a href="{{ route('compensatorios') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('compensatorios') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ asset('images/Recurso5mobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
+                    <img src="{{ request()->routeIs('compensatorios') ? asset('images/compensatoriosactivo.png') : asset('images/compensatoriosmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
                     <span class="text-[10px] mt-1 font-semibold">Compensatorios</span>
                 </a>
 
                 <!-- Solicitudes -->
                 <a href="{{ route('solicitudes') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('solicitudes') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ asset('images/Recurso6mobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
+                    <img src="{{ request()->routeIs('solicitudes') ? asset('images/solicitudesactivo.png') : asset('images/solicitudesmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
                     <span class="text-[10px] mt-1 font-semibold">Solicitudes</span>
                 </a>
             </div>
