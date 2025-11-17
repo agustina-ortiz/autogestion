@@ -98,7 +98,9 @@
                     >
                 </div>
             @endif
-            {{ $slot }}
+            <div class="md:pt-10">
+                {{ $slot }}
+            </div>
         </main>
 
         <!-- Footer -->
