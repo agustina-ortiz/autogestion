@@ -4,19 +4,22 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\Solicitud;
+use App\Models\TipoMovimiento;
 use Carbon\Carbon;
 
 class SolicitarCheque extends Component
 {
+    // Tipo de movimiento
+    public $tipoMovimiento;
+    
     // Propiedades públicas
     public $fechaActual;
     public $nombreCompleto;
     public $legajo;
     
     // Propiedades del formulario
-    public $formaCobro = '';
-    public $observaciones;
+    public $formaCobro = 'cheque';
 
     public function mount()
     {
@@ -24,7 +27,7 @@ class SolicitarCheque extends Component
     }
 
     /**
-     * Inicializa los datos del usuario y la fecha
+     * Inicializa los datos del usuario y el tipo de movimiento
      */
     private function inicializarDatos()
     {
@@ -37,7 +40,10 @@ class SolicitarCheque extends Component
         $this->nombreCompleto = $user->NOMBRE ?? '';
         
         // Legajo del usuario
-        $this->legajo = $user->LEGAJO ?? $user->legajo ?? '';
+        $this->legajo = $user->LEGAJO ?? '';
+        
+        // Obtener el tipo de movimiento sueldo por cheque (ID 6)
+        $this->tipoMovimiento = TipoMovimiento::find(TipoMovimiento::SUELDO_CHEQUE);
     }
 
     /**
@@ -45,33 +51,37 @@ class SolicitarCheque extends Component
      */
     private function verificarPeriodoHabilitado()
     {
-        $hoy = Carbon::now();
-        $diaActual = $hoy->day;
-        
-        // Solo se puede solicitar hasta el día 27
-        if ($diaActual > 27) {
+        // Verificar que exista el tipo de movimiento
+        if (!$this->tipoMovimiento) {
             return [
                 'puede' => false,
-                'mensaje' => 'La fecha tope para solicitar cheque era el día 27 del mes.'
+                'mensaje' => 'El tipo de solicitud no está disponible en este momento.'
             ];
         }
-        
+
+        // Verificar si está en período habilitado usando el método del modelo
+        if (!$this->tipoMovimiento->estaEnPeriodoHabilitado()) {
+            $fechaLimite = $this->tipoMovimiento->getFechaHastaFormateada();
+            return [
+                'puede' => false,
+                'mensaje' => 'La fecha tope para solicitar cheque era el ' . $fechaLimite . '.'
+            ];
+        }
+
         return ['puede' => true];
     }
 
     /**
-     * Verifica si el usuario ya tiene una solicitud pendiente o aprobada este mes
+     * Verifica si el usuario ya tiene una solicitud pendiente o lista este mes
      */
     private function tieneSolicitudPendiente()
     {
         try {
-            $userId = Auth::id();
+            $legajoUsuario = Auth::user()->LEGAJO;
             $hoy = Carbon::now();
             
-            $solicitud = DB::table('solicitudes')
-                ->where('user_id', $userId)
-                ->where('tipo', 'Cheque')
-                ->whereIn('estado', ['Pendiente', 'Aprobado'])
+            $solicitud = Solicitud::porLegajo($legajoUsuario)
+                ->porTipoMovimiento(TipoMovimiento::SUELDO_CHEQUE)
                 ->whereYear('fecha_solicitud', $hoy->year)
                 ->whereMonth('fecha_solicitud', $hoy->month)
                 ->first();
@@ -81,24 +91,6 @@ class SolicitarCheque extends Component
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Valida el formulario
-     */
-    private function validarFormulario()
-    {
-        if (empty($this->formaCobro)) {
-            session()->flash('error', 'Debe seleccionar una forma de cobro.');
-            return false;
-        }
-
-        if (!in_array($this->formaCobro, ['deposito', 'cheque'])) {
-            session()->flash('error', 'Forma de cobro inválida.');
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -113,55 +105,34 @@ class SolicitarCheque extends Component
             return;
         }
 
-        // Validar formulario
-        if (!$this->validarFormulario()) {
-            return;
-        }
-
         // Verificar que no tenga solicitud pendiente
         if ($this->tieneSolicitudPendiente()) {
-            session()->flash('error', 'Ya tiene una solicitud de forma de cobro pendiente o aprobada para este mes.');
+            session()->flash('error', 'Ya tiene una solicitud de sueldo por cheque pendiente o procesada para este mes.');
             return;
         }
 
         try {
-            $userId = Auth::id();
+            $legajoUsuario = Auth::user()->LEGAJO;
             $hoy = Carbon::now();
             
-            // Determinar el texto según la forma de cobro seleccionada
-            $formaCobroTexto = $this->formaCobro === 'cheque' 
-                ? 'Por Cheque' 
-                : 'Por Depósito en cuenta sueldo';
-            
-            $observacionesFinales = $this->observaciones 
-                ? $this->observaciones 
-                : 'Solicitud de forma de cobro: ' . $formaCobroTexto;
-            
-            // Insertar la solicitud en la base de datos
-            DB::table('solicitudes')->insert([
-                'user_id' => $userId,
-                'tipo' => 'Cheque',
-                'fecha_solicitud' => Carbon::now(),
-                'estado' => 'Pendiente',
-                'monto' => null, // No aplica para forma de cobro
-                'forma_cobro' => $this->formaCobro, // Nuevo campo para almacenar la forma de cobro
-                'observaciones' => $observacionesFinales,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            // Crear la solicitud usando el modelo
+            Solicitud::create([
+                'legajo' => $legajoUsuario,
+                'fecha_solicitud' => now(),
+                'tipo_movimiento' => TipoMovimiento::SUELDO_CHEQUE,
+                'origen' => Solicitud::ORIGEN_AUTOGESTION,
+                'estado' => Solicitud::ESTADO_PENDIENTE,
+                'forma_pago' => 'cheque', // Obligatorio para este tipo
+                'importe' => null, // No aplica para sueldo por cheque
             ]);
             
-            $mensajeExito = $this->formaCobro === 'cheque'
-                ? '¡Solicitud enviada correctamente! Su sueldo del mes de ' . $hoy->locale('es')->translatedFormat('F') . ' será abonado por CHEQUE.'
-                : '¡Solicitud enviada correctamente! Su sueldo del mes de ' . $hoy->locale('es')->translatedFormat('F') . ' será depositado en su cuenta sueldo del Banco Provincia.';
-            
-            session()->flash('success', $mensajeExito);
-            
-            // Limpiar el formulario
-            $this->formaCobro = '';
-            $this->observaciones = null;
-            
-            // Redirigir después de 2 segundos
-            $this->dispatch('solicitud-enviada');
+            $mesNombre = $hoy->locale('es')->translatedFormat('F');
+
+            // Mensaje de éxito
+            session()->flash('success', '¡Solicitud enviada correctamente! Su sueldo del mes de ' . $mesNombre . ' será abonado por CHEQUE.');
+
+            // Redirigir a la vista de solicitudes
+            return redirect()->route('solicitudes');
             
         } catch (\Exception $e) {
             session()->flash('error', 'Error al procesar la solicitud: ' . $e->getMessage());

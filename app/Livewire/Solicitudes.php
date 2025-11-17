@@ -4,130 +4,73 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\Solicitud;
+use App\Models\TipoMovimiento;
 use Carbon\Carbon;
 
 class Solicitudes extends Component
 {
-    // Propiedades para las fechas y montos
-    public $mesActual;
-    public $anioActual;
+    // Propiedades para adelantos
+    public $tipoAdelanto;
     public $fechaDesdeAdelantos;
     public $fechaHastaAdelantos;
     public $montoMaximoAdelanto;
     public $fechaDepositoAdelantos;
+    
+    // Propiedades para cheques
+    public $tipoCheque;
     public $fechaTopeCheque;
     
-    // Propiedades para las solicitudes
+    // Propiedades generales
+    public $mesActual;
+    public $anioActual;
     public $solicitudes = [];
 
     public function mount()
     {
-        // Inicializar las fechas
-        $this->inicializarFechas();
+        // Inicializar fechas y mes
+        $this->inicializarDatos();
         
         // Cargar las solicitudes del usuario
         $this->cargarSolicitudes();
     }
 
     /**
-     * Inicializa las fechas dinámicas para adelantos y cheques
+     * Inicializa los datos desde in_tipo_movimiento
      */
-    private function inicializarFechas()
-    {
-        try {
-            $hoy = Carbon::now();
-            
-            // Mes y año actual
-            $this->anioActual = $hoy->year;
-            
-            // Obtener el nombre del mes en español y en mayúsculas
-            $mesNombre = strtoupper($hoy->locale('es')->translatedFormat('F'));
-            $this->mesActual = $mesNombre;
-            
-            // Obtener el número del mes para verificar si es aguinaldo
-            $mesNumero = $hoy->month;
-            
-            // Buscar los datos en la tabla in_datos usando el nombre del mes en mayúsculas
-            $datos = DB::table('in_datos')
-                ->where('ANIO', $this->anioActual)
-                ->where('MES', $mesNombre)
-                ->first();
-            
-            if ($datos) {
-                // Verificar si es mes de aguinaldo (junio = 6 o diciembre = 12)
-                $esAguinaldo = in_array($mesNumero, [6, 12]);
-                
-                if ($esAguinaldo) {
-                    // Para meses de aguinaldo, usar FECDES3 y FECHAS3
-                    $this->fechaDesdeAdelantos = $this->formatearFecha($datos->FECDES3);
-                    $this->fechaHastaAdelantos = $this->formatearFecha($datos->FECHAS3);
-                } else {
-                    // Para meses normales, usar FECDES y FECHAS
-                    $this->fechaDesdeAdelantos = $this->formatearFecha($datos->FECDES);
-                    $this->fechaHastaAdelantos = $this->formatearFecha($datos->FECHAS);
-                }
-                
-                // Fecha de depósito de adelantos
-                $this->fechaDepositoAdelantos = $this->formatearFecha($datos->FECACR);
-                
-                // Monto máximo para adelantos
-                $this->montoMaximoAdelanto = $datos->IMPORTE_MAX ?? 250000.00;
-                
-                // Fecha tope para cheque
-                // Para aguinaldo usar FECHAS3, para normal usar FECHAS2
-                if ($esAguinaldo) {
-                    $this->fechaTopeCheque = $this->formatearFecha($datos->FECHAS3);
-                } else {
-                    $this->fechaTopeCheque = $this->formatearFecha($datos->FECHAS2);
-                }
-            } else {
-                // Si no hay datos en la tabla, usar valores predeterminados
-                $this->usarValoresPredeterminados();
-            }
-            
-        } catch (\Exception $e) {
-            // En caso de error, usar valores predeterminados
-            $this->usarValoresPredeterminados();
-            session()->flash('error', 'Error al cargar las fechas: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Formatea una fecha de la base de datos al formato dd/mm/yyyy
-     */
-    private function formatearFecha($fecha)
-    {
-        if (!$fecha) {
-            return '-';
-        }
-
-        try {
-            // Si la fecha viene como string o como objeto DateTime/Carbon
-            if (is_string($fecha)) {
-                $carbon = Carbon::parse($fecha);
-            } else {
-                $carbon = Carbon::instance($fecha);
-            }
-            
-            return $carbon->format('d/m/Y');
-        } catch (\Exception $e) {
-            return '-';
-        }
-    }
-
-    /**
-     * Establece valores predeterminados cuando no hay datos en la tabla
-     */
-    private function usarValoresPredeterminados()
+    private function inicializarDatos()
     {
         $hoy = Carbon::now();
         
-        $this->fechaDesdeAdelantos = $hoy->copy()->startOfMonth()->format('d/m/Y');
-        $this->fechaHastaAdelantos = $hoy->copy()->startOfMonth()->addDays(5)->format('d/m/Y');
-        $this->fechaDepositoAdelantos = $hoy->copy()->startOfMonth()->addDays(8)->format('d/m/Y');
-        $this->montoMaximoAdelanto = 250000.00;
-        $this->fechaTopeCheque = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
+        // Mes y año actual
+        $this->anioActual = $hoy->year;
+        $this->mesActual = strtoupper($hoy->locale('es')->translatedFormat('F'));
+
+        // Obtener tipo adelanto de sueldo (ID 5)
+        $this->tipoAdelanto = TipoMovimiento::find(TipoMovimiento::ADELANTO_SUELDO);
+        
+        if ($this->tipoAdelanto) {
+            $this->fechaDesdeAdelantos = $this->tipoAdelanto->getFechaDesdeFormateada();
+            $this->fechaHastaAdelantos = $this->tipoAdelanto->getFechaHastaFormateada();
+            $this->fechaDepositoAdelantos = $this->tipoAdelanto->getFechaAcreditacionFormateada();
+            $this->montoMaximoAdelanto = $this->tipoAdelanto->importe_maximo ?? 250000.00;
+        } else {
+            // Valores por defecto si no existe el tipo
+            $this->fechaDesdeAdelantos = $hoy->copy()->startOfMonth()->format('d/m/Y');
+            $this->fechaHastaAdelantos = $hoy->copy()->startOfMonth()->addDays(6)->format('d/m/Y');
+            $this->fechaDepositoAdelantos = $hoy->copy()->startOfMonth()->addDays(9)->format('d/m/Y');
+            $this->montoMaximoAdelanto = 250000.00;
+        }
+
+        // Obtener tipo sueldo por cheque (ID 6)
+        $this->tipoCheque = TipoMovimiento::find(TipoMovimiento::SUELDO_CHEQUE);
+        
+        if ($this->tipoCheque) {
+            $this->fechaTopeCheque = $this->tipoCheque->getFechaHastaFormateada();
+        } else {
+            // Valor por defecto si no existe el tipo
+            $this->fechaTopeCheque = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
+        }
     }
 
     /**
@@ -136,20 +79,23 @@ class Solicitudes extends Component
     private function cargarSolicitudes()
     {
         try {
-            $userId = Auth::id();
+            $legajoUsuario = Auth::user()->LEGAJO;
             
-            $this->solicitudes = DB::table('solicitudes')
-                ->where('user_id', $userId)
-                ->orderBy('fecha_solicitud', 'desc')
+            // Obtener todas las solicitudes del usuario ordenadas por fecha
+            $this->solicitudes = Solicitud::porLegajo($legajoUsuario)
+                ->with('tipoMovimiento')
+                ->masRecientes()
                 ->get()
                 ->map(function ($solicitud) {
                     return (object)[
                         'id' => $solicitud->id,
-                        'tipo' => $solicitud->tipo,
-                        'fecha_solicitud' => $solicitud->fecha_solicitud,
-                        'estado' => $solicitud->estado,
-                        'monto' => $solicitud->monto ?? null,
-                        'observaciones' => $solicitud->observaciones ?? null,
+                        'tipo' => $solicitud->tipoMovimiento->tipo_movimiento ?? 'Desconocido',
+                        'fecha_solicitud' => $solicitud->fecha_solicitud->format('Y-m-d H:i:s'),
+                        'estado' => $solicitud->getNombreEstado(),
+                        'monto' => $solicitud->importe,
+                        'observaciones' => $solicitud->forma_pago === 'cheque' 
+                            ? 'Forma de pago: Cheque' 
+                            : 'Forma de pago: Depósito',
                     ];
                 })
                 ->toArray();

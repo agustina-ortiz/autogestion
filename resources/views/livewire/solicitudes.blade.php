@@ -1,4 +1,4 @@
-<div class="min-h-screen">
+<div class="py-10">
     {{-- Header con nombre de usuario --}}
     <div class="mb-4">
         <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
@@ -18,14 +18,14 @@
 
     {{-- Mensaje de éxito --}}
     @if (session()->has('success'))
-        <div class="mb-6 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl">
+        <div data-flash-success class="mb-6 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl">
             {{ session('success') }}
         </div>
     @endif
 
     {{-- Mensaje de error --}}
     @if (session()->has('error'))
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+        <div data-flash-error class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
             {{ session('error') }}
         </div>
     @endif
@@ -110,7 +110,7 @@
                                         </span>
                                     </td>
                                     <td class="py-3 px-4 text-left text-sm text-[#374151]">
-                                        {{ \Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y H:i') }}
+                                        {{ \Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y') }}
                                     </td>
                                     <td class="py-3 px-4 text-left text-sm">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
@@ -158,4 +158,14 @@
             Volver al Inicio
         </a>
     </div>
+
+    <script>
+        setTimeout(function () {
+            const successMsg = document.querySelector('[data-flash-success]');
+            if (successMsg) successMsg.style.display = 'none';
+
+            const errorMsg = document.querySelector('[data-flash-error]');
+            if (errorMsg) errorMsg.style.display = 'none';
+        }, 3000);
+    </script>
 </div>

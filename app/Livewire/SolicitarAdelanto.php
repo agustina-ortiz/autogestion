@@ -4,52 +4,62 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\Solicitud;
+use App\Models\TipoMovimiento;
 use Carbon\Carbon;
 
 class SolicitarAdelanto extends Component
 {
+    // Tipo de movimiento
+    public $tipoMovimiento;
+    
     // Propiedades públicas
     public $mesActual;
     public $anioActual;
     public $fechaActual;
     public $fechaInicial;
     public $fechaLimite;
+    public $fechaAcreditacion;
     public $montoMaximoAdelanto;
     public $puedesolicitarAdelanto = false;
     
     // Propiedades del formulario
     public $montoSolicitado;
-    public $observaciones;
+    public $formaCobro = '';
 
     public function mount()
     {
-        $this->inicializarFechas();
+        $this->inicializarDatos();
         $this->verificarPeriodoHabilitado();
     }
 
     /**
-     * Inicializa las fechas dinámicas
+     * Inicializa los datos desde in_tipo_movimiento
      */
-    private function inicializarFechas()
+    private function inicializarDatos()
     {
         $hoy = Carbon::now();
         
         // Mes y año actual
         $this->mesActual = $hoy->locale('es')->translatedFormat('F');
         $this->anioActual = $hoy->year;
-        
-        // Fecha actual formateada
         $this->fechaActual = $hoy->format('d/m/Y');
         
-        // Fecha inicial (01 del mes actual)
-        $this->fechaInicial = $hoy->copy()->startOfMonth()->format('d/m/Y');
+        // Obtener el tipo de movimiento adelanto de sueldo (ID 5)
+        $this->tipoMovimiento = TipoMovimiento::find(TipoMovimiento::ADELANTO_SUELDO);
         
-        // Fecha límite (06 del mes actual)
-        $this->fechaLimite = $hoy->copy()->startOfMonth()->addDays(5)->format('d/m/Y');
-        
-        // Monto máximo para adelantos
-        $this->montoMaximoAdelanto = 250000.00;
+        if ($this->tipoMovimiento) {
+            $this->fechaInicial = $this->tipoMovimiento->getFechaDesdeFormateada();
+            $this->fechaLimite = $this->tipoMovimiento->getFechaHastaFormateada();
+            $this->fechaAcreditacion = $this->tipoMovimiento->getFechaAcreditacionFormateada();
+            $this->montoMaximoAdelanto = $this->tipoMovimiento->importe_maximo ?? 250000.00;
+        } else {
+            // Valores por defecto si no existe el tipo
+            $this->fechaInicial = $hoy->copy()->startOfMonth()->format('d/m/Y');
+            $this->fechaLimite = $hoy->copy()->startOfMonth()->addDays(6)->format('d/m/Y');
+            $this->fechaAcreditacion = $hoy->copy()->startOfMonth()->addDays(9)->format('d/m/Y');
+            $this->montoMaximoAdelanto = 250000.00;
+        }
     }
 
     /**
@@ -57,33 +67,39 @@ class SolicitarAdelanto extends Component
      */
     private function verificarPeriodoHabilitado()
     {
-        $hoy = Carbon::now();
-        $diaActual = $hoy->day;
-        
-        // Verificar si está entre el día 1 y 6
-        if ($diaActual >= 1 && $diaActual <= 6) {
-            // Verificar si ya tiene un adelanto pendiente o aprobado este mes
-            $adelantoPendiente = $this->tieneAdelantoPendiente();
-            
-            if (!$adelantoPendiente) {
-                $this->puedesolicitarAdelanto = true;
-            }
+        // Verificar que exista el tipo de movimiento
+        if (!$this->tipoMovimiento) {
+            $this->puedesolicitarAdelanto = false;
+            return;
         }
+
+        // Verificar si está en período habilitado usando el método del modelo
+        if (!$this->tipoMovimiento->estaEnPeriodoHabilitado()) {
+            $this->puedesolicitarAdelanto = false;
+            return;
+        }
+
+        // Verificar si ya tiene un adelanto pendiente este mes
+        if ($this->tieneAdelantoPendiente()) {
+            $this->puedesolicitarAdelanto = false;
+            return;
+        }
+
+        // Si pasó todas las validaciones, puede solicitar
+        $this->puedesolicitarAdelanto = true;
     }
 
     /**
-     * Verifica si el usuario ya tiene un adelanto pendiente o aprobado este mes
+     * Verifica si el usuario ya tiene un adelanto pendiente o listo este mes
      */
     private function tieneAdelantoPendiente()
     {
         try {
-            $userId = Auth::id();
+            $legajoUsuario = Auth::user()->LEGAJO;
             $hoy = Carbon::now();
             
-            $adelanto = DB::table('solicitudes')
-                ->where('user_id', $userId)
-                ->where('tipo', 'Adelanto')
-                ->whereIn('estado', ['Pendiente', 'Aprobado'])
+            $adelanto = Solicitud::porLegajo($legajoUsuario)
+                ->porTipoMovimiento(TipoMovimiento::ADELANTO_SUELDO)
                 ->whereYear('fecha_solicitud', $hoy->year)
                 ->whereMonth('fecha_solicitud', $hoy->month)
                 ->first();
@@ -105,8 +121,27 @@ class SolicitarAdelanto extends Component
             return false;
         }
 
-        if ($this->montoSolicitado > $this->montoMaximoAdelanto) {
+        // Validar usando el método del modelo
+        if (!$this->tipoMovimiento->importeEsValido($this->montoSolicitado)) {
             session()->flash('error', 'El monto solicitado no puede superar $' . number_format($this->montoMaximoAdelanto, 2, ',', '.'));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Valida la forma de cobro
+     */
+    private function validarFormaCobro()
+    {
+        if (empty($this->formaCobro)) {
+            session()->flash('error', 'Debe seleccionar una forma de cobro.');
+            return false;
+        }
+
+        if (!in_array($this->formaCobro, ['efectivo', 'cheque'])) {
+            session()->flash('error', 'Forma de cobro inválida.');
             return false;
         }
 
@@ -129,38 +164,39 @@ class SolicitarAdelanto extends Component
             return;
         }
 
+        // Validar la forma de cobro
+        if (!$this->validarFormaCobro()) {
+            return;
+        }
+
         // Verificar nuevamente que no tenga solicitud pendiente
         if ($this->tieneAdelantoPendiente()) {
-            session()->flash('error', 'Ya tiene una solicitud de adelanto pendiente o aprobada para este mes.');
+            session()->flash('error', 'Ya tiene una solicitud de adelanto pendiente o procesada para este mes.');
             return;
         }
 
         try {
-            $userId = Auth::id();
+            $legajoUsuario = Auth::user()->LEGAJO;
             
-            // Insertar la solicitud en la base de datos
-            DB::table('solicitudes')->insert([
-                'user_id' => $userId,
-                'tipo' => 'Adelanto',
-                'fecha_solicitud' => Carbon::now(),
-                'estado' => 'Pendiente',
-                'monto' => $this->montoSolicitado,
-                'observaciones' => $this->observaciones ?? 'Solicitud de adelanto del mes de ' . $this->mesActual . ' ' . $this->anioActual,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            // Mapear 'efectivo' a 'deposito' para que coincida con el enum de la BD
+            $formaPago = $this->formaCobro === 'efectivo' ? 'deposito' : 'cheque';
+            
+            // Crear la solicitud usando el modelo
+            Solicitud::create([
+                'legajo' => $legajoUsuario,
+                'fecha_solicitud' => now(),
+                'tipo_movimiento' => TipoMovimiento::ADELANTO_SUELDO,
+                'origen' => Solicitud::ORIGEN_AUTOGESTION,
+                'estado' => Solicitud::ESTADO_PENDIENTE,
+                'forma_pago' => $formaPago,
+                'importe' => $this->montoSolicitado,
             ]);
             
+            // Mensaje de éxito
             session()->flash('success', '¡Solicitud de adelanto enviada correctamente por $' . number_format($this->montoSolicitado, 2, ',', '.') . '! Será procesada en breve.');
-            
-            // Limpiar el formulario
-            $this->montoSolicitado = null;
-            $this->observaciones = null;
-            
-            // Actualizar el estado
-            $this->puedesolicitarAdelanto = false;
-            
-            // Redirigir después de 2 segundos
-            $this->dispatch('solicitud-enviada');
+
+            // Redirigir a la vista de solicitudes
+            return redirect()->route('solicitudes');
             
         } catch (\Exception $e) {
             session()->flash('error', 'Error al procesar la solicitud: ' . $e->getMessage());
