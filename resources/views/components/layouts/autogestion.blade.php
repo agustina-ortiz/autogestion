@@ -15,27 +15,33 @@
                 box-sizing: border-box;
             }   
         </style>
+        @php
+            $noticia = DB::table('in_noticia')
+                ->where('FECHAVTO', '>=', now())
+                ->orderBy('FECHA', 'desc')
+                ->first();
+        @endphp
     </head>
     <body>
         <!-- Header -->
-        <header class="fixed top-0 left-0 right-0 z-50 bg-[#BED630] shadow-md flex justify-between items-center px-4 md:px-40 py-2 md:py-4">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-[#BED630] shadow-md flex justify-between items-center px-3 sm:px-6 md:px-20 lg:px-40 py-2 md:py-3 lg:py-4">
             <div class="logo">
                 <a href="{{ route('dashboard') }}">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Municipalidad" class="h-8 md:h-12">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo Municipalidad" class="h-7 sm:h-9 md:h-10 lg:h-12">
                 </a>
             </div>
             <div class="hidden md:block">
-                <h1 class="text-xl font-bold text-white">AUTOGESTIÓN RECURSOS HUMANOS</h1>
+                <h1 class="text-base md:text-lg lg:text-xl font-bold text-white whitespace-nowrap">AUTOGESTIÓN RECURSOS HUMANOS</h1>
             </div>
             <div class="header-right flex items-center gap-2 md:gap-3">
                 <!-- Dropdown de Mi Perfil -->
                 <div x-data="{ open: false }" class="relative">
                     <button 
                         @click="open = !open"
-                        class="bg-black text-[#bdd632] rounded-full px-2 md:px-3 py-1.5 md:py-2 hover:bg-gray-800 transition-colors flex items-center gap-1 md:gap-2 text-xs font-bold"
+                        class="bg-black text-[#bdd632] rounded-full px-2 sm:px-2.5 md:px-3 py-1.5 md:py-2 hover:bg-gray-800 transition-colors flex items-center gap-1 md:gap-2 text-xs font-bold whitespace-nowrap"
                     >
                         <img src="{{ asset('images/icono-perfil.png') }}" class="w-4 h-4 md:w-5 md:h-5 rounded-full text-[#bdd632]" alt="Foto de Perfil">
-                        <span class="hidden md:inline">Mi Perfil</span>
+                        <span class="hidden sm:inline text-[10px] md:text-xs">Mi Perfil</span>
                         <svg class="w-3 h-3 md:w-4 md:h-4 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
@@ -84,24 +90,93 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 pt-14 md:pt-20">
+        <main class="flex-1 pt-12 sm:pt-14 md:pt-16 lg:pt-20">
             <!-- Imagen de fondo que ocupa el 45% superior - Solo en Dashboard y Desktop -->
             @if(request()->routeIs('dashboard'))
-                <div class="hidden md:block absolute top-0 left-0 right-0 h-[43%] z-0">
+                <div class="hidden lg:block absolute top-0 left-0 right-0 h-[43%] z-0">
                     <img 
                         src="{{ asset('images/Recurso12.png') }}" 
                         alt="Fondo" 
                         class="w-full h-full object-cover"
                     >
                 </div>
+
+                <!-- Sección de Noticias Desktop - Posicionada sobre el fondo -->
+                @if($noticia)
+                    <div class="hidden lg:grid grid-cols-2 absolute top-[43%] left-0 right-0 z-10">
+                        <!-- Columna Izquierda - Vacía -->
+                        <div>
+                            <!-- Parte Superior Rosa (vacía) -->
+                            <div class="bg-[#ed5b9a] px-6 py-4 h-1/4">
+                                <div class="h-full"></div>
+                            </div>
+                            <!-- Parte Inferior Blanca (vacía) -->
+                            <div class="bg-white px-6 py-6">
+                                <!-- Espacio vacío -->
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha - Contenido de la Noticia -->
+                        <div>
+                            <!-- Parte Superior Rosa: Título de la Noticia -->
+                            <div class="bg-[#ed5b9a] px-6 py-4 h-1/4 flex items-center">
+                                <div class="flex flex-row justify-between w-full">
+                                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                        </svg>
+                                        {{ $noticia->TITULO }}
+                                    </h2>
+                                    <span class="text-xs text-white bg-white bg-opacity-20 px-2 py-1 rounded-full h-fit whitespace-nowrap">
+                                        {{ \Carbon\Carbon::parse($noticia->FECHA)->format('d/m/Y') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Parte Inferior Blanca: Contenido de la Noticia -->
+                            <div class="bg-white px-6 py-6">
+                                <div class="text-sm text-gray-700 leading-relaxed">
+                                    {!! nl2br(e($noticia->DETALLE)) !!}
+                                </div>
+
+                                @if($noticia->LINK)
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <a href="{{ $noticia->LINK }}" 
+                                        target="_blank"
+                                        class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors text-sm break-all">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                            </svg>
+                                            Ver más información
+                                        </a>
+                                    </div>
+                                @endif
+
+                                @if($noticia->ARCHIVO)
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <a href="{{ asset('storage/noticias/' . $noticia->ARCHIVO) }}" 
+                                        target="_blank"
+                                        class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors text-sm break-all">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Descargar archivo adjunto
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @endif
+
             <div class="md:pt-10">
                 {{ $slot }}
             </div>
         </main>
 
         <!-- Footer Desktop - Oculto en Mobile -->
-        <footer class="hidden md:flex bottom-0 left-0 right-0 z-50 flex-row justify-between items-center p-4 px-40 bg-[#333333]">
+        <footer class="hidden lg:flex bottom-0 left-0 right-0 z-50 flex-row justify-between items-center p-4 px-20 lg:px-40 bg-[#333333] {{ $noticia ? 'lg:translate-y-20' : '' }}">
             
             <!-- Lado izquierdo -->
             <div class="flex flex-col gap-2 items-start">
@@ -129,7 +204,7 @@
             </div>
 
             <!-- Lado derecho -->
-            <div class="flex flex-row items-center gap-6">
+            <div class="flex flex-row items-center gap-4 lg:gap-6">
                 <a href="{{ route('preguntas.frecuentes') }}" class="bg-white text-black rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors text-xs font-bold whitespace-nowrap">
                     Preguntas Frecuentes
                 </a>
@@ -143,38 +218,38 @@
         </footer>
 
         <!-- Bottom Navigation Mobile - Estilo App -->
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
+        <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
             <div class="flex justify-around items-center py-2">
                 <!-- Inicio/Dashboard -->
                 <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('dashboard') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                     </svg>
-                    <span class="text-[10px] mt-1 font-semibold">Inicio</span>
+                    <span class="text-[9px] sm:text-[10px] mt-1 font-semibold">Inicio</span>
                 </a>
 
                 <!-- Recibos -->
                 <a href="{{ route('recibos') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('recibos') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ request()->routeIs('recibos') ? asset('images/recibosactivo.png') : asset('images/recibosmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
-                    <span class="text-[10px] mt-1 font-semibold">Recibos</span>
+                    <img src="{{ request()->routeIs('recibos') ? asset('images/recibosactivo.png') : asset('images/recibosmobile.png') }}" class="w-5 h-5 sm:w-6 sm:h-6" alt="">
+                    <span class="text-[9px] sm:text-[10px] mt-1 font-semibold">Recibos</span>
                 </a>
 
                 <!-- Asistencias -->
                 <a href="{{ route('asistencias') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('asistencias') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ request()->routeIs('asistencias') ? asset('images/asistenciasactivo.png') : asset('images/asistenciasmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
-                    <span class="text-[10px] mt-1 font-semibold">Asistencias</span>
+                    <img src="{{ request()->routeIs('asistencias') ? asset('images/asistenciasactivo.png') : asset('images/asistenciasmobile.png') }}" class="w-5 h-5 sm:w-6 sm:h-6" alt="">
+                    <span class="text-[9px] sm:text-[10px] mt-1 font-semibold">Asistencias</span>
                 </a>
 
                 <!-- Compensatorios -->
                 <a href="{{ route('compensatorios') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('compensatorios') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ request()->routeIs('compensatorios') ? asset('images/compensatoriosactivo.png') : asset('images/compensatoriosmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
-                    <span class="text-[10px] mt-1 font-semibold">Compensatorios</span>
+                    <img src="{{ request()->routeIs('compensatorios') ? asset('images/compensatoriosactivo.png') : asset('images/compensatoriosmobile.png') }}" class="w-5 h-5 sm:w-6 sm:h-6" alt="">
+                    <span class="text-[9px] sm:text-[10px] mt-1 font-semibold">Compensatorios</span>
                 </a>
 
                 <!-- Solicitudes -->
                 <a href="{{ route('solicitudes') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('solicitudes') ? 'text-[#77BF43]' : 'text-gray-600' }}">
-                    <img src="{{ request()->routeIs('solicitudes') ? asset('images/solicitudesactivo.png') : asset('images/solicitudesmobile.png') }}" class="w-6 h-6 md:w-10 md:h-10" alt="">
-                    <span class="text-[10px] mt-1 font-semibold">Solicitudes</span>
+                    <img src="{{ request()->routeIs('solicitudes') ? asset('images/solicitudesactivo.png') : asset('images/solicitudesmobile.png') }}" class="w-5 h-5 sm:w-6 sm:h-6" alt="">
+                    <span class="text-[9px] sm:text-[10px] mt-1 font-semibold">Solicitudes</span>
                 </a>
             </div>
         </nav>
