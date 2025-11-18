@@ -101,7 +101,7 @@
     </div>
 
     {{-- Tabla de solicitudes --}}
-    <div class="mb-8">
+    <div class="mb-16 md:mb-8">
         <h2 class="text-[#77BF43] text-2xl font-bold mb-4 uppercase">
             Mis Solicitudes
         </h2>
