@@ -47,9 +47,6 @@ new #[Layout('layouts.guest')] class extends Component
             <h2 class="text-2xl font-bold text-[#77BF43] uppercase tracking-tight">
                 Recursos Humanos
             </h2>
-            <p class="mt-1 text-xs text-gray-600">
-                Ingrese sus credenciales para acceder
-            </p>
         </div>
 
         {{-- Form Card --}}
@@ -238,7 +235,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         {{-- Footer --}}
         <p class="text-center text-xs text-gray-600">
-            © 2025 Subdirección de Recursos Humanos - Todos los derechos reservados
+            2025 Subdirección de Recursos Humanos
         </p>
     </div>
 </div>
