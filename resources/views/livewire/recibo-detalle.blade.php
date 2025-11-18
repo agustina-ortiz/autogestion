@@ -10,7 +10,7 @@
 
         @if ($recibo)
             {{-- Header del recibo con glassmorphism --}}
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 mb-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+            <div class="bg-[#77BF43] rounded-xl px-6 py-3 mb-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
                 <div class="flex items-center justify-between">
                     {{-- Izquierda: Icono de volver + título --}}
                     <div class="flex items-center gap-3">
@@ -42,7 +42,7 @@
                 
                 {{-- TABLA 1: Datos Personales --}}
                 <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.02] transition-all duration-300">
-                    <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2 border-b border-white/30">
+                    <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                         <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                             <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                             Datos Personales
@@ -50,7 +50,7 @@
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs">
-                            <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold">
+                            <thead class="bg-[#77BF43] text-white uppercase font-bold">
                                 <tr>
                                     <th class="px-2 py-2 text-left text-[10px]">Nro Recibo</th>
                                     <th class="px-2 py-2 text-left text-[10px]">Nombre</th>
@@ -78,7 +78,7 @@
 
                 {{-- TABLA 2: Datos Laborales --}}
                 <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.02] transition-all duration-300">
-                    <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2 border-b border-white/30">
+                    <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                         <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                             <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                             Datos Laborales
@@ -86,7 +86,7 @@
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs">
-                            <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold">
+                            <thead class="bg-[#77BF43] text-white uppercase font-bold">
                                 <tr>
                                     <th class="px-2 py-2 text-left text-[10px]">Cargo</th>
                                     <th class="px-2 py-2 text-left text-[10px]">F. Ingreso</th>
@@ -114,7 +114,7 @@
 
             {{-- TABLA 3: Detalle de Conceptos (ancho completo) --}}
             <div class="mb-8 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl mb-3 transform hover:scale-[1.01] transition-all duration-300">
-                <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2 border-b border-white/30">
+                <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                         Detalle de Conceptos
@@ -122,7 +122,7 @@
                 </div>
                 <div class="overflow-x-auto max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-[#77BF43] scrollbar-track-gray-100">
                     <table class="w-full text-xs">
-                        <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold sticky top-0 z-10">
+                        <thead class="bg-[#77BF43] text-white uppercase font-bold sticky top-0 z-10">
                             <tr>
                                 <th class="px-2 py-2 text-center text-[10px]">Cant.</th>
                                 <th class="px-2 py-2 text-center text-[10px]">Código</th>
@@ -156,7 +156,7 @@
 
             {{-- TABLA 4: Resumen de Liquidación con efecto destacado --}}
             <div class="mb-8 bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-2xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
-                <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2 border-b border-white/30">
+                <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                         Resumen de Liquidación
@@ -164,7 +164,7 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs">
-                        <thead class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white uppercase font-bold">
+                        <thead class="bg-[#77BF43] text-white uppercase font-bold">
                             <tr>
                                 <th class="px-3 py-2 text-left text-[10px]">Tipo de Liquidación</th>
                                 <th class="px-3 py-2 text-left text-[10px]">Remuneración con Aporte</th>
@@ -181,7 +181,7 @@
                                 <td class="px-3 py-3 text-gray-600 font-semibold">${{ number_format($recibo['RETENCIONES'], 2, ',', '.') }}</td>
                                 <td class="px-3 py-3">
                                     <div class="flex items-center justify-center gap-2 w-full h-full">
-                                        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white font-black text-base px-4 py-2 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
+                                        <div class="bg-[#77BF43] text-white font-black text-base px-4 py-2 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
                                             ${{ number_format($recibo['LIQUIDO'], 2, ',', '.') }}
                                         </div>
                                     </div>
@@ -221,7 +221,7 @@
 
                 <!-- Header -->
                 <div class="flex justify-between items-center border-b pb-2 mb-8 text-sm">
-                    <h1 class="text-lg font-bold text-gray-800">Detalle del Recibo</h1>
+                    <h1 class="bg-[ text-lg font-bold text-gray-800">Detalle del Recibo</h1>
                     <p class="text-gray-600 mr-8">Tipo de Liquidación: {{ $recibo['TIPO_LIQ'] }} - Período: {{ $recibo['MES'] }}/{{ $recibo['ANIO'] }}</p>
                 </div>
 
