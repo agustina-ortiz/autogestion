@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Models\Maestro;
 use App\Models\Compensatorio;
 use App\Models\Movimiento;
@@ -14,6 +15,12 @@ class Compensatorios extends Component
     public $currentPage = 1;
     public $fechaDesde;
     public $fechaHasta;
+
+    public function mount()
+    {
+        $this->fechaHasta = Carbon::now()->format('Y-m-d');
+        $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
+    }
 
     // Resetear paginación cuando cambian los filtros
     public function updatedFechaDesde()

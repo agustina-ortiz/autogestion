@@ -26,22 +26,32 @@
 
     {{-- Filtros de fecha --}}
     <div class="mb-6">
-        <div class="bg-white p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] flex items-end gap-4 flex-wrap">
-            <flux:field>
-                <flux:label>Fecha Desde</flux:label>
-                <flux:input type="date" wire:model.live="fechaDesde" />
-            </flux:field>
+        <div class="bg-white p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)]
+                    flex flex-col md:flex-row items-end md:items-end gap-4 md:flex-wrap">
 
-            <flux:field>
-                <flux:label>Fecha Hasta</flux:label>
-                <flux:input type="date" wire:model.live="fechaHasta" />
-            </flux:field>
+            <div class="flex flex-row w-full md:w-auto gap-4">
+                <flux:field class="flex-1">
+                    <flux:label>Fecha Desde</flux:label>
+                    <flux:input type="date" wire:model.live="fechaDesde" />
+                </flux:field>
 
-            <button 
-                wire:click="limpiarFiltros" 
-                class="bg-[#77BF43] text-white px-6 py-2 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
-                Limpiar Filtros
-            </button>
+                <flux:field class="flex-1">
+                    <flux:label>Fecha Hasta</flux:label>
+                    <flux:input type="date" wire:model.live="fechaHasta" />
+                </flux:field>
+            </div>
+
+            <div class="w-full flex justify-center md:w-auto md:block">
+                <button 
+                    wire:click="limpiarFiltros"
+                    class="bg-[#77BF43] text-white px-6 py-2 rounded-lg font-semibold cursor-pointer 
+                        transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] 
+                        hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] 
+                        hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
+                    Limpiar Filtros
+                </button>
+            </div>
+
         </div>
     </div>
 

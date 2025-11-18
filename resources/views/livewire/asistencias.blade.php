@@ -18,21 +18,37 @@
     </div>
 
     <!-- Filtros de fecha -->
-    <div class="filtros-section">
-        <flux:field>
+<!-- Filtros de fecha -->
+<div class="filtros-section 
+            flex flex-col md:flex-row 
+            items-end md:items-end 
+            gap-4 md:flex-wrap bg-white p-6 rounded-xl shadow">
+
+    <!-- Contenedor horizontal solo en mobile -->
+    <div class="flex flex-row w-full md:w-auto gap-4">
+        <flux:field class="flex-1">
             <flux:label>Fecha Desde</flux:label>
             <flux:input type="date" wire:model="fechaDesde" />
         </flux:field>
 
-        <flux:field>
+        <flux:field class="flex-1">
             <flux:label>Fecha Hasta</flux:label>
             <flux:input type="date" wire:model="fechaHasta" />
         </flux:field>
+    </div>
 
-        <button wire:click="mostrar" class="btn-mostrar">
+    <!-- Botón centrado solo en mobile -->
+    <div class="w-full flex justify-center md:w-auto md:block">
+        <button wire:click="mostrar" 
+            class="btn-mostrar bg-[#77BF43] text-white px-6 py-2 rounded-lg font-semibold 
+                   transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] 
+                   hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] 
+                   hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
             Mostrar
         </button>
     </div>
+
+</div>
 
 
     <!-- Tabla de Fichadas -->
