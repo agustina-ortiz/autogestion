@@ -51,14 +51,14 @@
                     <button 
                         disabled
                         title="Ya tienes una solicitud de adelanto pendiente"
-                        class="w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 block text-center opacity-60">
+                        class="w-full md:w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 block text-center opacity-60">
                         Solicitar Adelanto
                     </button>
                 @else
                     {{-- Botón habilitado --}}
                     <a 
                         href="{{ route('solicitudes.adelanto') }}" 
-                        class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
+                        class="w-full md:w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
                         Solicitar Adelanto
                     </a>
                 @endif
@@ -85,14 +85,14 @@
                     <button 
                         disabled
                         title="Ya tienes una solicitud de sueldo por cheque pendiente"
-                        class="w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 mt-auto block text-center opacity-60">
+                        class="w-full md:w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 mt-auto block text-center opacity-60">
                         Solicitar Sueldo por Cheque
                     </button>
                 @else
                     {{-- Botón habilitado --}}
                     <a 
                         href="{{ route('solicitudes.cheque') }}" 
-                        class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
+                        class="w-full md:w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
                         Solicitar Sueldo por Cheque
                     </a>
                 @endif
@@ -199,7 +199,7 @@
     </div>
 
     {{-- Botón Volver --}}
-    <div class="flex justify-center">
+    <div class="hidden md:flex justify-center">
         <a 
             href="{{ route('dashboard') }}" 
             class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center gap-2">
