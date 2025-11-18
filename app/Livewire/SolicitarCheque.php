@@ -102,12 +102,14 @@ class SolicitarCheque extends Component
         $validacionPeriodo = $this->verificarPeriodoHabilitado();
         if (!$validacionPeriodo['puede']) {
             session()->flash('error', $validacionPeriodo['mensaje']);
+            $this->dispatch('scroll-to-error');
             return;
         }
 
         // Verificar que no tenga solicitud pendiente
         if ($this->tieneSolicitudPendiente()) {
             session()->flash('error', 'Ya tiene una solicitud de sueldo por cheque pendiente o procesada para este mes.');
+            $this->dispatch('scroll-to-error');
             return;
         }
 
@@ -129,13 +131,14 @@ class SolicitarCheque extends Component
             $mesNombre = $hoy->locale('es')->translatedFormat('F');
 
             // Mensaje de éxito
-            session()->flash('success', '¡Solicitud enviada correctamente! Su sueldo del mes de ' . $mesNombre . ' será abonado por CHEQUE.');
+            session()->flash('success', '¡Solicitud enviada correctamente!');
 
             // Redirigir a la vista de solicitudes
             return redirect()->route('solicitudes');
             
         } catch (\Exception $e) {
             session()->flash('error', 'Error al procesar la solicitud: ' . $e->getMessage());
+            $this->dispatch('scroll-to-error');
         }
     }
 

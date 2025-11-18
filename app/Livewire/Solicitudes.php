@@ -31,6 +31,10 @@ class Solicitudes extends Component
     public $solicitudEditando = null;
     public $montoEdicion = null;
 
+    // Propiedad para control de botones
+    public $tieneSolicitudAdelantoPendiente = false;
+    public $tieneSolicitudChequePendiente = false;
+
     public function mount()
     {
         // Inicializar fechas y mes
@@ -38,6 +42,9 @@ class Solicitudes extends Component
         
         // Cargar las solicitudes del usuario
         $this->cargarSolicitudes();
+        
+        // Verificar si tiene solicitudes pendientes
+        $this->verificarSolicitudesPendientes();
     }
 
     /**
@@ -75,6 +82,39 @@ class Solicitudes extends Component
         } else {
             // Valor por defecto si no existe el tipo
             $this->fechaTopeCheque = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
+        }
+    }
+
+    /**
+     * Verifica si el usuario tiene solicitudes pendientes de adelanto o cheque este mes
+     */
+    private function verificarSolicitudesPendientes()
+    {
+        try {
+            $legajoUsuario = Auth::user()->LEGAJO;
+            $hoy = Carbon::now();
+            
+            // Verificar adelanto pendiente este mes
+            $adelantoPendiente = Solicitud::porLegajo($legajoUsuario)
+                ->porTipoMovimiento(TipoMovimiento::ADELANTO_SUELDO)
+                ->whereYear('fecha_solicitud', $hoy->year)
+                ->whereMonth('fecha_solicitud', $hoy->month)
+                ->first();
+            
+            $this->tieneSolicitudAdelantoPendiente = $adelantoPendiente !== null;
+            
+            // Verificar cheque pendiente este mes
+            $chequePendiente = Solicitud::porLegajo($legajoUsuario)
+                ->porTipoMovimiento(TipoMovimiento::SUELDO_CHEQUE)
+                ->whereYear('fecha_solicitud', $hoy->year)
+                ->whereMonth('fecha_solicitud', $hoy->month)
+                ->first();
+            
+            $this->tieneSolicitudChequePendiente = $chequePendiente !== null;
+            
+        } catch (\Exception $e) {
+            $this->tieneSolicitudAdelantoPendiente = false;
+            $this->tieneSolicitudChequePendiente = false;
         }
     }
 
@@ -234,8 +274,9 @@ class Solicitudes extends Component
 
             session()->flash('success', ucfirst($tipo) . ' eliminada correctamente.');
             
-            // Recargar solicitudes
+            // Recargar solicitudes y verificar pendientes
             $this->cargarSolicitudes();
+            $this->verificarSolicitudesPendientes();
 
         } catch (\Exception $e) {
             session()->flash('error', 'Error al eliminar la solicitud: ' . $e->getMessage());

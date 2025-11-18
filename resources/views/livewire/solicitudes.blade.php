@@ -18,21 +18,20 @@
 
     {{-- Mensaje de éxito --}}
     @if (session()->has('success'))
-        <div data-flash-success class="mb-6 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl">
+        <div id="success-message" data-flash-success class="mb-6 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl">
             {{ session('success') }}
         </div>
     @endif
 
     {{-- Mensaje de error --}}
     @if (session()->has('error'))
-        <div data-flash-error class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+        <div id="error-message" data-flash-error class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
             {{ session('error') }}
         </div>
     @endif
 
     {{-- Secciones de Adelantos y Sueldos por Cheque --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
         {{-- Sección ADELANTOS --}}
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden">
             <div class="bg-[#77BF43] text-white p-4 px-6">
@@ -41,17 +40,28 @@
             <div class="p-6">
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded">
                     <p class="text-sm text-gray-700 leading-relaxed">
-                        <span class="font-bold text-yellow-700">¡ATENCIÓN!</span> Se le informa que los adelantos correspondientes al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> deberán solicitarse entre el día <span class="font-semibold">{{ $fechaDesdeAdelantos }}</span> y el <span class="font-semibold">{{ $fechaHastaAdelantos }}</span> y no podrán superar el valor de <span class="font-semibold">${{ number_format($montoMaximoAdelanto, 2, ',', '.') }}</span>.
+                        <span class="font-bold text-yellow-700">¡ATENCIÓN!</span> Se le informa que los adelantos correspondientes al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> deberán solicitarse entre el día <span class="font-semibold">{{ $fechaDesdeAdelantos }}</span> y el <span class="font-semibold">{{ $fechaHastaAdelantos }}</span> y no podrán superar el valor de <span class="font-semibold">${{ number_format($montoMaximoAdelanto, 0, ',', '.') }}</span>.
                     </p>
                     <p class="text-sm text-gray-700 mt-2">
                         Serán depositados en el transcurso del día <span class="font-semibold">{{ $fechaDepositoAdelantos }}</span>.
                     </p>
                 </div>
-                <a 
-                    href="{{ route('solicitudes.adelanto') }}" 
-                    class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
-                    Solicitar Adelanto
-                </a>
+                @if($tieneSolicitudAdelantoPendiente)
+                    {{-- Botón deshabilitado --}}
+                    <button 
+                        disabled
+                        title="Ya tienes una solicitud de adelanto pendiente"
+                        class="w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 block text-center opacity-60">
+                        Solicitar Adelanto
+                    </button>
+                @else
+                    {{-- Botón habilitado --}}
+                    <a 
+                        href="{{ route('solicitudes.adelanto') }}" 
+                        class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
+                        Solicitar Adelanto
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -69,11 +79,23 @@
                         Caso contrario, se depositará en su cuenta sueldo del <span class="font-semibold">BANCO PROVINCIA</span>.
                     </p>
                 </div>
-                <a 
-                    href="{{ route('solicitudes.cheque') }}" 
-                    class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
-                    Solicitar Sueldo por Cheque
-                </a>
+
+                @if($tieneSolicitudChequePendiente)                    
+                    {{-- Botón deshabilitado --}}
+                    <button 
+                        disabled
+                        title="Ya tienes una solicitud de sueldo por cheque pendiente"
+                        class="w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 mt-auto block text-center opacity-60">
+                        Solicitar Sueldo por Cheque
+                    </button>
+                @else
+                    {{-- Botón habilitado --}}
+                    <a 
+                        href="{{ route('solicitudes.cheque') }}" 
+                        class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
+                        Solicitar Sueldo por Cheque
+                    </a>
+                @endif
             </div>
         </div>
     </div>
@@ -116,7 +138,7 @@
                                     <td class="py-3 px-4 text-left text-sm">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
                                             @if($solicitud->estado === 'Pendiente') bg-orange-100 text-orange-800
-                                            @elseif($solicitud->estado === 'Aprobado') bg-green-100 text-green-800
+                                            @elseif($solicitud->estado === 'Listo') bg-green-100 text-green-800
                                             @else bg-red-100 text-red-800
                                             @endif">
                                             {{ $solicitud->estado }}
@@ -124,7 +146,7 @@
                                     </td>
                                     <td class="py-3 px-4 text-left text-sm text-[#374151]">
                                         @if($solicitud->monto)
-                                            ${{ number_format($solicitud->monto, 2, ',', '.') }}
+                                            ${{ number_format($solicitud->monto, 0, ',', '.') }}
                                         @else
                                             -
                                         @endif
@@ -165,7 +187,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="6" class="p-12 text-center text-[#999] text-lg">
+                                <td colspan="7" class="p-12 text-center text-[#999] text-lg">
                                     No tienes solicitudes registradas
                                 </td>
                             </tr>
@@ -196,7 +218,7 @@
                 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Nuevo Monto (Máximo: ${{ number_format($montoMaximoAdelanto, 2, ',', '.') }})
+                        Nuevo Monto (Máximo: ${{ number_format($montoMaximoAdelanto, 0, ',', '.') }})
                     </label>
                     <input 
                         type="number" 
@@ -224,13 +246,43 @@
         </div>
     @endif
 
+    @push('scripts')
     <script>
-        setTimeout(function () {
-            const successMsg = document.querySelector('[data-flash-success]');
-            if (successMsg) successMsg.style.display = 'none';
+        function setupAutoDismiss(elementSelector, timeout = 3000) {
+            const element = document.querySelector(elementSelector);
+            if (element) {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, timeout);
+            }
+        }
 
-            const errorMsg = document.querySelector('[data-flash-error]');
-            if (errorMsg) errorMsg.style.display = 'none';
-        }, 3000);
+        document.addEventListener('DOMContentLoaded', (event) => {
+            setupAutoDismiss('[data-flash-success]', 3000);
+            setupAutoDismiss('[data-flash-error]', 3000);
+        });
+
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                succeed(({ snapshot, effect }) => {
+                    setTimeout(() => {
+                        const errorMessage = document.querySelector('[data-flash-error]');
+                        
+                        if (errorMessage) {
+                            errorMessage.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                            
+                            setupAutoDismiss('[data-flash-error]', 3000);
+                        }
+                        
+                        setupAutoDismiss('[data-flash-success]', 3000);
+
+                    }, 100);
+                });
+            });
+        });
     </script>
+    @endpush
 </div>

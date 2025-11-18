@@ -3,7 +3,7 @@
 
         {{-- Header con nombre de usuario --}}
         <div class="mb-6">
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6 rounded-xl shadow-[0_2px_8px_rgba(119,191,67,0.3)]">
+            <div class="bg-[#77BF43] text-white p-4 px-6 rounded-xl shadow-[0_2px_8px_rgba(119,191,67,0.3)]">
                 <h3 class="text-xl font-semibold m-0">
                     Bienvenido/a, {{ Auth::user()->NOMBRE }}
                 </h3>
@@ -19,14 +19,14 @@
 
         {{-- Mensaje de error --}}
         @if (session()->has('error'))
-            <div class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+            <div id="error-message" class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
                 {{ session('error') }}
             </div>
         @endif
 
         {{-- Sección principal de solicitud --}}
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6">
+            <div class="bg-[#77BF43] text-white p-4 px-6">
                 <h2 class="text-xl font-bold m-0 uppercase">Solicitud de Sueldo por CHEQUE</h2>
             </div>
             <div class="p-6">
@@ -96,7 +96,7 @@
                     <div class="flex justify-center">
                         <button 
                             wire:click="confirmarSolicitud"
-                            class="w-1/2 bg-gradient-to-r from-[#77BF43] to-[#5da832] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
+                            class="w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
                             Confirmar Solicitud
                         </button>
                     </div>
@@ -118,3 +118,25 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        // Escuchar actualizaciones de Livewire
+        Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+            succeed(({ snapshot, effect }) => {
+                // Después de cada actualización, verificar si hay mensaje de error
+                setTimeout(() => {
+                    const errorMessage = document.getElementById('error-message');
+                    if (errorMessage) {
+                        errorMessage.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                    }
+                }, 100);
+            });
+        });
+    });
+</script>
+@endpush

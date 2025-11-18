@@ -193,7 +193,7 @@ class SolicitarAdelanto extends Component
             ]);
             
             // Mensaje de éxito
-            session()->flash('success', '¡Solicitud de adelanto enviada correctamente por $' . number_format($this->montoSolicitado, 2, ',', '.') . '! Será procesada en breve.');
+            session()->flash('success', '¡Solicitud de adelanto enviada correctamente por $' . number_format($this->montoSolicitado, 0, ',', '.') . '! Será procesada en breve.');
 
             // Redirigir a la vista de solicitudes
             return redirect()->route('solicitudes');

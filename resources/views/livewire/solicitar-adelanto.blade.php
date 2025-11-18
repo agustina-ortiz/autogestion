@@ -1,9 +1,9 @@
 <div class="min-h-screen">
-    <div class="p-8 max-w-[1400px] mx-auto">
+    <div class="max-w-[1400px] mx-auto">
 
         {{-- Header con nombre de usuario --}}
         <div class="mb-6">
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6 rounded-xl shadow-[0_2px_8px_rgba(119,191,67,0.3)]">
+            <div class="bg-[#77BF43] text-white p-4 px-6 rounded-xl shadow-[0_2px_8px_rgba(119,191,67,0.3)]">
                 <h3 class="text-xl font-semibold m-0">
                     Bienvenido/a, {{ Auth::user()->NOMBRE }}
                 </h3>
@@ -12,21 +12,21 @@
 
         {{-- Mensaje de éxito --}}
         @if (session()->has('success'))
-            <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+            <div id="success-message" data-flash-success class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
                 {{ session('success') }}
             </div>
         @endif
 
         {{-- Mensaje de error --}}
         @if (session()->has('error'))
-            <div class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+            <div id="error-message" data-flash-error class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
                 {{ session('error') }}
             </div>
         @endif
 
         {{-- Sección de alerta --}}
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6">
+            <div class="bg-[#77BF43] text-white p-4 px-6">
                 <h2 class="text-xl font-bold m-0 uppercase">Información Importante</h2>
             </div>
             <div class="p-6">
@@ -42,7 +42,7 @@
             {{-- FORMULARIO CUANDO ESTÁ HABILITADO --}}
 
             <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6">
+                <div class="bg-[#77BF43] text-white p-4 px-6">
                     <h2 class="text-xl font-bold m-0 uppercase">Solicitud de Adelanto</h2>
                 </div>
                 <div class="p-6">
@@ -123,7 +123,7 @@
                         <div class="flex gap-4 pt-2">
                             <button 
                                 wire:click="confirmarSolicitud"
-                                class="flex-1 bg-gradient-to-r from-[#77BF43] to-[#5da832] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
+                                class="flex-1 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
                                 Solicitar
                             </button>
                             <a 
@@ -140,7 +140,7 @@
             {{-- MENSAJE CUANDO NO ESTÁ HABILITADO --}}
 
             <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white p-4 px-6">
+                <div class="bg-[#77BF43] text-white p-4 px-6">
                     <h2 class="text-xl font-bold m-0 uppercase">Solicitud de Adelanto</h2>
                 </div>
                 <div class="p-6">
@@ -172,4 +172,43 @@
         </div>
 
     </div>
+        @push('scripts')
+        <script>
+            function setupAutoDismiss(elementSelector, timeout = 3000) {
+                const element = document.querySelector(elementSelector);
+                if (element) {
+                    setTimeout(() => {
+                        element.style.display = 'none';
+                    }, timeout);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                setupAutoDismiss('[data-flash-success]', 3000);
+                setupAutoDismiss('[data-flash-error]', 3000);
+            });
+
+            document.addEventListener('livewire:initialized', () => {
+                Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                    succeed(({ snapshot, effect }) => {
+                        setTimeout(() => {
+                            const errorMessage = document.querySelector('[data-flash-error]');
+                            
+                            if (errorMessage) {
+                                errorMessage.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'center' 
+                                });
+                                
+                                setupAutoDismiss('[data-flash-error]', 3000);
+                            }
+                            
+                            setupAutoDismiss('[data-flash-success]', 3000);
+
+                        }, 100);
+                    });
+                });
+            });
+        </script>
+        @endpush
 </div>
