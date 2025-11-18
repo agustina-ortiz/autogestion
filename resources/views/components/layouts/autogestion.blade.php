@@ -90,7 +90,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 pt-12 sm:pt-14 md:pt-16 lg:pt-20">
+        <main class="flex-1 pt-20 sm:pt-14 md:pt-16 lg:pt-14">
             <!-- Imagen de fondo que ocupa el 45% superior - Solo en Dashboard y Desktop -->
             @if(request()->routeIs('dashboard'))
                 <div class="hidden lg:block absolute top-0 left-0 right-0 h-[43%] z-0">
