@@ -29,8 +29,35 @@ class Asistencias extends Component
         $this->cargarDatos();
     }
 
+    // Agregar estos métodos para que Livewire detecte los cambios
+    public function updatedFechaDesde()
+    {
+        if ($this->fechaDesde && $this->fechaHasta) {
+            $this->cargarDatos();
+        }
+    }
+
+    public function updatedFechaHasta()
+    {
+        if ($this->fechaDesde && $this->fechaHasta) {
+            $this->cargarDatos();
+        }
+    }
+
     public function cargarDatos()
     {
+        // Validar que ambas fechas estén presentes
+        if (!$this->fechaDesde || !$this->fechaHasta) {
+            return;
+        }
+
+        // Validar que fechaDesde no sea mayor que fechaHasta
+        if ($this->fechaDesde > $this->fechaHasta) {
+            $this->fichadas = [];
+            $this->novedades = [];
+            return;
+        }
+
         $this->cargarFichadas();
         $this->cargarNovedades();
     }
@@ -169,13 +196,13 @@ class Asistencias extends Component
             ->toArray();
     }
 
-    public function mostrar()
+    public function limpiarFiltros()
     {
-        $this->validate([
-            'fechaDesde' => 'required|date',
-            'fechaHasta' => 'required|date|after_or_equal:fechaDesde',
-        ]);
-
+        // Restaurar valores por defecto
+        $this->fechaHasta = Carbon::now()->format('Y-m-d');
+        $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
+        
+        // Recargar datos
         $this->cargarDatos();
     }
 
