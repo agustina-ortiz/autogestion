@@ -17,6 +17,7 @@ use App\Livewire\AsignacionesFamiliares;
 use App\Livewire\Hijos;
 use App\Livewire\PreguntasFrecuentes;
 use App\Livewire\Perfil;
+use App\Livewire\SolicitarAguinaldoCheque;
 
 
 // Ruta principal
@@ -61,6 +62,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/solicitudes', Solicitudes::class)->name('solicitudes');
     Route::get('/solicitudes/adelanto', SolicitarAdelanto::class)->name('solicitudes.adelanto');
     Route::get('/solicitudes/cheque', SolicitarCheque::class)->name('solicitudes.cheque');
+    Route::get('/solicitudes/aguinaldo', SolicitarAguinaldoCheque::class)->name('solicitudes.aguinaldo');
+    
 
     // Ver Anticipo
     Route::get('/anticipo', AnticipoJubilatorio::class)->name('anticipo.jubilatorio');

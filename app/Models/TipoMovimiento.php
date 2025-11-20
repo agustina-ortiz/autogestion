@@ -33,7 +33,7 @@ class TipoMovimiento extends Model
      */
     const ADELANTO_SUELDO = 5;
     const SUELDO_CHEQUE = 6;
-    const ADELANTO_CHEQUE = 7;
+    const AGUINALDO_CHEQUE = 7;
 
     /**
      * Constantes para forma de pago
@@ -91,11 +91,11 @@ class TipoMovimiento extends Model
             return false;
         }
 
-        $hoy = Carbon::now();
-        $fechaDesde = Carbon::parse($this->fecha_desde);
-        $fechaHasta = Carbon::parse($this->fecha_hasta);
+        $hoy = Carbon::now()->startOfDay();
+        $fechaDesde = Carbon::parse($this->fecha_desde)->startOfDay();
+        $fechaHasta = Carbon::parse($this->fecha_hasta)->endOfDay();
 
-        return $hoy->between($fechaDesde, $fechaHasta);
+        return $hoy->between($fechaDesde, $fechaHasta, true);
     }
 
     /**

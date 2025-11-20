@@ -30,8 +30,8 @@
         </div>
     @endif
 
-    {{-- Secciones de Adelantos y Sueldos por Cheque --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    {{-- Secciones de Adelantos, Sueldos por Cheque y Aguinaldo --}}
+    <div class="grid grid-cols-1 {{ $mostrarAguinaldo ? 'lg:grid-cols-3' : 'lg:grid-cols-2' }} gap-6 mb-8">
         {{-- Sección ADELANTOS --}}
         <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden">
             <div class="bg-[#77BF43] text-white p-4 px-6">
@@ -46,19 +46,19 @@
                         Serán depositados en el transcurso del día <span class="font-semibold">{{ $fechaDepositoAdelantos }}</span>.
                     </p>
                 </div>
-                @if($tieneSolicitudAdelantoPendiente)
+                @if($tieneSolicitudAdelantoPendiente || !$periodoAdelantosHabilitado)
                     {{-- Botón deshabilitado --}}
                     <button 
                         disabled
-                        title="Ya tienes una solicitud de adelanto pendiente"
-                        class="w-full md:w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 block text-center opacity-60">
+                        title="{{ $tieneSolicitudAdelantoPendiente ? 'Ya tienes una solicitud de adelanto pendiente' : 'Fuera del período habilitado para solicitar adelantos' }}"
+                        class="w-full md:w-2/3 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 block text-center opacity-60">
                         Solicitar Adelanto
                     </button>
                 @else
                     {{-- Botón habilitado --}}
                     <a 
                         href="{{ route('solicitudes.adelanto') }}" 
-                        class="w-full md:w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
+                        class="w-full md:w-2/3 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
                         Solicitar Adelanto
                     </a>
                 @endif
@@ -80,24 +80,60 @@
                     </p>
                 </div>
 
-                @if($tieneSolicitudChequePendiente)                    
+                @if($tieneSolicitudChequePendiente || !$periodoChequesHabilitado)                    
                     {{-- Botón deshabilitado --}}
                     <button 
                         disabled
-                        title="Ya tienes una solicitud de sueldo por cheque pendiente"
-                        class="w-full md:w-1/2 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 mt-auto block text-center opacity-60">
+                        title="{{ $tieneSolicitudChequePendiente ? 'Ya tienes una solicitud de sueldo por cheque pendiente' : 'Fuera del período habilitado para solicitar cheques' }}"
+                        class="w-full md:w-2/3 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 mt-auto block text-center opacity-60">
                         Solicitar Sueldo por Cheque
                     </button>
                 @else
                     {{-- Botón habilitado --}}
                     <a 
                         href="{{ route('solicitudes.cheque') }}" 
-                        class="w-full md:w-1/2 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 mt-auto block text-center">
+                        class="w-full md:w-2/3 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
                         Solicitar Sueldo por Cheque
                     </a>
                 @endif
             </div>
         </div>
+
+        {{-- Sección AGUINALDO POR CHEQUE (Solo visible en junio y diciembre) --}}
+        @if($mostrarAguinaldo)
+            <div class="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-hidden">
+                <div class="bg-[#77BF43] text-white p-4 px-6">
+                    <h2 class="text-xl font-bold m-0 uppercase">Aguinaldo por Cheque</h2>
+                </div>
+                <div class="p-6">
+                    <div class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-6 rounded">
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            <span class="font-bold text-purple-700">¡IMPORTANTE!</span> Se le informa que la fecha tope para solicitar que el aguinaldo correspondiente al mes de <span class="font-semibold">{{ $mesActual }}</span> del año <span class="font-semibold">{{ $anioActual }}</span> sea abonado por <span class="font-semibold">CHEQUE</span> es <span class="font-semibold">{{ $fechaTopeAguinaldo }}</span>.
+                        </p>
+                        <p class="text-sm text-gray-700 mt-2">
+                            Caso contrario, se depositará en su cuenta sueldo del <span class="font-semibold">BANCO PROVINCIA</span>.
+                        </p>
+                    </div>
+
+                    @if($tieneSolicitudAguinaldoPendiente || !$periodoAguinaldoHabilitado)                    
+                        {{-- Botón deshabilitado --}}
+                        <button 
+                            disabled
+                            title="{{ $tieneSolicitudAguinaldoPendiente ? 'Ya tienes una solicitud de aguinaldo por cheque pendiente' : 'Fuera del período habilitado para solicitar aguinaldo por cheque' }}"
+                            class="ww-full md:w-2/3 bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed border-0 block text-center opacity-60">
+                            Solicitar Aguinaldo por Cheque
+                        </button>
+                    @else
+                        {{-- Botón habilitado --}}
+                        <a 
+                            href="{{ route('solicitudes.aguinaldo') }}" 
+                            class="w-full md:w-3/4 bg-[#77BF43] text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0 block text-center">
+                            Solicitar Aguinaldo por Cheque
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- Tabla de solicitudes --}}

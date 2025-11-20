@@ -21,6 +21,11 @@ class Solicitudes extends Component
     public $tipoCheque;
     public $fechaTopeCheque;
     
+    // Propiedades para aguinaldo
+    public $tipoAguinaldo;
+    public $fechaTopeAguinaldo;
+    public $mostrarAguinaldo = false;
+    
     // Propiedades generales
     public $mesActual;
     public $anioActual;
@@ -34,6 +39,10 @@ class Solicitudes extends Component
     // Propiedad para control de botones
     public $tieneSolicitudAdelantoPendiente = false;
     public $tieneSolicitudChequePendiente = false;
+    public $tieneSolicitudAguinaldoPendiente = false;
+    public $periodoAdelantosHabilitado = false;
+    public $periodoChequesHabilitado = false;
+    public $periodoAguinaldoHabilitado = false;
 
     public function mount()
     {
@@ -45,6 +54,9 @@ class Solicitudes extends Component
         
         // Verificar si tiene solicitudes pendientes
         $this->verificarSolicitudesPendientes();
+
+        // Verificar si los períodos están habilitados
+        $this->verificarPeriodosHabilitados();
     }
 
     /**
@@ -57,6 +69,9 @@ class Solicitudes extends Component
         // Mes y año actual
         $this->anioActual = $hoy->year;
         $this->mesActual = strtoupper($hoy->locale('es')->translatedFormat('F'));
+
+        // Verificar si es junio o diciembre para mostrar aguinaldo
+        $this->mostrarAguinaldo = in_array($hoy->month, [6, 11, 12]);
 
         // Obtener tipo adelanto de sueldo (ID 5)
         $this->tipoAdelanto = TipoMovimiento::find(TipoMovimiento::ADELANTO_SUELDO);
@@ -83,10 +98,22 @@ class Solicitudes extends Component
             // Valor por defecto si no existe el tipo
             $this->fechaTopeCheque = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
         }
+
+        // Obtener tipo aguinaldo por cheque (ID 7) solo si es junio o diciembre
+        if ($this->mostrarAguinaldo) {
+            $this->tipoAguinaldo = TipoMovimiento::find(TipoMovimiento::AGUINALDO_CHEQUE);
+            
+            if ($this->tipoAguinaldo) {
+                $this->fechaTopeAguinaldo = $this->tipoAguinaldo->getFechaHastaFormateada();
+            } else {
+                // Valor por defecto si no existe el tipo
+                $this->fechaTopeAguinaldo = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
+            }
+        }
     }
 
     /**
-     * Verifica si el usuario tiene solicitudes pendientes de adelanto o cheque este mes
+     * Verifica si el usuario tiene solicitudes pendientes de adelanto, cheque o aguinaldo este mes
      */
     private function verificarSolicitudesPendientes()
     {
@@ -112,9 +139,48 @@ class Solicitudes extends Component
             
             $this->tieneSolicitudChequePendiente = $chequePendiente !== null;
             
+            // Verificar aguinaldo pendiente este mes (solo si se muestra)
+            if ($this->mostrarAguinaldo) {
+                $aguinaldoPendiente = Solicitud::porLegajo($legajoUsuario)
+                    ->porTipoMovimiento(TipoMovimiento::AGUINALDO_CHEQUE)
+                    ->whereYear('fecha_solicitud', $hoy->year)
+                    ->whereMonth('fecha_solicitud', $hoy->month)
+                    ->first();
+                
+                $this->tieneSolicitudAguinaldoPendiente = $aguinaldoPendiente !== null;
+            }
+            
         } catch (\Exception $e) {
             $this->tieneSolicitudAdelantoPendiente = false;
             $this->tieneSolicitudChequePendiente = false;
+            $this->tieneSolicitudAguinaldoPendiente = false;
+        }
+    }
+
+    /**
+     * Verifica si los períodos de adelantos, cheques y aguinaldo están habilitados
+     */
+    private function verificarPeriodosHabilitados()
+    {
+        // Verificar período de adelantos
+        if ($this->tipoAdelanto) {
+            $this->periodoAdelantosHabilitado = $this->tipoAdelanto->estaEnPeriodoHabilitado();
+        } else {
+            $this->periodoAdelantosHabilitado = false;
+        }
+        
+        // Verificar período de cheques
+        if ($this->tipoCheque) {
+            $this->periodoChequesHabilitado = $this->tipoCheque->estaEnPeriodoHabilitado();
+        } else {
+            $this->periodoChequesHabilitado = false;
+        }
+        
+        // Verificar período de aguinaldo (solo si se muestra)
+        if ($this->mostrarAguinaldo && $this->tipoAguinaldo) {
+            $this->periodoAguinaldoHabilitado = $this->tipoAguinaldo->estaEnPeriodoHabilitado();
+        } else {
+            $this->periodoAguinaldoHabilitado = false;
         }
     }
 
