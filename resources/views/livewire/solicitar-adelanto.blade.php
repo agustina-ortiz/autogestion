@@ -1,4 +1,4 @@
-<div class="min-h-screen">
+<div class="">
     <div class="max-w-[1400px] mx-auto">
 
         {{-- Header con nombre de usuario --}}
@@ -160,7 +160,7 @@
         @endif
 
         {{-- Botón Volver --}}
-        <div class="flex justify-center">
+        <div class="flex justify-center mb-4">
             <a 
                 href="{{ route('solicitudes') }}" 
                 class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center gap-2">
