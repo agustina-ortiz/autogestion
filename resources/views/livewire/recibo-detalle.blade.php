@@ -3,7 +3,7 @@
 
         {{-- Mensaje de error si existe --}}
         @if ($error)
-            <div class="mb-3 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-2 rounded-r-lg text-sm shadow-md animate-pulse">
+            <div class="mb-3 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-2 rounded-r-lg text-sm shadow-md">
                 <strong>Error:</strong> {{ $error }}
             </div>
         @endif
@@ -44,7 +44,7 @@
                 <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.02] transition-all duration-300">
                     <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                         <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
-                            <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                             Datos Personales
                         </h2>
                     </div>
@@ -80,7 +80,7 @@
                 <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.02] transition-all duration-300">
                     <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                         <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
-                            <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                             Datos Laborales
                         </h2>
                     </div>
@@ -116,7 +116,7 @@
             <div class="mb-8 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl mb-3 transform hover:scale-[1.01] transition-all duration-300">
                 <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
-                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                         Detalle de Conceptos
                     </h2>
                 </div>
@@ -158,7 +158,7 @@
             <div class="mb-8 bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-2xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
                 <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
-                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                         Resumen de Liquidación
                     </h2>
                 </div>
