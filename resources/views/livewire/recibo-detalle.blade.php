@@ -96,15 +96,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="hover:bg-[#91D5E2]/10 transition-colors duration-200 border-t border-gray-100">
-                                    <td class="px-2 py-2 text-gray-600">{{ $recibo['NRO_CARGO'] }}</td>
-                                    <td class="px-2 py-2 text-gray-600">
-                                        {{ date('d / m / Y', strtotime($persona['FECH_ANTIG'])) }}
-                                    </td>
-                                    <td class="px-2 py-2 text-gray-600">{{ $recibo['ITEM'] }}</td>
-                                    <td class="px-2 py-2 text-gray-600">{{ $persona['DES_TIPO_PLANTA'] }}</td>
-                                    <td class="px-2 py-2 text-gray-600">{{ $persona['JURISDICCION'] }}</td>
-                                </tr>
+                                @foreach($reciboVisualizacion as $persona)
+                                    <tr class="hover:bg-[#91D5E2]/10 transition-colors duration-200 border-t border-gray-100">
+                                        <td class="px-2 py-2 text-gray-600">{{ $persona['DES_CATEGORIA'] }}</td>
+                                        <td class="px-2 py-2 text-gray-600">
+                                            {{ date('d / m / Y', strtotime($persona['FECH_ANTIG'])) }}
+                                        </td>
+                                        <td class="px-2 py-2 text-gray-600">{{ $persona['COD_CATEGORIA'] }}</td>
+                                        <td class="px-2 py-2 text-gray-600">{{ $persona['DES_TIPO_PLANTA'] }}</td>
+                                        <td class="px-2 py-2 text-gray-600">{{ $persona['JURISDICCION'] }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -210,10 +212,10 @@
     <div 
         x-data="{ open: false, cerrarDespuesDeImprimir() { window.onafterprint = () => { this.open = false; } } }"
         x-init="cerrarDespuesDeImprimir()"
-        x-on:abrir-modal-impresion-recibo.window="open = true; setTimeout(() => window.print(), 500);"
+        x-on:abrir-modal-impresion-recibo.window="open = true; setTimeout(() => window.print(), 100);"
         x-show="open"
         x-cloak
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
+        class="fixed inset-0 opacity-0 pointer-events-none print:opacity-100"
     >
         <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-4xl mx-4 print:w-full print:h-auto print:shadow-none print:p-4 text-xs">
             @if($recibo)
@@ -239,9 +241,9 @@
                     <!-- Datos Laborales -->
                     <div class="w-1/2">
                         <h2 class="font-semibold mb-2 border-b pb-1">Datos Laborales</h2>
-                        <p><strong>Cargo:</strong> {{ $recibo['NRO_CARGO'] }}</p>
-                        <p><strong>Fecha Ingreso:</strong> {{ date('d/m/Y', strtotime($reciboVisualizacion[0]['FECH_ANTIG'])) }}</p>
-                        <p><strong>Categoría:</strong> {{ $recibo['ITEM'] }}</p>
+                        <p><strong>Cargo:</strong> {{ $reciboVisualizacion[0]['DES_CATEGORIA'] }}</p>
+                        <p><strong>Fecha Ingreso: </strong> {{ date('d / m / Y', strtotime($reciboVisualizacion[0]['FECH_ANTIG'])) }}</p>
+                        <p><strong>Categoría:</strong> {{ $reciboVisualizacion[0]['COD_CATEGORIA'] }}</p>
                         <p><strong>Planta:</strong> {{ $reciboVisualizacion[0]['DES_TIPO_PLANTA'] }}</p>
                         <p><strong>Jurisdicción:</strong> {{ $reciboVisualizacion[0]['JURISDICCION'] }}</p>
                     </div>
