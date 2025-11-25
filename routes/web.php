@@ -18,7 +18,7 @@ use App\Livewire\Hijos;
 use App\Livewire\PreguntasFrecuentes;
 use App\Livewire\Perfil;
 use App\Livewire\SolicitarAguinaldoCheque;
-
+use Livewire\Volt\Volt;
 
 // Ruta principal
 Route::get('/', function () {
@@ -35,6 +35,10 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect()->route('login');
 })->name('logout');
+
+Volt::route('/primera-contrasena', 'pages.auth.primera-contrasena')
+    ->middleware('guest')
+    ->name('primera.contrasena');
 
 // Rutas protegidas por autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -82,11 +86,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Preguntas Frecuentes
     Route::get('/preguntas-frecuentes', PreguntasFrecuentes::class)->name('preguntas.frecuentes');
     Route::get('/perfil', Perfil::class)->name('perfil');
-
-    // Cambiar contraseña primera vez
-    Route::get('/primera-contrasena', function () {
-        return view('pages.auth.primera-contrasena');
-    })->name('primera.contrasena');
 });
     
 });

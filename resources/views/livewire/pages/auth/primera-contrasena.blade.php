@@ -37,7 +37,7 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         // Actualizar la contraseña
-        $empleado->CLAVEWEB = Hash::make($this->password);
+        $empleado->CLAVEWEB = $this->password;
         $empleado->save();
 
         // Limpiar la sesión temporal

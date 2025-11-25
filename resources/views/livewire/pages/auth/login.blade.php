@@ -34,10 +34,10 @@ new #[Layout('layouts.guest')] class extends Component
         // Verificar si es primer acceso (CLAVEWEB está vacío o es null)
         if (empty($empleado->CLAVEWEB) || is_null($empleado->CLAVEWEB)) {
             // Validar que la clave ingresada sea el legajo
-            if ($this->claveweb == $empleado->LEGAJO) {
+            if (trim($this->claveweb) == strval($empleado->LEGAJO)) {
                 // Primer acceso exitoso - guardar DNI en sesión y redirigir a cambio de clave
                 session(['first_login_dni' => $this->dni]);
-                $this->redirect(route('primera-contrasena'), navigate: true);
+                $this->redirect(route('primera.contrasena'), navigate: true);
                 return;
             } else {
                 $this->addError('claveweb', 'Para el primer acceso, ingrese su número de legajo como contraseña.');
