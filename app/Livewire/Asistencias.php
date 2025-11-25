@@ -3,17 +3,20 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class Asistencias extends Component
 {
+    use WithPagination;
+
     public $fechaDesde;
     public $fechaHasta;
     public $empleado;
-    public $fichadas = [];
-    public $novedades = [];
     public $legajo;
+    public $perPage = 10;
+    protected $paginationTheme = 'tailwind';
 
     public function mount()
     {
@@ -21,49 +24,41 @@ class Asistencias extends Component
         $this->fechaHasta = Carbon::now()->format('Y-m-d');
         $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
         
-        // Empleado logueado (ajustar según tu modelo User)
+        // Empleado logueado
         $this->empleado = auth()->user();
-        $this->legajo = $this->empleado->LEGAJO; // Asegúrate que el User tenga el campo legajo
-        
-        // Cargar datos iniciales
-        $this->cargarDatos();
+        $this->legajo = $this->empleado->LEGAJO;
     }
 
-    // Agregar estos métodos para que Livewire detecte los cambios
     public function updatedFechaDesde()
     {
-        if ($this->fechaDesde && $this->fechaHasta) {
-            $this->cargarDatos();
-        }
+        $this->resetPage(); // Resetear a página 1 cuando cambian los filtros
     }
 
     public function updatedFechaHasta()
     {
-        if ($this->fechaDesde && $this->fechaHasta) {
-            $this->cargarDatos();
-        }
+        $this->resetPage(); // Resetear a página 1 cuando cambian los filtros
     }
 
-    public function cargarDatos()
+    private function getFichadasData()
     {
         // Validar que ambas fechas estén presentes
         if (!$this->fechaDesde || !$this->fechaHasta) {
-            return;
+            return [
+                'fichadas' => [],
+                'totalRecords' => 0,
+                'offset' => 0
+            ];
         }
 
         // Validar que fechaDesde no sea mayor que fechaHasta
         if ($this->fechaDesde > $this->fechaHasta) {
-            $this->fichadas = [];
-            $this->novedades = [];
-            return;
+            return [
+                'fichadas' => [],
+                'totalRecords' => 0,
+                'offset' => 0
+            ];
         }
 
-        $this->cargarFichadas();
-        $this->cargarNovedades();
-    }
-
-    private function cargarFichadas()
-    {
         $desde = $this->fechaDesde;
         $hasta = $this->fechaHasta;
         $legajo = $this->legajo;
@@ -82,8 +77,7 @@ class Asistencias extends Component
                 DB::raw("'F' as tipo")
             )
             ->where('m.legajo', $legajo)
-            ->whereBetween('h.fecha', [$desde, $hasta])
-            ->get();
+            ->whereBetween('h.fecha', [$desde, $hasta]);
 
         // Segunda parte: inasistencias con certificados
         $inasistencias = DB::table('munimer_inasi.in_movimie as h')
@@ -97,17 +91,28 @@ class Asistencias extends Component
                 DB::raw("'I' as tipo")
             )
             ->where('h.legajo', $legajo)
-            ->whereBetween('h.fecinasi', [$desde, $hasta])
-            ->get();
+            ->whereBetween('h.fecinasi', [$desde, $hasta]);
 
-        // Combinar ambas colecciones
-        $this->fichadas = $fichadasNormales->merge($inasistencias)
-            ->sortBy([
-                ['fecha', 'asc'],
-                ['hora', 'asc']
-            ])
-            ->values()
-            ->toArray();
+        // Combinar ambas queries
+        $allFichadas = $fichadasNormales->unionAll($inasistencias)
+            ->orderBy('fecha', 'asc')
+            ->orderBy('hora', 'asc');
+
+        // Obtener el total de registros
+        $totalRecords = $allFichadas->count();
+
+        // Calcular offset
+        $page = $this->getPage();
+        $offset = ($page - 1) * $this->perPage;
+
+        // Obtener registros paginados
+        $fichadas = $allFichadas->offset($offset)->limit($this->perPage)->get()->toArray();
+
+        return [
+            'fichadas' => $fichadas,
+            'totalRecords' => $totalRecords,
+            'offset' => $offset
+        ];
     }
 
     private function cargarNovedades()
@@ -185,7 +190,7 @@ class Asistencias extends Component
                 ) V 
                 GROUP BY V.CODIGO, V.NOMBRE";
 
-        $this->novedades = DB::table(DB::raw("({$sql}) res"))
+        return DB::table(DB::raw("({$sql}) res"))
             ->select(
                 "res.codigo", "res.nombre", "res.ene", "res.feb", "res.mar",
                 "res.abr", "res.may", "res.jun", "res.jul", "res.ago", "res.sep",
@@ -202,12 +207,28 @@ class Asistencias extends Component
         $this->fechaHasta = Carbon::now()->format('Y-m-d');
         $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
         
-        // Recargar datos
-        $this->cargarDatos();
+        // Resetear página
+        $this->resetPage();
     }
 
     public function render()
     {
-        return view('livewire.asistencias')->layout('components.layouts.autogestion');
+        $fichadasData = $this->getFichadasData();
+        $novedades = $this->cargarNovedades();
+        
+        $totalPages = ceil($fichadasData['totalRecords'] / $this->perPage);
+        $currentPage = $this->getPage();
+        
+        $year = Carbon::parse($this->fechaDesde)->year;
+
+        return view('livewire.asistencias', [
+            'fichadas' => $fichadasData['fichadas'],
+            'totalRecords' => $fichadasData['totalRecords'],
+            'offset' => $fichadasData['offset'],
+            'totalPages' => $totalPages,
+            'currentPage' => $currentPage,
+            'novedades' => $novedades,
+            'year' => $year
+        ])->layout('components.layouts.autogestion');
     }
 }
