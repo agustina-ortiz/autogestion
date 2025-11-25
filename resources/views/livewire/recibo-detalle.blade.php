@@ -1,4 +1,4 @@
-<div class="">
+<div class="pb-10">
     <div class="container mx-auto px-4">
 
         {{-- Mensaje de error si existe --}}
