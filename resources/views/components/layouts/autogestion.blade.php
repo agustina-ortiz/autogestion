@@ -13,8 +13,23 @@
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
-            }   
+            }
+            
+            /* Estilos de impresión */
+            @media print {
+                header,
+                footer,
+                nav,
+                .no-print {
+                    display: none !important;
+                }
+                
+                main {
+                    padding-top: 0 !important;
+                }
+            }
         </style>
+        
         @php
             $noticia = DB::table('in_noticia')
                 ->where('FECHAVTO', '>=', now())
@@ -24,7 +39,7 @@
     </head>
     <body>
         <!-- Header -->
-        <header class="fixed top-0 left-0 right-0 z-50 bg-[#BED630] shadow-md flex justify-between items-center px-3 sm:px-6 md:px-20 lg:px-40 py-2 md:py-3 lg:py-4">
+        <header class="no-print fixed top-0 left-0 right-0 z-50 bg-[#BED630] shadow-md flex justify-between items-center px-3 sm:px-6 md:px-20 lg:px-40 py-2 md:py-3 lg:py-4">
             <div class="logo">
                 <a href="{{ route('dashboard') }}">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo Municipalidad" class="h-7 sm:h-9 md:h-10 lg:h-12">
@@ -176,7 +191,7 @@
         </main>
 
         <!-- Footer Desktop - Oculto en Mobile -->
-        <footer class="hidden lg:flex bottom-0 left-0 right-0 z-50 flex-row justify-between items-center p-4 px-20 lg:px-40 bg-[#333333] {{ $noticia ? 'lg:translate-y-20' : '' }}">
+        <footer class="no-print hidden lg:flex bottom-0 left-0 right-0 z-50 flex-row justify-between items-center p-4 px-20 lg:px-40 bg-[#333333] {{ $noticia ? 'lg:translate-y-20' : '' }}">
             
             <!-- Lado izquierdo -->
             <div class="flex flex-col gap-2 items-start">
@@ -218,7 +233,7 @@
         </footer>
 
         <!-- Bottom Navigation Mobile - Estilo App -->
-        <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
+        <nav class="mobile-footer no-print lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
             <div class="flex justify-around items-center py-2">
                 <!-- Inicio/Dashboard -->
                 <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('dashboard') ? 'text-[#77BF43]' : 'text-gray-600' }}">

@@ -318,15 +318,17 @@
     {{-- Modal de impresión --}}
     @if($mostrarModalImpresion && $contenidoImpresion)
     <div 
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
+        class="modal-impresion fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
         x-data 
         x-init="$nextTick(() => { window.print(); $wire.set('mostrarModalImpresion', false) })"
     >
-        <div class="bg-white p-8 rounded-lg shadow-lg w-[21cm] h-[29.7cm] overflow-auto print:w-full print:h-full">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-[21cm] h-[29.7cm] overflow-auto print:w-full print:h-full print:shadow-none print:rounded-none">
             <style>
-                @page { size: A4; margin: 1cm; }
                 @media print {
-                    .no-print { display: none !important; }
+                    @page { 
+                        size: A4; 
+                        margin: 1cm; 
+                    }
                 }
             </style>
 
