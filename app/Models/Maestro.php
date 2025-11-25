@@ -13,7 +13,9 @@ class Maestro extends Model
 
     protected $fillable = [
         'LEGAJO',
-        'TARJETA'
+        'TARJETA',
+        'CLAVEWEB',
+        'DNI'
     ];
 
     /**

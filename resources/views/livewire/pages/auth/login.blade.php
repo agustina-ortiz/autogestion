@@ -23,12 +23,35 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $this->validate();
 
+        // Buscar el empleado en la base de datos
+        $empleado = \App\Models\Maestro::where('DNI', $this->dni)->first();
+
+        if (!$empleado) {
+            $this->addError('dni', 'Las credenciales proporcionadas no son correctas.');
+            return;
+        }
+
+        // Verificar si es primer acceso (CLAVEWEB está vacío o es null)
+        if (empty($empleado->CLAVEWEB) || is_null($empleado->CLAVEWEB)) {
+            // Validar que la clave ingresada sea el legajo
+            if ($this->claveweb == $empleado->LEGAJO) {
+                // Primer acceso exitoso - guardar DNI en sesión y redirigir a cambio de clave
+                session(['first_login_dni' => $this->dni]);
+                $this->redirect(route('primera-contrasena'), navigate: true);
+                return;
+            } else {
+                $this->addError('claveweb', 'Para el primer acceso, ingrese su número de legajo como contraseña.');
+                return;
+            }
+        }
+
+        // Intento de login normal con CLAVEWEB
         if (Auth::attempt(['DNI' => $this->dni, 'password' => $this->claveweb], $this->remember)) {
             session()->regenerate();
             $this->redirect(route('dashboard'), navigate: true);
+        } else {
+            $this->addError('dni', 'Las credenciales proporcionadas no son correctas.');
         }
-
-        $this->addError('dni', 'Las credenciales proporcionadas no son correctas.');
     }
 }; ?>
 

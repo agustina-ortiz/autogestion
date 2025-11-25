@@ -64,7 +64,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/solicitudes/cheque', SolicitarCheque::class)->name('solicitudes.cheque');
     Route::get('/solicitudes/aguinaldo', SolicitarAguinaldoCheque::class)->name('solicitudes.aguinaldo');
     
-
     // Ver Anticipo
     Route::get('/anticipo', AnticipoJubilatorio::class)->name('anticipo.jubilatorio');
 
@@ -83,6 +82,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Preguntas Frecuentes
     Route::get('/preguntas-frecuentes', PreguntasFrecuentes::class)->name('preguntas.frecuentes');
     Route::get('/perfil', Perfil::class)->name('perfil');
+
+    // Cambiar contraseña primera vez
+    Route::get('/primera-contrasena', function () {
+        return view('pages.auth.primera-contrasena');
+    })->name('primera.contrasena');
 });
     
 });
