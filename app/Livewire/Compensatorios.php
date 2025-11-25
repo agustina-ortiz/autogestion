@@ -35,8 +35,8 @@ class Compensatorios extends Component
 
     public function limpiarFiltros()
     {
-        $this->fechaDesde = null;
-        $this->fechaHasta = null;
+        $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
+        $this->fechaHasta = Carbon::now()->format('Y-m-d');
         $this->currentPage = 1;
     }
 
