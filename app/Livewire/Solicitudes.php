@@ -71,7 +71,7 @@ class Solicitudes extends Component
         $this->mesActual = strtoupper($hoy->locale('es')->translatedFormat('F'));
 
         // Verificar si es junio o diciembre para mostrar aguinaldo
-        $this->mostrarAguinaldo = in_array($hoy->month, [6, 11, 12]);
+        $this->mostrarAguinaldo = in_array($hoy->month, [6, 12]);
 
         // Obtener tipo adelanto de sueldo (ID 5)
         $this->tipoAdelanto = TipoMovimiento::find(TipoMovimiento::ADELANTO_SUELDO);

@@ -66,7 +66,7 @@ class SolicitarAguinaldoCheque extends Component
     {
         $mesActual = Carbon::now()->month;
         
-        if (!in_array($mesActual, [6, 11, 12])) {
+        if (!in_array($mesActual, [6, 12])) {
             session()->flash('error', 'Las solicitudes de aguinaldo por cheque solo están disponibles en junio y diciembre.');
             return redirect()->route('solicitudes');
         }
@@ -126,7 +126,7 @@ class SolicitarAguinaldoCheque extends Component
     {
         // Verificar nuevamente que estamos en junio o diciembre
         $mesActual = Carbon::now()->month;
-        if (!in_array($mesActual, [6, 11, 12])) {
+        if (!in_array($mesActual, [6, 12])) {
             session()->flash('error', 'Las solicitudes de aguinaldo por cheque solo están disponibles en junio y diciembre.');
             $this->dispatch('scroll-to-error');
             return;
