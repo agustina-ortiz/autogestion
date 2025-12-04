@@ -32,20 +32,17 @@ class ReciboDetalle extends Component
     public function cargarRecibo()
     {
         try {
-            // Datos de conexión Oracle
-            $host = "10.0.0.22";
-            $port = "1521";
-            $sid  = "MMERC10G";
-            $username = "autogestion";
-            $password = "autgest19";
-
-            $dsn = "odbc:Driver={Oracle in instantclient_19_28};Dbq={$host}:{$port}/{$sid};Uid={$username};Pwd={$password};";
-
-            $pdo = new PDO($dsn);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+            // Conexión Oracle con OCI
+            $dbstr = "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.0.0.22)(PORT=1521))(CONNECT_DATA=(SID=MMERC10G)))";
+            $conn = oci_connect('autogestion', 'autgest19', $dbstr);
+            
+            if (!$conn) {
+                $e = oci_error();
+                throw new Exception("Error de conexión: " . $e['message']);
+            }
+            
             $legajo = Auth::user()->LEGAJO;
-
+            
             // Consulta cabecera
             $sqlCab = "SELECT * FROM per_recibo_cab 
                         WHERE legajo = :legajo 
@@ -53,60 +50,73 @@ class ReciboDetalle extends Component
                         AND anio = :anio 
                         AND mes = :mes 
                         AND tipo_liq = :tipo";
-
-            $stmtCab = $pdo->prepare($sqlCab);
-            $stmtCab->execute([
-                'legajo' => $legajo,
-                'numero' => $this->numero,
-                'anio'   => $this->anio,
-                'mes'    => $this->mes,
-                'tipo'   => $this->tipo,
-            ]);
-
-            $this->recibo = $stmtCab->fetch(PDO::FETCH_ASSOC);
-
+            
+            $stmtCab = oci_parse($conn, $sqlCab);
+            oci_bind_by_name($stmtCab, ':legajo', $legajo);
+            oci_bind_by_name($stmtCab, ':numero', $this->numero);
+            oci_bind_by_name($stmtCab, ':anio', $this->anio);
+            oci_bind_by_name($stmtCab, ':mes', $this->mes);
+            oci_bind_by_name($stmtCab, ':tipo', $this->tipo);
+            oci_execute($stmtCab);
+            
+            $this->recibo = oci_fetch_array($stmtCab, OCI_ASSOC);
+            
             if (!$this->recibo) {
+                oci_free_statement($stmtCab);
+                oci_close($conn);
                 abort(404, 'Recibo no encontrado');
             }
-
+            
+            oci_free_statement($stmtCab);
+            
             // Consulta detalle de conceptos
             $sqlDet = "SELECT * FROM per_recibo_det 
                         WHERE nro_recibo = :numero 
                         AND anio = :anio 
                         AND concepto < 90000 
                         ORDER BY orden";
-
-            $stmtDet = $pdo->prepare($sqlDet);
-            $stmtDet->execute([
-                'numero' => $this->numero,
-                'anio'   => $this->anio
-            ]);
-
-            $this->conceptos = $stmtDet->fetchAll(PDO::FETCH_ASSOC);
-
+            
+            $stmtDet = oci_parse($conn, $sqlDet);
+            oci_bind_by_name($stmtDet, ':numero', $this->numero);
+            oci_bind_by_name($stmtDet, ':anio', $this->anio);
+            oci_execute($stmtDet);
+            
+            $this->conceptos = [];
+            while ($row = oci_fetch_array($stmtDet, OCI_ASSOC)) {
+                $this->conceptos[] = $row;
+            }
+            
+            oci_free_statement($stmtDet);
+            
+            // Consulta visualización
             $sqlVis = "SELECT * FROM per_vis_recibos_cab 
                         WHERE legajo = :legajo
                         AND anio = :anio
                         AND mes = :mes
                         AND tipo_liq = :tipo";
-
-            $stmtVis = $pdo->prepare($sqlVis);
-            $stmtVis->execute([
-                'legajo' => $legajo,
-                'anio'   => $this->anio,
-                'mes'    => $this->mes,
-                'tipo'   => $this->tipo
-            ]);
-
-            $this->reciboVisualizacion = $stmtVis->fetchAll(PDO::FETCH_ASSOC);
-
+            
+            $stmtVis = oci_parse($conn, $sqlVis);
+            oci_bind_by_name($stmtVis, ':legajo', $legajo);
+            oci_bind_by_name($stmtVis, ':anio', $this->anio);
+            oci_bind_by_name($stmtVis, ':mes', $this->mes);
+            oci_bind_by_name($stmtVis, ':tipo', $this->tipo);
+            oci_execute($stmtVis);
+            
+            $this->reciboVisualizacion = [];
+            while ($row = oci_fetch_array($stmtVis, OCI_ASSOC)) {
+                $this->reciboVisualizacion[] = $row;
+            }
+            
+            oci_free_statement($stmtVis);
+            oci_close($conn);
+            
             // dd([
             //     'recibo' => $this->recibo,
             //     'conceptos' => $this->conceptos,
             //     'reciboVisualizacion' => $this->reciboVisualizacion
             // ]);
-
-        } catch (PDOException $e) {
+            
+        } catch (Exception $e) {
             $this->error = 'Error al obtener el recibo: ' . $e->getMessage();
         }
     }
