@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(apt list:*)",
+      "Bash(php:*)",
+      "Bash(systemctl status:*)",
+      "Bash(certbot:*)",
+      "Bash(a2enmod:*)",
+      "Bash(a2ensite:*)",
+      "Bash(apache2ctl configtest:*)",
+      "Bash(systemctl reload:*)",
+      "Bash(curl:*)",
+      "Bash(chown:*)",
+      "Bash(chmod:*)",
+      "Bash(sudo -u www-data cat:*)",
+      "Bash(a2dissite:*)",
+      "Bash(npm run build:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

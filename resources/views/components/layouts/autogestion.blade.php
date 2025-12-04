@@ -5,7 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ $title ?? 'Sistema Autogestión - Mercedes' }}</title>
-        
+
+        <!-- PWA Meta Tags -->
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#BED630">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Autogestión">
+        <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <style>
@@ -270,5 +278,226 @@
         </nav>
 
         @stack('scripts')
+
+        <!-- PWA Install Button and Service Worker -->
+        <div
+            x-data="pwaInstall()"
+            x-cloak
+        >
+            <!-- Botón para Android/Chrome -->
+            <div
+                x-show="showInstallButton && !isIOS"
+                class="fixed top-16 md:top-20 left-1/2 transform -translate-x-1/2 z-[60]"
+            >
+                <button
+                    @click="installPWA()"
+                    class="flex items-center gap-3 bg-[#e63946] hover:bg-[#c1121f] text-white font-bold py-3 px-6 rounded-full shadow-2xl transition-all duration-300 animate-bounce hover:animate-none border-2 border-white"
+                >
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span class="text-base md:text-lg">Instalar App</span>
+                    <button
+                        @click.stop="dismissInstall()"
+                        class="ml-2 hover:bg-white/20 rounded-full p-1"
+                        title="Cerrar"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </button>
+            </div>
+
+            <!-- Botón para iOS -->
+            <div
+                x-show="showIOSInstall"
+                class="fixed top-16 md:top-20 left-1/2 transform -translate-x-1/2 z-[60]"
+            >
+                <button
+                    @click="showIOSModal = true"
+                    class="flex items-center gap-3 bg-[#e63946] hover:bg-[#c1121f] text-white font-bold py-3 px-6 rounded-full shadow-2xl transition-all duration-300 animate-bounce hover:animate-none border-2 border-white"
+                >
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span class="text-base md:text-lg">Instalar App</span>
+                    <button
+                        @click.stop="dismissInstall()"
+                        class="ml-2 hover:bg-white/20 rounded-full p-1"
+                        title="Cerrar"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </button>
+            </div>
+
+            <!-- Modal de instrucciones para iOS -->
+            <div
+                x-show="showIOSModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-black/50 z-[70] flex items-end sm:items-center justify-center p-4"
+                @click.self="showIOSModal = false"
+            >
+                <div
+                    class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md p-6 shadow-2xl"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                >
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Instalar Autogestión</h3>
+                        <button @click="showIOSModal = false" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p class="text-gray-600 mb-6">Para instalar la app en tu iPhone o iPad, sigue estos pasos:</p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-[#e63946] text-white rounded-full flex items-center justify-center font-bold">1</div>
+                            <div class="flex-1">
+                                <p class="text-gray-700">Toca el botón <strong>Compartir</strong></p>
+                                <div class="mt-2 flex items-center gap-2 text-blue-500">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2L12 14M12 2L8 6M12 2L16 6M4 12V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V12"/>
+                                    </svg>
+                                    <span class="text-sm">(icono en la barra inferior de Safari)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-[#e63946] text-white rounded-full flex items-center justify-center font-bold">2</div>
+                            <div class="flex-1">
+                                <p class="text-gray-700">Busca y toca <strong>"Agregar a pantalla de inicio"</strong></p>
+                                <div class="mt-2 flex items-center gap-2 text-gray-500">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    <span class="text-sm">Agregar a pantalla de inicio</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-[#e63946] text-white rounded-full flex items-center justify-center font-bold">3</div>
+                            <div class="flex-1">
+                                <p class="text-gray-700">Toca <strong>"Agregar"</strong> en la esquina superior derecha</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        @click="showIOSModal = false; dismissInstall();"
+                        class="mt-6 w-full bg-[#e63946] hover:bg-[#c1121f] text-white font-bold py-3 px-6 rounded-full transition-colors"
+                    >
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Registrar Service Worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/service-worker.js')
+                        .then(registration => {
+                            console.log('Service Worker registrado:', registration.scope);
+                        })
+                        .catch(error => {
+                            console.log('Error al registrar Service Worker:', error);
+                        });
+                });
+            }
+
+            // Alpine.js component para PWA Install
+            function pwaInstall() {
+                return {
+                    deferredPrompt: null,
+                    showInstallButton: false,
+                    showIOSInstall: false,
+                    showIOSModal: false,
+                    isIOS: false,
+
+                    init() {
+                        // Detectar iOS
+                        this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                        // Verificar si ya fue descartado en esta sesión
+                        if (sessionStorage.getItem('pwaInstallDismissed')) {
+                            return;
+                        }
+
+                        // Verificar si ya está en modo standalone (ya instalada)
+                        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                                            window.navigator.standalone === true;
+
+                        if (isStandalone) {
+                            return;
+                        }
+
+                        // Para iOS: mostrar botón con instrucciones
+                        if (this.isIOS) {
+                            // Solo mostrar en Safari (no en Chrome iOS, etc.)
+                            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+                            if (isSafari) {
+                                this.showIOSInstall = true;
+                            }
+                            return;
+                        }
+
+                        // Para Android/Chrome: usar beforeinstallprompt
+                        window.addEventListener('beforeinstallprompt', (e) => {
+                            e.preventDefault();
+                            this.deferredPrompt = e;
+                            this.showInstallButton = true;
+                        });
+
+                        // Ocultar si ya está instalado
+                        window.addEventListener('appinstalled', () => {
+                            this.showInstallButton = false;
+                            this.deferredPrompt = null;
+                        });
+                    },
+
+                    async installPWA() {
+                        if (!this.deferredPrompt) return;
+
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+
+                        if (outcome === 'accepted') {
+                            console.log('PWA instalada');
+                        }
+
+                        this.deferredPrompt = null;
+                        this.showInstallButton = false;
+                    },
+
+                    dismissInstall() {
+                        this.showInstallButton = false;
+                        this.showIOSInstall = false;
+                        sessionStorage.setItem('pwaInstallDismissed', 'true');
+                    }
+                }
+            }
+        </script>
+
+        <style>
+            [x-cloak] { display: none !important; }
+        </style>
     </body>
 </html>
