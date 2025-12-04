@@ -1,4 +1,19 @@
-<div class="">
+<div class="pb-16" x-data="{ 
+    isMobile: window.innerWidth < 768,
+    init() {
+        this.updatePerPage();
+        window.addEventListener('resize', () => {
+            const wasMobile = this.isMobile;
+            this.isMobile = window.innerWidth < 768;
+            if (wasMobile !== this.isMobile) {
+                this.updatePerPage();
+            }
+        });
+    },
+    updatePerPage() {
+        $wire.updatePerPage(this.isMobile);
+    }
+}">
     {{-- Header con nombre de usuario --}}
     <div class="mb-3 hidden md:block">
         <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
@@ -30,10 +45,8 @@
         </h2>
     </div>
 
-    {{-- Tabla de recibos --}}
-    <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
-        
-
+    {{-- Vista de TABLA para ESCRITORIO --}}
+    <div class="hidden md:block bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
         {{-- Tabla --}}
         <div class="overflow-x-auto">
             <table class="w-full text-xs">
@@ -85,7 +98,7 @@
             </table>
         </div>
 
-        {{-- Paginación --}}
+        {{-- Paginación ESCRITORIO --}}
         @if ($totalPages > 1)
             <div class="bg-gray-50/80 px-6 py-3 border-t border-gray-200/70">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -187,6 +200,123 @@
                                 <span class="hidden sm:inline">Último</span>
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
+    {{-- Vista de TARJETAS para MÓVIL --}}
+    <div class="md:hidden space-y-3">
+        @if (count($rows) > 0)
+            @php $i = $offset + 1; @endphp
+            @foreach ($rows as $row)
+                <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
+                    {{-- Header de la tarjeta --}}
+                    <div class="bg-[#77BF43] px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-white/20 backdrop-blur-sm text-white font-bold px-2 py-1 rounded-lg text-xs">
+                                #{{ $i }}
+                            </span>
+                            <span class="text-white font-bold text-sm">
+                                Recibo N° {{ $row['NRO_RECIBO'] }}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1 text-white text-xs">
+                            <i class="fa fa-calendar"></i>
+                            <span>{{ $row['MES'] }}/{{ $row['ANIO'] }}</span>
+                        </div>
+                    </div>
+
+                    {{-- Contenido de la tarjeta --}}
+                    <div class="px-4 py-3 space-y-2">
+                        {{-- Tipo de Liquidación --}}
+                        <div class="flex justify-between items-start pb-2 border-b border-gray-100">
+                            <span class="text-xs text-gray-500 font-medium">Tipo de Liquidación:</span>
+                            <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $row['TIPO_LIQ'] }}</span>
+                        </div>
+
+                        {{-- Importe Neto --}}
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                            <span class="text-xs text-gray-500 font-medium">Importe Neto:</span>
+                            <span class="text-base font-bold text-[#77BF43]">
+                                ${{ number_format($row['LIQUIDO'], 2, ',', '.') }}
+                            </span>
+                        </div>
+
+                        {{-- Botón Ver --}}
+                        <div class="pt-2">
+                            <a href="{{ route('recibo', ['numero' => $row['NRO_RECIBO'], 'anio' => $row['ANIO'], 'mes' => $row['MES'], 'tipo' => $row['TIPO_LIQ']]) }}"
+                            class="w-full group relative inline-flex items-center justify-center gap-2 bg-[#77BF43] text-white font-bold px-4 py-2.5 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-sm overflow-hidden">
+                                <span class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                                <i class="fa fa-eye relative z-10"></i>
+                                <span class="relative z-10">VER RECIBO</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @php $i++; @endphp
+            @endforeach
+        @else
+            <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 px-6 py-8 text-center">
+                <i class="fa fa-inbox text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-500 text-sm">No hay recibos disponibles</p>
+            </div>
+        @endif
+
+        {{-- Paginación MÓVIL --}}
+        @if ($totalPages > 1)
+            <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 px-4 py-3 mt-4">
+                <div class="flex flex-col items-center gap-3">
+                    {{-- Info de resultados --}}
+                    <div class="text-xs text-gray-600 text-center">
+                        Mostrando {{ $offset + 1 }} - {{ min($offset + $perPage, $totalRecords) }} de {{ $totalRecords }}
+                    </div>
+                    
+                    {{-- Botones de navegación --}}
+                    <div class="flex items-center justify-center gap-2 w-full">
+                        {{-- Botón Anterior --}}
+                        @if ($currentPage > 1)
+                            <button 
+                                wire:click="previousPage"
+                                class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-xs font-medium text-gray-700 flex items-center justify-center gap-1 shadow-sm">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                                <span>Anterior</span>
+                            </button>
+                        @else
+                            <span class="flex-1 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs font-medium text-gray-400 cursor-not-allowed flex items-center justify-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                                <span>Anterior</span>
+                            </span>
+                        @endif
+
+                        {{-- Indicador de página actual --}}
+                        <div class="px-4 py-2 bg-[#77BF43] text-white rounded-lg text-xs font-bold">
+                            {{ $currentPage }} / {{ $totalPages }}
+                        </div>
+
+                        {{-- Botón Siguiente --}}
+                        @if ($currentPage < $totalPages)
+                            <button 
+                                wire:click="nextPage"
+                                class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-xs font-medium text-gray-700 flex items-center justify-center gap-1 shadow-sm">
+                                <span>Siguiente</span>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        @else
+                            <span class="flex-1 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs font-medium text-gray-400 cursor-not-allowed flex items-center justify-center gap-1">
+                                <span>Siguiente</span>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </span>
                         @endif

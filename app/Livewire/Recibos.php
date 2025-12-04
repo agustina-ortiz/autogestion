@@ -14,7 +14,29 @@ class Recibos extends Component
     use WithPagination;
 
     public $perPage = 5;
+    public $isMobile = false;
     protected $paginationTheme = 'tailwind';
+
+    public function mount()
+    {
+        // Detectar si es móvil al montar el componente
+        $this->checkIfMobile();
+    }
+
+    public function checkIfMobile()
+    {
+        $userAgent = request()->header('User-Agent');
+        $this->isMobile = preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent);
+        $this->perPage = $this->isMobile ? 10 : 5;
+    }
+
+    // Método público para actualizar desde el frontend
+    public function updatePerPage($isMobile)
+    {
+        $this->isMobile = $isMobile;
+        $this->perPage = $isMobile ? 10 : 5;
+        $this->resetPage();
+    }
 
     public function getRecibosData()
     {
