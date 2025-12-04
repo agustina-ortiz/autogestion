@@ -41,30 +41,33 @@ class Recibos extends Component
     public function getRecibosData()
     {
         try {
-            // Conexión Oracle con OCI
-            $dbstr = "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.0.0.22)(PORT=1521))(CONNECT_DATA=(SID=MMERC10G)))";
-            $conn = oci_connect('autogestion', 'autgest19', $dbstr);
-            
-            if (!$conn) {
-                $e = oci_error();
-                throw new Exception("Error de conexión: " . $e['message']);
-            }
-            
+            // Datos de conexión
+            $host = "10.0.0.22";
+            $port = "1521";
+            $sid = "MMERC10G";
+            $username = "autogestion";
+            $password = "autgest19";
+
+            // DSN directo (DSN-less)
+            $dsn = "odbc:Driver={Oracle in instantclient_19_28};Dbq={$host}:{$port}/{$sid};Uid={$username};Pwd={$password};";
+
+            // Conexión PDO ODBC
+            $pdo = new PDO($dsn);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
             $legajo = Auth::user()->LEGAJO;
             $page = $this->getPage();
             $offset = ($page - 1) * $this->perPage;
-            
+
             // Consulta para contar total de registros
             $sqlCount = "SELECT COUNT(*) as total FROM per_recibo_cab 
                          WHERE legajo = :legajo
                          AND fecha_emision < (CURRENT_DATE - 1)";
             
-            $stmtCount = oci_parse($conn, $sqlCount);
-            oci_bind_by_name($stmtCount, ':legajo', $legajo);
-            oci_execute($stmtCount);
-            $rowCount = oci_fetch_array($stmtCount, OCI_ASSOC);
-            $totalRecords = $rowCount['TOTAL'];
-            
+            $stmtCount = $pdo->prepare($sqlCount);
+            $stmtCount->execute(['legajo' => $legajo]);
+            $totalRecords = $stmtCount->fetch(PDO::FETCH_ASSOC)['TOTAL'];
+
             // Consulta para obtener registros paginados
             $sql = "SELECT * FROM (
                         SELECT a.*, ROWNUM rnum FROM (
@@ -74,37 +77,24 @@ class Recibos extends Component
                             ORDER BY anio DESC, nro_recibo DESC
                         ) a WHERE ROWNUM <= :end_row
                     ) WHERE rnum > :start_row";
-            
-            $stmt = oci_parse($conn, $sql);
-            
-            $end_row = $offset + $this->perPage;
-            $start_row = $offset;
-            
-            oci_bind_by_name($stmt, ':legajo', $legajo);
-            oci_bind_by_name($stmt, ':end_row', $end_row);
-            oci_bind_by_name($stmt, ':start_row', $start_row);
-            
-            oci_execute($stmt);
-            
-            // Obtener todos los resultados
-            $rows = [];
-            while ($row = oci_fetch_array($stmt, OCI_ASSOC)) {
-                $rows[] = $row;
-            }
-            
-            // Liberar recursos
-            oci_free_statement($stmtCount);
-            oci_free_statement($stmt);
-            oci_close($conn);
-            
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                'legajo' => $legajo,
+                'end_row' => $offset + $this->perPage,
+                'start_row' => $offset
+            ]);
+
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
             return [
                 'rows' => $rows,
                 'totalRecords' => $totalRecords,
                 'offset' => $offset
             ];
-            
-        } catch (Exception $e) {
-            session()->flash('error', 'Error Oracle: ' . $e->getMessage());
+
+        } catch (PDOException $e) {
+            session()->flash('error', 'Error Oracle ODBC: ' . $e->getMessage());
             return [
                 'rows' => [],
                 'totalRecords' => 0,
