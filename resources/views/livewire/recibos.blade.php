@@ -1,4 +1,4 @@
-<div class="pb-16" x-data="{ 
+<div class="pb-16 md:pb-2" x-data="{ 
     isMobile: window.innerWidth < 768,
     init() {
         this.updatePerPage();
