@@ -110,20 +110,9 @@ class ReciboDetalle extends Component
             oci_free_statement($stmtVis);
             oci_close($conn);
             
-            // dd([
-            //     'recibo' => $this->recibo,
-            //     'conceptos' => $this->conceptos,
-            //     'reciboVisualizacion' => $this->reciboVisualizacion
-            // ]);
-            
         } catch (Exception $e) {
             $this->error = 'Error al obtener el recibo: ' . $e->getMessage();
         }
-    }
-
-    public function abrirModalImpresion()
-    {
-        $this->dispatch('abrir-modal-impresion-recibo');
     }
 
     public function render()

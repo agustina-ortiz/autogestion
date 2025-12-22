@@ -32,7 +32,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => storage_path('app'),
             'serve' => true,
             'throw' => false,
             'report' => false,
@@ -45,6 +45,14 @@ return [
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
+        ],
+
+        'public_root' => [
+            'driver' => 'local',
+            'root' => public_path(),
+            'url' => env('APP_URL'),
+            'visibility' => 'public',
+            'throw' => false,
         ],
 
         's3' => [
@@ -62,9 +70,10 @@ return [
 
         'planillas' => [
             'driver' => 'local',
-            'root' => public_path('fotos-licencias/fotos-empleados/planillas'),
-            'url' => env('APP_URL').'/fotos-licencias/fotos-empleados/planillas',
+            'root' => public_path('app/public/planillas'),
+            'url' => env('APP_URL').'/storage/planillas',
             'visibility' => 'public',
+            'throw' => false,
         ],
 
     ],

@@ -12,51 +12,6 @@
         </div>
     @endif
 
-    @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ocultar mensaje de éxito
-            const mensajeExito = document.getElementById('flash-mensaje');
-            if (mensajeExito) {
-                setTimeout(function() {
-                    mensajeExito.style.opacity = '0';
-                    setTimeout(() => mensajeExito.remove(), 500);
-                }, 2500);
-            }
-
-            // Ocultar mensaje de error
-            const mensajeError = document.getElementById('flash-error');
-            if (mensajeError) {
-                setTimeout(function() {
-                    mensajeError.style.opacity = '0';
-                    setTimeout(() => mensajeError.remove(), 500);
-                }, 2500);
-            }
-        });
-
-        // Para mensajes que aparecen después de acciones de Livewire
-        document.addEventListener('livewire:init', () => {
-            Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
-                succeed(({ snapshot, effect }) => {
-                    setTimeout(() => {
-                        const mensajeExito = document.getElementById('flash-mensaje');
-                        if (mensajeExito) {
-                            mensajeExito.style.opacity = '0';
-                            setTimeout(() => mensajeExito.remove(), 500);
-                        }
-
-                        const mensajeError = document.getElementById('flash-error');
-                        if (mensajeError) {
-                            mensajeError.style.opacity = '0';
-                            setTimeout(() => mensajeError.remove(), 500);
-                        }
-                    }, 8500);
-                });
-            });
-        });
-    </script>
-    @endpush
-
     {{-- Header con nombre de usuario --}}
     <div class="mb-6">
         <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
@@ -123,21 +78,19 @@
                                     </td>
                                     <td class="px-4 py-2 border text-center">
                                         <div class="flex justify-center gap-2">
-                                            {{-- Botón Descargar Planilla Vacía --}}
-                                            <button 
-                                                wire:click="descargarPlanilla({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
-                                                class="bg-[#00b3ea] hover:bg-[#07a5d5] text-white font-bold py-2 px-4 rounded text-sm">
-                                                Descargar
-                                            </button>
+                                            <a 
+                                                href="{{ route('planilla.descargar', ['dni' => $hijo->dni, 'nombre' => $hijo->nombre]) }}"
+                                                target="_blank"
+                                                class="bg-[#00b3ea] hover:bg-[#07a5d5] text-white font-bold py-2 px-4 rounded text-sm inline-block">
+                                                Ver
+                                            </a>
 
-                                            {{-- Botón Subir Planilla --}}
                                             <button 
                                                 wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
                                                 class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded text-sm">
                                                 Subir
                                             </button>
 
-                                            {{-- Botón Ver Planilla (si ya está subida) --}}
                                             @if($hijo->tiene_planilla)
                                                 <button 
                                                     wire:click="verPlanilla({{ $hijo->dni }})"
@@ -157,7 +110,7 @@
                     <p class="text-gray-600">No se encontraron hijos registrados.</p>
                 </div>
             @endif
-            <!-- Botón volver -->
+            
             <div class="mt-8 flex justify-center">
                 <a href="{{ route('hijos') }}" 
                 class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
@@ -169,98 +122,109 @@
             </div>
         </div>
 
-        {{-- Modal para subir planilla --}}
+        {{-- Modal para subir planilla - AJAX PURO --}}
         @if($selectedDni)
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto p-6 relative" wire:click.stop>
+        <div id="modal-upload" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" onclick="cerrarModalUpload(event)">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto p-6 relative" onclick="event.stopPropagation()">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                     Subir Planilla de Escolaridad
                 </h2>
 
-                <form wire:submit.prevent="subirPlanilla" class="space-y-4">
-                    {{-- Nombre del hijo --}}
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Nombre del Hijo</label>
-                        <input 
-                            type="text" 
-                            value="{{ $selectedNombre }}" 
-                            disabled
-                            class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
-                        >
-                    </div>
+                <form id="form-planilla" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="dni" value="{{ $selectedDni }}">
+                    <input type="hidden" name="planilla" value="{{ $planillaActual }}">
+                    <input type="hidden" name="anio" value="{{ $anioActual }}">
 
-                    {{-- DNI del hijo --}}
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">DNI del Hijo</label>
-                        <input 
-                            type="text" 
-                            value="{{ $selectedDni }}" 
-                            disabled
-                            class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
-                        >
-                    </div>
-
-                    {{-- Planilla actual --}}
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Planilla N°</label>
-                        <input 
-                            type="text" 
-                            value="{{ $planillaActual }}" 
-                            disabled
-                            class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
-                        >
-                    </div>
-
-                    {{-- Año --}}
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Año</label>
-                        <input 
-                            type="text" 
-                            value="{{ $anioActual }}" 
-                            disabled
-                            class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
-                        >
-                    </div>
-
-                    {{-- Archivo --}}
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Imagen de la Planilla (JPG o PNG)</label>
-                        <input 
-                            type="file" 
-                            wire:model="foto" 
-                            accept="image/jpeg,image/jpg,image/png"
-                            class="w-full border border-gray-300 rounded px-3 py-2"
-                        >
-                        @error('foto') 
-                            <span class="text-red-500 text-xs">{{ $message }}</span> 
-                        @enderror
-                    </div>
-
-                    {{-- Vista previa de la imagen --}}
-                    @if($foto)
+                    <div class="space-y-4">
                         <div>
-                            <p class="text-sm text-gray-600 mb-2">Vista previa:</p>
-                            <img src="{{ $foto->temporaryUrl() }}" class="max-w-full border rounded shadow">
-                            <p class="text-xs text-gray-500 mt-2">
-                                La imagen se convertirá automáticamente a formato JPG al subirla.
-                            </p>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">Nombre del Hijo</label>
+                            <input 
+                                type="text" 
+                                value="{{ $selectedNombre }}" 
+                                disabled
+                                class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
+                            >
                         </div>
-                    @endif
 
-                    {{-- Botones --}}
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">DNI del Hijo</label>
+                            <input 
+                                type="text" 
+                                value="{{ $selectedDni }}" 
+                                disabled
+                                class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
+                            >
+                        </div>
+
+                        {{-- Planilla actual --}}
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">Planilla N°</label>
+                            <input 
+                                type="text" 
+                                value="{{ $planillaActual }}" 
+                                disabled
+                                class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
+                            >
+                        </div>
+
+                        {{-- Año --}}
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">Año</label>
+                            <input 
+                                type="text" 
+                                value="{{ $anioActual }}" 
+                                disabled
+                                class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-gray-700 cursor-not-allowed"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                Archivo de la Planilla (JPG, PNG o PDF)
+                            </label>
+                            <input 
+                                type="file" 
+                                name="foto"
+                                id="foto-input"
+                                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                class="w-full border border-gray-300 rounded px-3 py-2"
+                                required
+                                onchange="mostrarVistaPrevia(this)"
+                            >
+                            <div id="error-foto" class="text-red-500 text-xs mt-1 hidden"></div>
+                        </div>
+
+                        <div id="vista-previa" class="hidden">
+                            <p class="text-sm text-gray-600 mb-2">Vista previa:</p>
+                            <div id="preview-container"></div>
+                        </div>
+
+                        <div id="loading-indicator" class="hidden">
+                            <div class="flex items-center justify-center space-x-2 text-blue-600">
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Subiendo archivo...</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex justify-end gap-2 pt-4 border-t mt-4">
                         <button 
                             type="button" 
-                            wire:click="$set('selectedDni', null)"
+                            onclick="cerrarModalUpload()"
+                            id="btn-cancelar"
                             class="bg-gray-500 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded">
                             Cancelar
                         </button>
                         <button 
-                            type="submit" 
-                            class="bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded"
-                            wire:loading.attr="disabled">
-                            <span wire:loading.remove>Guardar</span>
-                            <span wire:loading>Subiendo...</span>
+                            type="button"
+                            onclick="subirPlanillaAjax()"
+                            id="btn-guardar"
+                            class="bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded">
+                            Guardar
                         </button>
                     </div>
                 </form>
@@ -271,7 +235,7 @@
         {{-- Modal para VER planilla subida --}}
         @if($modalVerPlanilla && $rutaPlanillaVer)
         <div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50" wire:click="cerrarModalVer">
-            <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto p-6" wire:click.stop>
+            <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto p-6" @click.stop>
                 <div class="flex justify-between items-center mb-4 border-b pb-3">
                     <h2 class="text-xl font-semibold text-gray-800">
                         Planilla de Escolaridad Subida
@@ -284,11 +248,18 @@
                 </div>
 
                 <div class="flex justify-center items-center bg-gray-100 p-4 rounded">
-                    <img 
-                        src="{{ $rutaPlanillaVer }}" 
-                        alt="Planilla de Escolaridad"
-                        class="max-w-full h-auto border-2 border-gray-300 rounded shadow-lg"
-                    >
+                    @if($extensionPlanillaVer === 'pdf')
+                        <iframe 
+                            src="{{ $rutaPlanillaVer }}" 
+                            class="w-full h-[600px] border-2 border-gray-300 rounded"
+                        ></iframe>
+                    @else
+                        <img 
+                            src="{{ $rutaPlanillaVer }}" 
+                            alt="Planilla de Escolaridad"
+                            class="max-w-full h-auto border-2 border-gray-300 rounded shadow-lg"
+                        >
+                    @endif
                 </div>
 
                 <div class="mt-4 flex justify-end gap-2">
@@ -315,58 +286,153 @@
         @endif
     @endif
 
-    {{-- Modal de impresión --}}
-    @if($mostrarModalImpresion && $contenidoImpresion)
-    <div 
-        class="modal-impresion fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
-        x-data 
-        x-init="$nextTick(() => { window.print(); $wire.set('mostrarModalImpresion', false) })"
-    >
-        <div class="bg-white p-8 rounded-lg shadow-lg w-[21cm] h-[29.7cm] overflow-auto print:w-full print:h-full print:shadow-none print:rounded-none">
-            <style>
-                @media print {
-                    @page { 
-                        size: A4; 
-                        margin: 1cm; 
-                    }
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mensajeExito = document.getElementById('flash-mensaje');
+            if (mensajeExito) {
+                setTimeout(function() {
+                    mensajeExito.style.opacity = '0';
+                    setTimeout(() => mensajeExito.remove(), 500);
+                }, 2500);
+            }
+
+            const mensajeError = document.getElementById('flash-error');
+            if (mensajeError) {
+                setTimeout(function() {
+                    mensajeError.style.opacity = '0';
+                    setTimeout(() => mensajeError.remove(), 500);
+                }, 2500);
+            }
+        });
+
+        function cerrarModalUpload(event) {
+            if (event && event.target.id !== 'modal-upload') return;
+            @this.call('cerrarModal');
+        }
+
+        function mostrarVistaPrevia(input) {
+            const vistaPrevia = document.getElementById('vista-previa');
+            const previewContainer = document.getElementById('preview-container');
+            const errorFoto = document.getElementById('error-foto');
+            
+            errorFoto.classList.add('hidden');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileSize = file.size / 1024 / 1024;
+                const fileName = file.name.toLowerCase();
+                
+                if (fileSize > 10) {
+                    errorFoto.textContent = 'El archivo no debe superar 10MB';
+                    errorFoto.classList.remove('hidden');
+                    input.value = '';
+                    vistaPrevia.classList.add('hidden');
+                    return;
                 }
-            </style>
+                
+                const validExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+                const extension = fileName.split('.').pop();
+                if (!validExtensions.includes(extension)) {
+                    errorFoto.textContent = 'Solo se permiten archivos JPG, PNG o PDF';
+                    errorFoto.classList.remove('hidden');
+                    input.value = '';
+                    vistaPrevia.classList.add('hidden');
+                    return;
+                }
+                
+                vistaPrevia.classList.remove('hidden');
+                
+                if (extension === 'pdf') {
+                    previewContainer.innerHTML = `
+                        <div class="bg-gray-100 border rounded p-4 text-center">
+                            <svg class="w-16 h-16 mx-auto text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z"/>
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-600">Archivo PDF seleccionado</p>
+                            <p class="text-xs text-gray-500 mt-1">${file.name}</p>
+                        </div>
+                    `;
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewContainer.innerHTML = `
+                            <img src="${e.target.result}" class="max-w-full border rounded shadow">
+                            <p class="text-xs text-gray-500 mt-2">La imagen se convertirá automáticamente a formato JPG al subirla.</p>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
 
-            <div class="text-center">
-                <img src="{{ asset('img/encabezado.png') }}" class="mx-auto mb-4" style="max-width: 100%;">
-                <h3 class="text-xl font-bold">Planilla de Escolaridad</h3>
-                <h4 class="text-lg mb-6">Año Lectivo {{ $contenidoImpresion['anio'] }}</h4>
-            </div>
-
-            <p><strong>Apellido y Nombre del Padre / Madre:</strong> {{ $contenidoImpresion['nombrePadre'] }}</p>
-            <p><strong>N° de Legajo:</strong> {{ $contenidoImpresion['legajo'] }}</p>
-            <p><strong>D.N.I.:</strong> {{ Auth::user()->DNI ?? '-' }}</p>
-            <br>
-            <h4 class="text-center font-semibold">ASIGNACIONES FAMILIARES<br>CERTIFICADO LEY 24714</h4>
-            <br>
-            <p>
-                CERTIFICO QUE: <strong>{{ $contenidoImpresion['nombre'] }}</strong><br>
-                Ha sido registrado/a en este Establecimiento para cursar como alumno regular,
-                durante el ciclo lectivo {{ $contenidoImpresion['anio'] }}.
-            </p>
-            <br>
-            <p><strong>Nombre del Establecimiento:</strong> ____________________________________________</p>
-            <p>☐ Establecimiento del ESTADO</p>
-            <p>☐ Establecimiento incorporado o adscripto por Resolución N° ___________</p>
-            <p><strong>Domicilio:</strong> ____________________________________________</p>
-            <p><strong>Localidad:</strong> ____________________________________________</p>
-            <br>
-            <div class="text-right">
-                <p>....................................................</p>
-                <p><strong>Firma y Sello del Establecimiento</strong></p>
-            </div>
-            <br>
-            <p>
-                Este certificado debe presentarse en la oficina de Recursos Humanos antes del día 
-                <strong>{{ $contenidoImpresion['planilla'] == 1 ? '30 de marzo' : '30 de diciembre' }}</strong>,
-                caso contrario, de acuerdo a la Ley 24714, deberá cancelarse el pago del adicional por escolaridad.
-            </p>
-        </div>
-    </div>
-    @endif
+        function subirPlanillaAjax() {
+            const form = document.getElementById('form-planilla');
+            const fotoInput = document.getElementById('foto-input');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const btnGuardar = document.getElementById('btn-guardar');
+            const btnCancelar = document.getElementById('btn-cancelar');
+            const errorFoto = document.getElementById('error-foto');
+            
+            errorFoto.classList.add('hidden');
+            
+            if (!fotoInput.files || !fotoInput.files[0]) {
+                errorFoto.textContent = 'Debe seleccionar un archivo';
+                errorFoto.classList.remove('hidden');
+                return;
+            }
+            
+            loadingIndicator.classList.remove('hidden');
+            btnGuardar.disabled = true;
+            btnCancelar.disabled = true;
+            btnGuardar.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            const formData = new FormData(form);
+            
+            fetch('{{ route("planilla.subir") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                loadingIndicator.classList.add('hidden');
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    btnGuardar.disabled = false;
+                    btnCancelar.disabled = false;
+                    btnGuardar.classList.remove('opacity-50', 'cursor-not-allowed');
+                    
+                    if (data.errors) {
+                        let errorMsg = Object.values(data.errors).flat().join(', ');
+                        errorFoto.textContent = errorMsg;
+                    } else {
+                        errorFoto.textContent = data.message || 'Error al subir el archivo';
+                    }
+                    errorFoto.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingIndicator.classList.add('hidden');
+                btnGuardar.disabled = false;
+                btnCancelar.disabled = false;
+                btnGuardar.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                errorFoto.textContent = 'Error de conexión: ' + error.toString();
+                errorFoto.classList.remove('hidden');
+            });
+        }
+    </script>
+    @endpush
 </div>

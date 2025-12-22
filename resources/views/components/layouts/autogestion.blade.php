@@ -54,7 +54,7 @@
                 </a>
             </div>
             <div class="hidden md:block">
-                <h1 class="text-base md:text-lg lg:text-xl font-bold text-white whitespace-nowrap">AUTOGESTIÓN RECURSOS HUMANOS</h1>
+                <a href="{{ route('dashboard') }}"><h1 class="text-base md:text-lg lg:text-xl font-bold text-white whitespace-nowrap">AUTOGESTIÓN RECURSOS HUMANOS</h1></a>
             </div>
             <div class="header-right flex items-center gap-2 md:gap-3">
                 <!-- Dropdown de Mi Perfil -->
@@ -277,6 +277,7 @@
             </div>
         </nav>
 
+        @livewireScripts
         @stack('scripts')
 
         <!-- PWA Install Button and Service Worker -->

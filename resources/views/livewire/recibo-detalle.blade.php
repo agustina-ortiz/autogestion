@@ -1,4 +1,4 @@
-<div class="pb-10">
+<div class="pb-12 md:pb-8">
     <div class="container mx-auto px-4">
 
         {{-- Mensaje de error si existe --}}
@@ -9,36 +9,70 @@
         @endif
 
         @if ($recibo)
-            {{-- Header del recibo con glassmorphism --}}
-            <div class="bg-[#77BF43] rounded-xl px-6 py-3 mb-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+            {{-- Header del recibo con glassmorphism - DESKTOP --}}
+            <div class="hidden md:block bg-[#77BF43] rounded-xl px-6 py-3 mb-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
                 <div class="flex items-center justify-between">
-                    {{-- Izquierda: Icono de volver + título --}}
+                    {{-- Izquierda: título --}}
                     <div class="flex items-center gap-3">
-                        {{-- Título con efecto de brillo --}}
                         <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
-                            
                             <span class="tracking-tight">Detalle del Recibo</span>
                         </h1>
                     </div>
 
-                    {{-- Derecha: Botones PDF, Imprimir, Email --}}
+                    {{-- Derecha: Botón Ver PDF --}}
                     <div class="flex gap-2">
-                        <button 
-                            wire:click="abrirModalImpresion"
+                        <a 
+                            href="{{ route('recibo.pdf', [
+                                'nroRecibo' => $recibo['NRO_RECIBO'],
+                                'anio' => $recibo['ANIO'],
+                                'mes' => $recibo['MES'],
+                                'tipoLiq' => $recibo['TIPO_LIQ']
+                            ]) }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             class="group relative inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-xs overflow-hidden"
                         >
                             <span class="absolute inset-0 bg-gradient-to-r from-gray-500/0 to-gray-500/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
                             <svg class="w-4 h-4 relative z-10 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
-                            <span class="relative z-10">Imprimir</span>
-                        </button>
+                            <span class="relative z-10">Ver PDF</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            {{-- Grid de tablas 2x2 --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6 mt-6">
+            {{-- Header del recibo - MOBILE --}}
+            <div class="md:hidden bg-[#77BF43] rounded-xl px-4 py-3 mb-4 shadow-lg border border-white/20">
+                <div class="flex items-center justify-between mb-2">
+                    <h1 class="text-base font-bold text-white">Detalle del Recibo</h1>
+                    <a 
+                        href="{{ route('recibo.pdf', [
+                            'nroRecibo' => $recibo['NRO_RECIBO'],
+                            'anio' => $recibo['ANIO'],
+                            'mes' => $recibo['MES'],
+                            'tipoLiq' => $recibo['TIPO_LIQ']
+                        ]) }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="bg-white/90 text-gray-700 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 shadow-md active:scale-95 transition-transform"
+                    >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span>Ver PDF</span>
+                    </a>
+                </div>
+                <div class="text-white/90 text-xs">
+                    <p>Recibo N° <span class="font-bold">{{ $recibo['NRO_RECIBO'] }}</span></p>
+                    <p>Período: <span class="font-bold">{{ $recibo['MES'] }}/{{ $recibo['ANIO'] }}</span></p>
+                </div>
+            </div>
+
+            {{-- VISTA DESKTOP: Grid de tablas 2x2 --}}
+            <div class="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6 mt-6">
                 
                 {{-- TABLA 1: Datos Personales --}}
                 <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.02] transition-all duration-300">
@@ -114,8 +148,73 @@
 
             </div>
 
-            {{-- TABLA 3: Detalle de Conceptos (ancho completo) --}}
-            <div class="mb-8 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl mb-3 transform hover:scale-[1.01] transition-all duration-300">
+            {{-- VISTA MOBILE: Tarjetas de Datos Personales y Laborales --}}
+            <div class="md:hidden space-y-3 mb-4">
+                @foreach($reciboVisualizacion as $persona)
+                    {{-- Tarjeta: Datos Personales --}}
+                    <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 overflow-hidden">
+                        <div class="bg-[#77BF43] px-4 py-2">
+                            <h2 class="text-xs font-bold text-white uppercase flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                Datos Personales
+                            </h2>
+                        </div>
+                        <div class="px-4 py-3 space-y-2">
+                            <div class="flex justify-between items-start pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">Nombre:</span>
+                                <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $persona['APELLIDO'] }}, {{ $persona['NOMBRES'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">Legajo:</span>
+                                <span class="text-xs text-gray-700 font-semibold">{{ $recibo['LEGAJO'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">DNI:</span>
+                                <span class="text-xs text-gray-700 font-semibold">{{ $persona['NRO_DOC'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500 font-medium">CUIL:</span>
+                                <span class="text-xs text-gray-700 font-semibold">{{ $persona['NRO_CUIT'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Tarjeta: Datos Laborales --}}
+                    <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 overflow-hidden">
+                        <div class="bg-[#77BF43] px-4 py-2">
+                            <h2 class="text-xs font-bold text-white uppercase flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                Datos Laborales
+                            </h2>
+                        </div>
+                        <div class="px-4 py-3 space-y-2">
+                            <div class="flex justify-between items-start pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">Cargo:</span>
+                                <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $persona['DES_CATEGORIA'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">F. Ingreso:</span>
+                                <span class="text-xs text-gray-700 font-semibold">{{ date('d/m/Y', strtotime($persona['FECH_ANTIG'])) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">Categoría:</span>
+                                <span class="text-xs text-gray-700 font-semibold">{{ $persona['COD_CATEGORIA'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-start pb-2 border-b border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">Planta:</span>
+                                <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $persona['DES_TIPO_PLANTA'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs text-gray-500 font-medium">Jurisdicción:</span>
+                                <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $persona['JURISDICCION'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- TABLA 3: Detalle de Conceptos (ancho completo) - DESKTOP --}}
+            <div class="hidden md:block mb-8 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl mb-3 transform hover:scale-[1.01] transition-all duration-300">
                 <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
@@ -151,13 +250,73 @@
                                     </td>
                                 </tr>
                             @endif
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
 
-            {{-- TABLA 4: Resumen de Liquidación con efecto destacado --}}
-            <div class="mb-8 bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-2xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
+            {{-- VISTA MOBILE: Tarjetas de Conceptos --}}
+            <div class="md:hidden mb-4">
+                <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 overflow-hidden">
+                    <div class="bg-[#77BF43] px-4 py-2">
+                        <h2 class="text-xs font-bold text-white uppercase flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                            Detalle de Conceptos
+                        </h2>
+                    </div>
+                    
+                    @if(count($conceptos) > 0)
+                        <div class="divide-y divide-gray-100">
+                            @foreach($conceptos as $index => $concepto)
+                                <div class="px-4 py-3 space-y-2">
+                                    {{-- Encabezado del concepto --}}
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="bg-[#77BF43]/10 text-[#77BF43] font-bold px-2 py-0.5 rounded text-xs">
+                                                #{{ $index + 1 }}
+                                            </span>
+                                            <span class="text-xs text-gray-500 font-medium">Cód: {{ $concepto['CONCEPTO'] ?? '-' }}</span>
+                                        </div>
+                                        @if($concepto['CANTIDAD'] && $concepto['CANTIDAD'] != '-')
+                                            <span class="text-xs text-gray-500">Cant: {{ $concepto['CANTIDAD'] }}</span>
+                                        @endif
+                                    </div>
+
+                                    {{-- Descripción del concepto --}}
+                                    <div class="mb-2">
+                                        <p class="text-xs text-gray-700 font-semibold">{{ $concepto['DESC_CONCEPTO'] ?? '-' }}</p>
+                                    </div>
+
+                                    {{-- Montos --}}
+                                    <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                                        @if($concepto['MONTO'] > 0)
+                                            <span class="text-xs text-gray-900 font-medium">Haber:</span>
+                                            <span class="text-sm font-bold text-green-600">
+                                                ${{ number_format($concepto['MONTO'], 2, ',', '.') }}
+                                            </span>
+                                        @elseif($concepto['MONTO'] < 0)
+                                            <span class="text-xs text-gray-900 font-medium">Descuento:</span>
+                                            <span class="text-sm font-bold text-red-600">
+                                                ${{ number_format($concepto['MONTO'], 2, ',', '.') }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">Sin monto</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="px-4 py-6 text-center">
+                            <i class="fa fa-inbox text-gray-300 text-3xl mb-2"></i>
+                            <p class="text-gray-400 text-xs italic">No hay conceptos disponibles</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- TABLA 4: Resumen de Liquidación - DESKTOP --}}
+            <div class="hidden md:block mb-8 bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-2xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl transform hover:scale-[1.01] transition-all duration-300">
                 <div class="bg-[#77BF43] px-4 py-2 border-b border-white/30">
                     <h2 class="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
@@ -193,9 +352,57 @@
                     </table>
                 </div>
             </div>
+
+            {{-- VISTA MOBILE: Tarjeta de Resumen de Liquidación --}}
+            <div class="md:hidden mb-4">
+                <div class="bg-gradient-to-br from-white via-white to-[#77BF43]/5 backdrop-blur-md shadow-xl overflow-hidden border-2 border-[#77BF43]/30 rounded-xl">
+                    <div class="bg-[#77BF43] px-4 py-2">
+                        <h2 class="text-xs font-bold text-white uppercase flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                            Resumen de Liquidación
+                        </h2>
+                    </div>
+                    <div class="px-4 py-3 space-y-3">
+                        <div class="flex justify-between items-start pb-2 border-b border-gray-100">
+                            <span class="text-xs text-gray-500 font-medium">Tipo de Liquidación:</span>
+                            <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $recibo['TIPO_LIQ'] }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                            <span class="text-xs text-gray-500 font-medium">Remuneración con Aporte:</span>
+                            <span class="text-xs text-gray-700 font-semibold">${{ number_format($recibo['REMUN_C_AP'], 2, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                            <span class="text-xs text-gray-500 font-medium">Remuneración sin Aporte:</span>
+                            <span class="text-xs text-gray-700 font-semibold">${{ number_format($recibo['REMUN_S_AP'], 2, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b-2 border-[#77BF43]/20">
+                            <span class="text-xs text-gray-500 font-medium">Retenciones:</span>
+                            <span class="text-xs text-red-600 font-semibold">${{ number_format($recibo['RETENCIONES'], 2, ',', '.') }}</span>
+                        </div>
+                        <div class="pt-2">
+                            <div class="bg-[#77BF43] text-white text-center rounded-xl py-3 px-4 shadow-lg">
+                                <p class="text-xs mb-1 opacity-90">Líquido a Cobrar</p>
+                                <p class="text-xl font-bold">${{ number_format($recibo['LIQUIDO'], 2, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Botón Volver - MOBILE --}}
+            <div class="md:hidden flex justify-center mb-4">
+                <a 
+                    href="{{ route('recibos') }}" 
+                    class="w-2/3 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Volver a Recibos
+                </a>
+            </div>
         @endif
 
-        {{-- Botón Volver --}}
+        {{-- Botón Volver - DESKTOP --}}
         <div class="hidden md:flex justify-center mb-4">
             <a 
                 href="{{ route('recibos') }}" 
@@ -206,92 +413,5 @@
                 Volver a Recibos
             </a>
         </div>
-    </div>
-
-    <!-- Modal de impresión del recibo -->
-    <div 
-        x-data="{ open: false, cerrarDespuesDeImprimir() { window.onafterprint = () => { this.open = false; } } }"
-        x-init="cerrarDespuesDeImprimir()"
-        x-on:abrir-modal-impresion-recibo.window="open = true; setTimeout(() => window.print(), 100);"
-        x-show="open"
-        x-cloak
-        class="fixed inset-0 opacity-0 pointer-events-none print:opacity-100"
-    >
-        <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-4xl mx-4 print:w-full print:h-auto print:shadow-none print:p-4 text-xs">
-            @if($recibo)
-            <div class="print-area">
-
-                <!-- Header -->
-                <div class="flex justify-between items-center border-b pb-2 mb-8 text-sm">
-                    <h1 class="bg-[ text-lg font-bold text-gray-800">Detalle del Recibo</h1>
-                    <p class="text-gray-600 mr-8">Tipo de Liquidación: {{ $recibo['TIPO_LIQ'] }} - Período: {{ $recibo['MES'] }}/{{ $recibo['ANIO'] }}</p>
-                </div>
-
-                <!-- Datos Personales y Laborales lado a lado -->
-                <div class="flex justify-between mb-4 text-sm gap-4">
-                    <!-- Datos Personales -->
-                    <div class="w-1/2">
-                        <h2 class="font-semibold mb-2 border-b pb-1">Datos Personales</h2>
-                        <p><strong>Nombre:</strong> {{ $reciboVisualizacion[0]['APELLIDO'] }}, {{ $reciboVisualizacion[0]['NOMBRES'] }}</p>
-                        <p><strong>Legajo:</strong> {{ $recibo['LEGAJO'] }}</p>
-                        <p><strong>DNI:</strong> {{ $reciboVisualizacion[0]['NRO_DOC'] }}</p>
-                        <p><strong>CUIL:</strong> {{ $reciboVisualizacion[0]['NRO_CUIT'] }}</p>
-                    </div>
-
-                    <!-- Datos Laborales -->
-                    <div class="w-1/2">
-                        <h2 class="font-semibold mb-2 border-b pb-1">Datos Laborales</h2>
-                        <p><strong>Cargo:</strong> {{ $reciboVisualizacion[0]['DES_CATEGORIA'] }}</p>
-                        <p><strong>Fecha Ingreso: </strong> {{ date('d / m / Y', strtotime($reciboVisualizacion[0]['FECH_ANTIG'])) }}</p>
-                        <p><strong>Categoría:</strong> {{ $reciboVisualizacion[0]['COD_CATEGORIA'] }}</p>
-                        <p><strong>Planta:</strong> {{ $reciboVisualizacion[0]['DES_TIPO_PLANTA'] }}</p>
-                        <p><strong>Jurisdicción:</strong> {{ $reciboVisualizacion[0]['JURISDICCION'] }}</p>
-                    </div>
-                </div>
-
-                <!-- Detalle de conceptos -->
-                <div class="mb-4 mr-6 text-xs">
-                    <h2 class="font-semibold mb-2 border-b pb-1">Detalle de Conceptos</h2>
-                    <table class="w-full border border-gray-300 text-xs">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="p-1 border text-center">Cant.</th>
-                                <th class="p-1 border text-center">Código</th>
-                                <th class="p-1 border text-left">Concepto</th>
-                                <th class="p-1 border text-right">Haberes</th>
-                                <th class="p-1 border text-right">Descuento</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($conceptos as $concepto)
-                            <tr>
-                                <td class="p-1 border text-center">{{ $concepto['CANTIDAD'] ?? '-' }}</td>
-                                <td class="p-1 border text-center">{{ $concepto['CONCEPTO'] ?? '-' }}</td>
-                                <td class="p-1 border text-left">{{ $concepto['DESC_CONCEPTO'] ?? '-' }}</td>
-                                <td class="p-1 border text-right">{{ $concepto['MONTO'] > 0 ? '$'.number_format($concepto['MONTO'],2,',','.') : '-' }}</td>
-                                <td class="p-1 border text-right">{{ $concepto['MONTO'] < 0 ? '$'.number_format($concepto['MONTO'],2,',','.') : '-' }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Resumen -->
-                <div class="text-right text-sm">
-                    <p class="font-bold mr-32">Líquido a Cobrar: ${{ number_format($recibo['LIQUIDO'],2,',','.') }}</p>
-                </div>
-
-            </div>
-            @endif
-        </div>
-
-        <style>
-            @media print {
-                body * { visibility: hidden; }
-                .print-area, .print-area * { visibility: visible; }
-                .print-area { position: absolute; left: 0; top: 0; width: 210mm; padding: 15mm; background: white; }
-                @page { size: A4; margin: 10mm; }
-            }
-        </style>
     </div>
 </div>

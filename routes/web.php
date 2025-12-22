@@ -18,6 +18,8 @@ use App\Livewire\Hijos;
 use App\Livewire\PreguntasFrecuentes;
 use App\Livewire\Perfil;
 use App\Livewire\SolicitarAguinaldoCheque;
+use App\Http\Controllers\ReciboPDFController;
+use App\Http\Controllers\PlanillaController;
 use Livewire\Volt\Volt;
 
 // Ruta principal
@@ -80,12 +82,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Planillas
     Route::get('/planillas', Planillas::class)->name('planillas');
 
+    Route::post('/planilla/subir', [PlanillaController::class, 'subir'])->name('planilla.subir');
+
+    Route::get('/planilla/descargar/{dni}/{nombre}', function($dni, $nombre) {
+        $planillasComponent = new App\Livewire\Planillas();
+        return $planillasComponent->descargarPlanilla($dni, $nombre);
+    })->name('planilla.descargar');
+
     // Asignaciones Familiares
     Route::get('/asignaciones-familiares', AsignacionesFamiliares::class)->name('asignaciones.familiares');
 
     // Preguntas Frecuentes
     Route::get('/preguntas-frecuentes', PreguntasFrecuentes::class)->name('preguntas.frecuentes');
     Route::get('/perfil', Perfil::class)->name('perfil');
+
+    // Ruta para generar el PDF del recibo
+    Route::get('/recibo/pdf/{nroRecibo}/{anio}/{mes}/{tipoLiq}', [ReciboPDFController::class, 'generarPDF'])
+        ->name('recibo.pdf')
+        ->middleware('auth');
 });
     
 });

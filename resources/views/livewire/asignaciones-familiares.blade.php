@@ -1,5 +1,5 @@
 <!-- resources/views/livewire/asignaciones-familiares.blade.php -->
-<div>
+<div class="pb-8">
     <x-slot:title>Asignaciones Familiares - Sistema Autogestión</x-slot:title>
 
     <main class="max-w-6xl mx-auto p-6">
@@ -13,7 +13,14 @@
         </div>
 
         @if (session()->has('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <div x-data="{ show: true }"
+                    x-init="
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setTimeout(() => show = false, 5000);
+                    "
+                    x-show="show"
+                    x-transition
+                    class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
@@ -289,7 +296,7 @@
             @endforeach
             
             <!-- Botón guardar TODOS los formularios -->
-            <div class="mt-6 flex justify-center">
+            <div class="flex justify-center">
                 <button 
                     wire:click="guardarTodosLosFormularios"
                     wire:loading.attr="disabled"
@@ -307,7 +314,7 @@
         @endif
 
         <!-- Botón volver -->
-        <div class="mt-8 flex justify-center">
+        <div class="mt-2 flex justify-center">
             <a href="{{ route('hijos') }}" 
             class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

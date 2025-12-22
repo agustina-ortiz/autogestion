@@ -59,10 +59,10 @@
     <div class="mb-8">
         {{-- Header --}}
         <div class="flex flex-row justify-between">
-            <h2 class="text-[#77BF43] text-2xl font-bold mb-4 uppercase">
-                Lista de Compensatorios
+            <h2 class="text-[#77BF43] text-2xl font-bold mb-4 uppercase hidden md:block">
+                Compensatorios
             </h2>
-            <h3 class="text-[#77BF43] text-xl font-bold m-0">
+            <h3 class="text-[#77BF43] text-xl font-bold m-2">
                 Compensatorios Disponibles: {{ $dias }}
             </h3>
         </div>

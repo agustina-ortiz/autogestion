@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Planilla extends Model
 {
-    protected $connection = 'mysql'; // Usar la misma conexión que Familia
+    protected $connection = 'mysql';
     protected $table = 'in_planillas';
     protected $primaryKey = null;
     public $incrementing = false;
@@ -30,75 +31,48 @@ class Planilla extends Model
         'dni' => 'integer',
     ];
 
-    /**
-     * Scope para filtrar por legajo
-     */
     public function scopePorLegajo($query, $legajo)
     {
         return $query->where('legajo', $legajo);
     }
 
-    /**
-     * Scope para filtrar por año y planilla
-     */
     public function scopePorPeriodo($query, $anio, $planilla)
     {
         return $query->where('anio', $anio)
                     ->where('planilla', $planilla);
     }
 
-    /**
-     * Scope para filtrar por DNI
-     */
     public function scopePorDni($query, $dni)
     {
         return $query->where('dni', $dni);
     }
 
-    /**
-     * Scope para planillas confirmadas
-     */
     public function scopeConfirmadas($query)
     {
         return $query->where('confirmada', true);
     }
 
-    /**
-     * Scope para planillas pendientes de confirmación
-     */
     public function scopePendientes($query)
     {
         return $query->where('confirmada', false);
     }
 
-    /**
-     * Relación con Familia (hijo)
-     */
     public function familiar()
     {
         return $this->belongsTo(Familia::class, 'dni', 'DNI')
                     ->where('LEGAJO', $this->legajo);
     }
 
-    /**
-     * Relación con el empleado (User)
-     */
     public function empleado()
     {
         return $this->belongsTo(User::class, 'legajo', 'LEGAJO');
     }
 
-    /**
-     * Verificar si la planilla está confirmada por RRHH
-     */
     public function estaConfirmada()
     {
         return $this->confirmada === true;
     }
 
-    /**
-     * Confirmar planilla
-     */
     public function confirmar()
     {
         $this->confirmada = true;
@@ -110,17 +84,22 @@ class Planilla extends Model
      */
     public function getNombreArchivo()
     {
-        return str_pad($this->dni, 8, '0', STR_PAD_LEFT) . 
-               $this->planilla . '-' . 
-               $this->anio . '.jpg';
-    }
-
-    /**
-     * Obtener la ruta completa del archivo
-     */
-    public function getRutaCompleta()
-    {
-        return public_path('fotos-licencias/fotos-empleados/planillas/' . $this->getNombreArchivo());
+        $dniPadded = str_pad($this->dni, 8, '0', STR_PAD_LEFT);
+        
+        // Intentar primero con JPG, luego con PDF
+        $nombreJpg = $dniPadded . $this->planilla . '-' . $this->anio . '.jpg';
+        $nombrePdf = $dniPadded . $this->planilla . '-' . $this->anio . '.pdf';
+        
+        if (Storage::disk('planillas')->exists($nombreJpg)) {
+            return $nombreJpg;
+        }
+        
+        if (Storage::disk('planillas')->exists($nombrePdf)) {
+            return $nombrePdf;
+        }
+        
+        // Retornar JPG por defecto
+        return $nombreJpg;
     }
 
     /**
@@ -128,7 +107,7 @@ class Planilla extends Model
      */
     public function archivoExiste()
     {
-        return file_exists($this->getRutaCompleta());
+        return Storage::disk('planillas')->exists($this->getNombreArchivo());
     }
 
     /**
@@ -137,8 +116,17 @@ class Planilla extends Model
     public function getUrlPublica()
     {
         if ($this->archivoExiste()) {
-            return asset('fotos-licencias/fotos-empleados/planillas/' . $this->getNombreArchivo());
+            return Storage::disk('planillas')->url($this->getNombreArchivo());
         }
         return null;
+    }
+
+    /**
+     * Obtener la extensión del archivo
+     */
+    public function getExtension()
+    {
+        $nombre = $this->getNombreArchivo();
+        return pathinfo($nombre, PATHINFO_EXTENSION);
     }
 }

@@ -65,10 +65,10 @@ new #[Layout('layouts.guest')] class extends Component
                 </svg>
             </div>
             <h2 class="mt-4 text-2xl font-bold text-gray-800 uppercase tracking-tight">
-                Subdirección de
+                Jefatura de
             </h2>
             <h2 class="text-2xl font-bold text-[#77BF43] uppercase tracking-tight">
-                Recursos Humanos
+                Personal
             </h2>
         </div>
 
@@ -258,7 +258,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         {{-- Footer --}}
         <p class="text-center text-xs text-gray-600">
-            2025 Subdirección de Recursos Humanos
+            2025 Jefatura de Personal
         </p>
     </div>
 </div>
