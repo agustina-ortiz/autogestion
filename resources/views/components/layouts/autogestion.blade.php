@@ -12,7 +12,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <meta name="apple-mobile-web-app-title" content="Autogestión">
-        <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
@@ -39,11 +39,12 @@
         </style>
         
         @php
-            $noticia = DB::table('in_noticia')
-                ->where('FECHAVTO', '>=', now())
-                ->orderBy('FECHA', 'desc')
-                ->first();
-        @endphp
+    $noticias = DB::table('in_noticia')
+        ->where('FECHAVTO', '>=', now())
+        ->orderBy('FECHA', 'desc')
+        ->limit(10)
+        ->get();
+@endphp
     </head>
     <body>
         <!-- Header -->
@@ -125,69 +126,84 @@
                 </div>
 
                 <!-- Sección de Noticias Desktop - Posicionada sobre el fondo -->
-                @if($noticia)
-                    <div class="hidden lg:grid grid-cols-2 absolute top-[43%] left-0 right-0 z-10">
+                @if($noticias->count() > 0)
+                    <div class="hidden lg:grid grid-cols-2 absolute top-[43%] left-0 right-0 z-10" 
+                        x-data="{ 
+                            currentSlide: 0, 
+                            totalSlides: {{ $noticias->count() }},
+                            next() { this.currentSlide = (this.currentSlide + 1) % this.totalSlides },
+                            prev() { this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides }
+                        }">
                         <!-- Columna Izquierda - Vacía -->
                         <div>
-                            <!-- Parte Superior Rosa (vacía) -->
-                            <div class="bg-[#ed5b9a] px-6 py-4 h-1/4">
-                                <div class="h-full"></div>
+                            <div class="bg-[#ed5b9a] px-6 py-4">
+                                <div class="h-4"></div>
                             </div>
-                            <!-- Parte Inferior Blanca (vacía) -->
-                            <div class="bg-white px-6 py-6">
-                                <!-- Espacio vacío -->
-                            </div>
+                            <div class="bg-white px-6 py-6 h-[100px]"></div>
                         </div>
 
-                        <!-- Columna Derecha - Contenido de la Noticia -->
-                        <div>
-                            <!-- Parte Superior Rosa: Título de la Noticia -->
-                            <div class="bg-[#ed5b9a] px-6 py-4 h-1/4 flex items-center">
-                                <div class="flex flex-row justify-between w-full">
-                                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        <!-- Columna Derecha - Contenido de las Noticias con Carrusel -->
+                        <div class="relative min-h-[200px]">
+                            @foreach($noticias as $index => $noticia)
+                            <a href="{{ route('noticia.ver', $noticia->ID) }}" 
+                            x-show="currentSlide === {{ $index }}"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-300"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="block group cursor-pointer transition-shadow absolute top-0 left-0 right-0"
+                            style="{{ $index === 0 ? '' : 'display: none;' }}">
+                                
+                                <!-- Parte Superior Rosa: Título -->
+                                <div class="bg-[#ed5b9a] px-6 py-4 transition-colors">
+                                    <div class="flex flex-row justify-between w-full h-4 items-center">
+                                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                            </svg>
+                                            <span class="line-clamp-2">{{ $noticia->TITULO }}</span>
+                                        </h2>
+                                        <span class="text-xs text-white bg-white bg-opacity-20 px-2 py-1 rounded-full h-fit whitespace-nowrap ml-2">
+                                            {{ \Carbon\Carbon::parse($noticia->FECHA)->format('d/m/Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Parte Inferior Blanca: Contenido -->
+                                <div class="bg-white px-6 py-6 transition-colors h-[100px] overflow-hidden">
+                                    <div class="text-sm ml-10 text-gray-700 leading-relaxed line-clamp-3">
+                                        {{ $noticia->DETALLE }}
+                                    </div>
+                                </div>
+                            </a>
+                            @endforeach
+
+                            <!-- Controles del Carrusel (solo si hay más de 1 noticia) -->
+                            @if($noticias->count() > 1)
+                                <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-2">
+                                    <!-- Botón Anterior -->
+                                    <button 
+                                        @click="prev()" 
+                                        class="pointer-events-auto bg-white hover:bg-gray-100 rounded-full p-1 shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 z-20"
+                                        title="Noticia anterior">
+                                        <svg class="w-4 h-4 text-[#ed5b9a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                                         </svg>
-                                        {{ $noticia->TITULO }}
-                                    </h2>
-                                    <span class="text-xs text-white bg-white bg-opacity-20 px-2 py-1 rounded-full h-fit whitespace-nowrap">
-                                        {{ \Carbon\Carbon::parse($noticia->FECHA)->format('d/m/Y') }}
-                                    </span>
+                                    </button>
+                                    
+                                    <!-- Botón Siguiente -->
+                                    <button 
+                                        @click="next()" 
+                                        class="pointer-events-auto bg-white hover:bg-gray-100 rounded-full p-1 shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 z-20"
+                                        title="Siguiente noticia">
+                                        <svg class="w-4 h-4 text-[#ed5b9a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                            </div>
-
-                            <!-- Parte Inferior Blanca: Contenido de la Noticia -->
-                            <div class="bg-white px-6 py-6">
-                                <div class="text-sm text-gray-700 leading-relaxed">
-                                    {!! nl2br(e($noticia->DETALLE)) !!}
-                                </div>
-
-                                @if($noticia->LINK)
-                                    <div class="mt-4 pt-4 border-t border-gray-200">
-                                        <a href="{{ $noticia->LINK }}" 
-                                        target="_blank"
-                                        class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors text-sm break-all">
-                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                            </svg>
-                                            Ver más información
-                                        </a>
-                                    </div>
-                                @endif
-
-                                @if($noticia->ARCHIVO)
-                                    <div class="mt-4 pt-4 border-t border-gray-200">
-                                        <a href="{{ asset('storage/noticias/' . $noticia->ARCHIVO) }}" 
-                                        target="_blank"
-                                        class="inline-flex items-center gap-2 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors text-sm break-all">
-                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                            </svg>
-                                            Descargar archivo adjunto
-                                        </a>
-                                    </div>
-                                @endif
-                            </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -199,26 +215,26 @@
         </main>
 
         <!-- Footer Desktop - Oculto en Mobile -->
-        <footer class="no-print hidden lg:flex bottom-0 left-0 right-0 z-50 flex-row justify-between items-center p-4 px-20 lg:px-40 bg-[#333333] {{ $noticia ? 'lg:translate-y-20' : '' }}">
+        <footer class="no-print hidden lg:flex bottom-0 left-0 right-0 z-50 flex-row justify-between items-center p-4 px-20 lg:px-40 bg-[#333333] {{ $noticias ? 'lg:translate-y-6' : '' }}">
             
             <!-- Lado izquierdo -->
             <div class="flex flex-col gap-2 items-start">
                 <h3 class="text-white font-semibold text-sm">Municipalidad de Mercedes</h3>
                 <div class="flex gap-3">
                     <!-- Facebook -->
-                    <a href="#" class="text-white hover:opacity-80 transition-opacity">
+                    <a href="https://www.facebook.com/munimercedes/?locale=es_LA" class="text-white hover:opacity-80 transition-opacity">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                         </svg>
                     </a>
                     <!-- Instagram -->
-                    <a href="#" class="text-white hover:opacity-80 transition-opacity">
+                    <a href="https://www.instagram.com/munimercedes/?hl=es" class="text-white hover:opacity-80 transition-opacity">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                         </svg>
                     </a>
                     <!-- YouTube -->
-                    <a href="#" class="text-white hover:opacity-80 transition-opacity">
+                    <a href="https://www.youtube.com/MunicipalidadMercedes" class="text-white hover:opacity-80 transition-opacity">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                         </svg>
@@ -231,7 +247,7 @@
                 <a href="{{ route('preguntas.frecuentes') }}" class="bg-white text-black rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors text-xs font-bold whitespace-nowrap">
                     Preguntas Frecuentes
                 </a>
-                <a href="https://wa.me/5491234567890" class="flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
+                <a href="https://wa.me/5492324670156" class="flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
                     <svg class="h-6 w-6 text-[#bdd632]" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                     </svg>
@@ -244,7 +260,7 @@
         <nav class="mobile-footer no-print lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
             <div class="flex justify-around items-center py-2">
                 <!-- Inicio/Dashboard -->
-                <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('dashboard') ? 'text-[#77BF43]' : 'text-gray-600' }}">
+                <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-2 {{ request()->routeIs('dashboard') || request()->routeIs('noticia.ver') ? 'text-[#77BF43]' : 'text-gray-600' }}">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                     </svg>
@@ -410,17 +426,80 @@
         </div>
 
         <script>
-            // Registrar Service Worker
+            const VAPID_PUBLIC_KEY = '{{ config('services.webpush.public_key') }}';
+
+            // Registrar Service Worker y Push
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/service-worker.js')
-                        .then(registration => {
-                            console.log('Service Worker registrado:', registration.scope);
-                        })
-                        .catch(error => {
-                            console.log('Error al registrar Service Worker:', error);
-                        });
+                window.addEventListener('load', async () => {
+                    try {
+                        const registration = await navigator.serviceWorker.register('/service-worker.js');
+                        console.log('Service Worker registrado:', registration.scope);
+
+                        // Suscribir a Push si hay permiso
+                        if ('PushManager' in window && Notification.permission === 'granted') {
+                            subscribeToPush(registration);
+                        }
+                    } catch (error) {
+                        console.log('Error al registrar Service Worker:', error);
+                    }
                 });
+            }
+
+            // Pedir permiso y suscribir
+            async function requestPushPermission() {
+                if (!('Notification' in window) || !('PushManager' in window)) {
+                    console.log('Push no soportado');
+                    return;
+                }
+
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const registration = await navigator.serviceWorker.ready;
+                    subscribeToPush(registration);
+                }
+            }
+
+            async function subscribeToPush(registration) {
+                try {
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+
+                    // Enviar suscripción al servidor
+                    await fetch('/push/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(subscription)
+                    });
+                    console.log('Suscrito a push notifications');
+                } catch (error) {
+                    console.log('Error al suscribir:', error);
+                }
+            }
+
+            function urlBase64ToUint8Array(base64String) {
+                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+                const rawData = window.atob(base64);
+                const outputArray = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; ++i) {
+                    outputArray[i] = rawData.charCodeAt(i);
+                }
+                return outputArray;
+            }
+
+            // Pedir permiso automáticamente después de instalar PWA
+            window.addEventListener('appinstalled', () => {
+                setTimeout(requestPushPermission, 2000);
+            });
+
+            // Pedir permiso si ya está en standalone
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                setTimeout(requestPushPermission, 3000);
             }
 
             // Alpine.js component para PWA Install

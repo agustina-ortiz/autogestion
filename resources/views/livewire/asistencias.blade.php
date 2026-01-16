@@ -16,41 +16,63 @@
         </div>
     </div>
 
-    <!-- Filtros de fecha -->
-    <div class="filtros-section 
-                flex flex-col md:flex-row 
-                items-end md:items-end 
-                gap-4 md:flex-wrap bg-white p-6 rounded-xl shadow mb-4">
+    {{-- Filtros de fecha --}}
+<div class="mb-6">
+    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+        
+        <div class="flex items-end gap-2 sm:gap-3">
+            
+            {{-- Fecha Desde --}}
+            <div class="flex-1 min-w-0 sm:flex-initial sm:w-48">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                    Fecha Desde
+                </label>
+                <input 
+                    type="date" 
+                    wire:model.live="fechaDesde"
+                    class="w-full px-2 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-[#77BF43] focus:border-transparent
+                        transition-all duration-200 text-gray-700 text-xs sm:text-base
+                        hover:border-gray-400 cursor-pointer" />
+            </div>
 
-        <!-- Contenedor horizontal solo en mobile -->
-        <div class="flex flex-row w-full md:w-auto gap-4">
-            <flux:field class="flex-1">
-                <flux:label>Fecha Desde</flux:label>
-                <flux:input type="date" wire:model.live="fechaDesde" />
-            </flux:field>
+            {{-- Fecha Hasta --}}
+            <div class="flex-1 min-w-0 sm:flex-initial sm:w-48">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                    Fecha Hasta
+                </label>
+                <input 
+                    type="date" 
+                    wire:model.live="fechaHasta"
+                    class="w-full px-2 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-[#77BF43] focus:border-transparent
+                        transition-all duration-200 text-gray-700 text-xs sm:text-base
+                        hover:border-gray-400 cursor-pointer" />
+            </div>
 
-            <flux:field class="flex-1">
-                <flux:label>Fecha Hasta</flux:label>
-                <flux:input type="date" wire:model.live="fechaHasta" />
-            </flux:field>
-        </div>
+            {{-- Botón Limpiar --}}
+            <div class="flex-shrink-0">
+                <button 
+                    wire:click="limpiarFiltros"
+                    class="px-3 sm:px-6 py-2 sm:py-2.5 
+                        bg-[#77BF43]
+                        text-white font-semibold rounded-lg text-xs sm:text-base
+                        transition-all duration-300 
+                        hover:shadow-lg hover:scale-[1.02]
+                        active:scale-[0.98]
+                        shadow-[0_2px_4px_rgba(119,191,67,0.3)]
+                        whitespace-nowrap">
+                        Limpiar
+                    </button>
+            </div>
 
-        <!-- Botón centrado solo en mobile -->
-        <div class="w-full flex justify-center md:w-auto md:block">
-            <button 
-                wire:click="limpiarFiltros"
-                class="bg-[#77BF43] text-white px-6 py-2 rounded-lg font-semibold cursor-pointer 
-                    transition-all duration-300 hover:from-[#5da832] hover:to-[#77BF43] 
-                    hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(119,191,67,0.3)] 
-                    hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] border-0">
-                Limpiar Filtros
-            </button>
         </div>
 
     </div>
+</div>
 
     <!-- Tabla de Fichadas -->
-    <h2 class="section-title">Fichadas</h2>
+    <h2 class="text-[#77BF43] text-xl font-bold mb-4 uppercase hidden md:block">Fichadas</h2>
     <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.01] transition-all duration-300 mb-6">
         
         {{-- Tabla --}}

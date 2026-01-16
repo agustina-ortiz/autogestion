@@ -341,8 +341,7 @@ class ReciboPDF extends FPDF
         $this->Cell($colW, 8, '$' . number_format($remunCAp, 2, ',', '.'), 1, 0, 'R');
         $this->Cell($colW, 8, '$' . number_format($remunSAp, 2, ',', '.'), 1, 0, 'R');
 
-        $this->SetTextColor(220, 53, 69);
-        $this->Cell($colW, 8, '$' . number_format($retenciones, 2, ',', '.'), 1, 1, 'R');
+        $this->Cell($colW, 8, '$-' . number_format($retenciones, 2, ',', '.'), 1, 1, 'R');
 
         // Reset colores
         $this->SetTextColor(0, 0, 0);

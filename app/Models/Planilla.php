@@ -24,7 +24,7 @@ class Planilla extends Model
 
     protected $casts = [
         'fecha' => 'date',
-        'confirmada' => 'boolean',
+        'confirmada' => 'integer',
         'anio' => 'integer',
         'planilla' => 'integer',
         'legajo' => 'integer',

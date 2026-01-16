@@ -38,10 +38,10 @@
         </div>
     @endif
 
-    {{-- Header --}}
-    <div class="flex flex-row justify-between">
-        <h2 class="text-[#77BF43] text-2xl font-bold mb-4 uppercase">
-            Lista de Recibos
+    {{-- Header - Visible en móvil y escritorio --}}
+    <div class="flex flex-row justify-between mb-4">
+        <h2 class="text-[#77BF43] text-xl font-bold uppercase">
+            Recibos
         </h2>
     </div>
 
@@ -214,50 +214,35 @@
         @if (count($rows) > 0)
             @php $i = $offset + 1; @endphp
             @foreach ($rows as $row)
-                <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-xl border border-white/50 overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
-                    {{-- Header de la tarjeta --}}
-                    <div class="bg-[#77BF43] px-4 py-3 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="bg-white/20 backdrop-blur-sm text-white font-bold px-2 py-1 rounded-lg text-xs">
-                                #{{ $i }}
-                            </span>
-                            <span class="text-white font-bold text-sm">
-                                Recibo N° {{ $row['NRO_RECIBO'] }}
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-1 text-white text-xs">
-                            <i class="fa fa-calendar"></i>
-                            <span>{{ $row['MES'] }}/{{ $row['ANIO'] }}</span>
-                        </div>
-                    </div>
+            <a href="{{ route('recibo', ['numero' => $row['NRO_RECIBO'], 'anio' => $row['ANIO'], 'mes' => $row['MES'], 'tipo' => $row['TIPO_LIQ']]) }}"
+            class="block">
+                <div class="bg-white/90 shadow-md rounded-xl border-2 border-gray-100 overflow-hidden transform hover:scale-[1.02] transition-all duration-300 hover:border-[#77BF43]/30 hover:shadow-lg">
 
                     {{-- Contenido de la tarjeta --}}
                     <div class="px-4 py-3 space-y-2">
                         {{-- Tipo de Liquidación --}}
                         <div class="flex justify-between items-start pb-2 border-b border-gray-100">
-                            <span class="text-xs text-gray-500 font-medium">Tipo de Liquidación:</span>
-                            <span class="text-xs text-gray-700 font-semibold text-right max-w-[60%]">{{ $row['TIPO_LIQ'] }}</span>
+                            <span class="text-base font-bold" style="color: {{ $row['COLOR_TIPO'] }}">
+                                <span class="text-xs text-gray-500 font-medium">Recibo N°:</span> {{ $row['NRO_RECIBO'] }}
+                            </span>
+                            <span class="text-base font-bold" style="color: {{ $row['COLOR_TIPO'] }}"><span class="text-xs text-gray-500 font-medium">
+                                </span> {{ $row['MES'] }}/{{ $row['ANIO'] }}
+                            </span>
                         </div>
-
+                        
                         {{-- Importe Neto --}}
-                        <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                            <span class="text-xs text-gray-500 font-medium">Importe Neto:</span>
-                            <span class="text-base font-bold text-[#77BF43]">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold" style="color: {{ $row['COLOR_TIPO'] }}">
+                                <span class="text-xs text-gray-500 font-medium">Tipo:</span> {{ $row['TIPO_LIQ'] }}
+                            </span>
+
+                            <span class="text-base font-bold" style="color: {{ $row['COLOR_TIPO'] }}">
                                 ${{ number_format($row['LIQUIDO'], 2, ',', '.') }}
                             </span>
                         </div>
-
-                        {{-- Botón Ver --}}
-                        <div class="pt-2">
-                            <a href="{{ route('recibo', ['numero' => $row['NRO_RECIBO'], 'anio' => $row['ANIO'], 'mes' => $row['MES'], 'tipo' => $row['TIPO_LIQ']]) }}"
-                            class="w-full group relative inline-flex items-center justify-center gap-2 bg-[#77BF43] text-white font-bold px-4 py-2.5 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5 text-sm overflow-hidden">
-                                <span class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                                <i class="fa fa-eye relative z-10"></i>
-                                <span class="relative z-10">VER RECIBO</span>
-                            </a>
-                        </div>
                     </div>
                 </div>
+            </a>
                 @php $i++; @endphp
             @endforeach
         @else

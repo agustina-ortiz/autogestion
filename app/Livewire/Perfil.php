@@ -3,23 +3,19 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\FotoHelper;
 
 class Perfil extends Component
 {
-    use WithFileUploads;
-
     public $nombre = '';
     public $domicilio = '';
     public $telefono = '';
     public $mail = '';
-    public $foto;
-    public $nuevaFoto;
     public $fotoActualUrl;
-    public $eliminarFotoFlag = false; // Flag para marcar si se debe eliminar la foto
+    public $eliminarFotoFlag = false;
     
     public function mount()
     {
@@ -34,7 +30,7 @@ class Perfil extends Component
                 $this->telefono = $empleado->TELEFONO ?? '';
                 $this->mail = $empleado->MAIL ?? '';
                 
-                // Cargar foto actual
+                // Cargar foto actual usando el helper
                 $this->cargarFotoActual();
             } else {
                 session()->flash('error', 'No se encontraron datos del empleado.');
@@ -44,55 +40,41 @@ class Perfil extends Component
         }
     }
 
-   public function cargarFotoActual()
+    public function cargarFotoActual()
     {
-        $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
-        $nombreArchivo = $legajo . '.jpg';
-        $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
-        
-        // Si existe el marcador de foto eliminada, mostrar imagen por defecto
-        if (Storage::disk('public')->exists($marcadorEliminada)) {
-            $this->fotoActualUrl = asset('images/no-foto.png');
-            return;
-        }
-        
-        // Primero verificar si existe en storage local
-        if (Storage::disk('public')->exists('fotos-empleados/' . $nombreArchivo)) {
-            $this->fotoActualUrl = asset('storage/fotos-empleados/' . $nombreArchivo);
-        } else {
-            // Si no existe localmente, buscar en el servidor remoto
-            $fotoUrl = 'https://autogestion.mercedes.gob.ar/fotos-licencias/fotos-empleados/' . $legajo . '.jpg';
-            $tieneFoto = is_array(@getimagesize($fotoUrl));
-            
-            if ($tieneFoto) {
-                $this->fotoActualUrl = $fotoUrl;
-            } else {
-                $this->fotoActualUrl = asset('images/no-foto.png');
-            }
-        }
+        $this->fotoActualUrl = FotoHelper::obtenerUrlFoto(Auth::user()->LEGAJO);
     }
 
     public function eliminarFoto()
     {
-        // Solo marcar para eliminar, no eliminar aún
-        $this->eliminarFotoFlag = true;
-        $this->nuevaFoto = null;
-        $this->fotoActualUrl = asset('images/no-foto.png');
-        
-        // NO mostrar mensaje aquí, solo cambiar la vista previa
+        try {
+            $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
+            $nombreArchivo = $legajo . '.jpg';
+            $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
+            
+            // Eliminar de storage local si existe
+            if (Storage::disk('public')->exists('fotos-empleados/' . $nombreArchivo)) {
+                Storage::disk('public')->delete('fotos-empleados/' . $nombreArchivo);
+            }
+            
+            // Crear archivo marcador para indicar que la foto fue eliminada
+            Storage::disk('public')->put($marcadorEliminada, 'eliminada');
+            
+            // Actualizar la vista
+            $this->cargarFotoActual();
+            
+            session()->flash('success', 'Foto eliminada correctamente.');
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al eliminar foto: ' . $e->getMessage());
+            session()->flash('error', 'Hubo un error al eliminar la foto.');
+        }
     }
 
-    public function updatedNuevaFoto()
+    public function actualizarFoto()
     {
-        $this->validate([
-            'nuevaFoto' => 'image|max:2048', // 2MB máximo
-        ], [
-            'nuevaFoto.image' => 'El archivo debe ser una imagen.',
-            'nuevaFoto.max' => 'La imagen no puede superar los 2MB.',
-        ]);
-        
-        // Si selecciona una nueva foto, cancelar el flag de eliminación
-        $this->eliminarFotoFlag = false;
+        // Este método es llamado desde JavaScript después de subir la foto exitosamente
+        $this->cargarFotoActual();
     }
     
     public function rules()
@@ -101,7 +83,6 @@ class Perfil extends Component
             'domicilio' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:50',
             'mail' => 'nullable|email|max:100',
-            'nuevaFoto' => 'nullable|image|max:2048',
         ];
     }
     
@@ -112,19 +93,16 @@ class Perfil extends Component
             'telefono.max' => 'El teléfono no puede exceder los 50 caracteres.',
             'domicilio.max' => 'El domicilio no puede exceder los 255 caracteres.',
             'mail.max' => 'El correo no puede exceder los 100 caracteres.',
-            'nuevaFoto.image' => 'El archivo debe ser una imagen.',
-            'nuevaFoto.max' => 'La imagen no puede superar los 2MB.',
         ];
     }
     
-   public function save()
+    public function save()
     {
         // Validar los datos
         $this->validate();
         
         try {
             $cambiosRealizados = false;
-            $mensajesCambios = [];
 
             // Preparar datos para actualizar (solo si tienen valor)
             $datosActualizar = [];
@@ -149,71 +127,19 @@ class Perfil extends Component
 
                 if ($affected > 0) {
                     $cambiosRealizados = true;
-                    $mensajesCambios[] = 'datos de contacto';
                 }
             }
-
-            // Procesar eliminación de foto si está marcada
-            if ($this->eliminarFotoFlag) {
-                $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
-                $nombreArchivo = $legajo . '.jpg';
-                $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
-                
-                // Eliminar de storage local si existe
-                if (Storage::disk('public')->exists('fotos-empleados/' . $nombreArchivo)) {
-                    Storage::disk('public')->delete('fotos-empleados/' . $nombreArchivo);
-                }
-                
-                // Crear archivo marcador para indicar que la foto fue eliminada
-                Storage::disk('public')->put($marcadorEliminada, 'eliminada');
-                
-                $cambiosRealizados = true;
-                $mensajesCambios[] = 'foto eliminada';
-                $this->eliminarFotoFlag = false;
-            }
-
-            // Si hay una nueva foto, guardarla
-            if ($this->nuevaFoto) {
-                $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
-                $nombreArchivo = $legajo . '.jpg';
-                $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
-                
-                // Guardar en storage/app/public/fotos-empleados
-                $path = $this->nuevaFoto->storeAs('fotos-empleados', $nombreArchivo, 'public');
-                
-                // Eliminar el marcador si existe
-                if (Storage::disk('public')->exists($marcadorEliminada)) {
-                    Storage::disk('public')->delete($marcadorEliminada);
-                }
-                
-                $cambiosRealizados = true;
-                $mensajesCambios[] = 'foto actualizada';
-                $this->nuevaFoto = null;
-            }
-
-            // Recargar la foto actual después de todos los cambios
-            $this->cargarFotoActual();
 
             // Mostrar mensaje apropiado
             if ($cambiosRealizados) {
-                if (count($mensajesCambios) > 1) {
-                    session()->flash('success', 'Se actualizaron: ' . implode(', ', $mensajesCambios) . '.');
-                } else {
-                    session()->flash('success', 'Se actualizó: ' . $mensajesCambios[0] . '.');
-                }
+                session()->flash('success', 'Datos de contacto actualizados correctamente.');
             } else {
                 session()->flash('error', 'No se realizaron cambios. Verifica que los datos sean diferentes.');
             }
             
         } catch (\Exception $e) {
-            // Log del error para debugging
             \Log::error('Error al actualizar perfil: ' . $e->getMessage(), [
                 'legajo' => Auth::user()->LEGAJO,
-                'domicilio' => $this->domicilio,
-                'telefono' => $this->telefono,
-                'mail' => $this->mail,
-                'tiene_nueva_foto' => $this->nuevaFoto !== null,
-                'eliminar_foto_flag' => $this->eliminarFotoFlag,
                 'trace' => $e->getTraceAsString()
             ]);
             

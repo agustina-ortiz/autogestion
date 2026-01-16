@@ -24,24 +24,29 @@ class AnticipoJubilatorio extends Component
     {
         $legajo = Auth::user()->LEGAJO;
 
-        // Obtener registros únicos agrupados por año, mes, sub y detalle
-        $query = DB::connection('mysql')
+        // Primero obtener todos los registros agrupados para contar correctamente
+        $allRecords = DB::connection('mysql')
             ->table('in_anti_jubila_liq')
-            ->select('ano', 'mes', 'sub', 'detalle', DB::raw('SUM(neto) as importe_neto'))
+            ->select('ano', 'mes', 'sub', 'detalle')
             ->where('legajo', $legajo)
             ->groupBy('ano', 'mes', 'sub', 'detalle')
-            ->orderBy('ano', 'desc')
-            ->orderBy('mes', 'desc');
+            ->get();
 
-        // Obtener el total de registros
-        $this->totalRecords = $query->count();
+        // Obtener el total de registros DESPUÉS del groupBy
+        $this->totalRecords = $allRecords->count();
 
         // Calcular páginas
         $this->totalPages = ceil($this->totalRecords / $this->perPage);
         $this->offset = ($this->currentPage - 1) * $this->perPage;
 
         // Obtener los registros paginados
-        $this->rows = $query
+        $this->rows = DB::connection('mysql')
+            ->table('in_anti_jubila_liq')
+            ->select('ano', 'mes', 'sub', 'detalle', DB::raw('SUM(neto) as importe_neto'))
+            ->where('legajo', $legajo)
+            ->groupBy('ano', 'mes', 'sub', 'detalle')
+            ->orderBy('ano', 'desc')
+            ->orderBy('mes', 'desc')
             ->offset($this->offset)
             ->limit($this->perPage)
             ->get()

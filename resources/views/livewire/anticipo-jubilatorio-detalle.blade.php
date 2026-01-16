@@ -1,7 +1,7 @@
 <div class="">
     {{-- Header con nombre de usuario --}}
     <div class="mb-3">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
+        <div class="bg-[#77BF43] rounded-xl px-6 py-3 shadow-lg backdrop-blur-xl border border-white/20 transform hover:scale-[1.01] transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <h1 class="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
@@ -41,7 +41,7 @@
 
     {{-- Datos del Empleado y Periodo --}}
     <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl mb-4">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2">
+        <div class="bg-[#77BF43] px-4 py-2">
             <h3 class="text-white font-bold text-sm uppercase">Información del Anticipo</h3>
         </div>
         <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -66,7 +66,7 @@
 
     {{-- Tabla de Conceptos --}}
     <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl mb-4">
-        <div class="bg-gradient-to-r from-[#77BF43] to-[#BED630] px-4 py-2">
+        <div class="bg-[#77BF43] px-4 py-2">
             <h3 class="text-white font-bold text-sm uppercase">Detalle de Liquidación</h3>
         </div>
         

@@ -4,7 +4,6 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -13,11 +12,8 @@ use Carbon\Carbon;
 
 class AsignacionesFamiliares extends Component
 {
-    use WithFileUploads;
-
     public $hijos = [];
     public $formularios = [];
-    public $archivos = [];
     public $mismoProgenitor = [];
     public $anio;
     public $periodo;
@@ -37,7 +33,7 @@ class AsignacionesFamiliares extends Component
         $this->inicializarFormularios();
     }
 
-    // Nuevo método para calcular el período según el semestre
+    // Método para calcular el período según el semestre
     private function calcularPeriodo()
     {
         $mes = Carbon::now()->month;
@@ -74,8 +70,9 @@ class AsignacionesFamiliares extends Component
                 ->where('dnihijo', $hijo['dni'])
                 ->first();
             
-            // Si existe registro para este período, cargar datos
-            // Si NO existe, inicializar vacío (nuevo semestre)
+            // Verificar si existe archivo físico
+            $archivoExiste = $this->verificarArchivoExiste($hijo['dni']);
+            
             $this->formularios[$index] = [
                 'dnihijo' => $hijo['dni'],
                 'nombre' => $hijo['nombre'],
@@ -84,13 +81,59 @@ class AsignacionesFamiliares extends Component
                 'dnipadre' => $ddjj->dnipadre ?? '',
                 'cuilpadre' => $ddjj->cuilpadre ?? '',
                 'tipoadjunto' => $ddjj->tipoadjunto ?? '',
-                'archivo_actual' => $ddjj->tipoadjunto ?? null,
-                'nuevo_archivo' => null,
+                'archivo_actual' => $archivoExiste ? ($ddjj->tipoadjunto ?? null) : null,
                 'respuesta' => $ddjj->respuesta ?? null,
                 'ok' => $ddjj->ok ?? 0
             ];
             
             $this->mismoProgenitor[$index] = false;
+        }
+    }
+
+    /**
+     * Verificar si existe archivo físico para este hijo
+     */
+    private function verificarArchivoExiste($dnihijo)
+    {
+        $legajo = Auth::user()->LEGAJO;
+        $nombreArchivo = "{$legajo}{$this->anio}{$this->periodo}_{$dnihijo}";
+        $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
+        
+        foreach($extensiones as $ext) {
+            $path = "asignaciones-familiares/{$nombreArchivo}.{$ext}";
+            if(Storage::disk('public')->exists($path)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    public function validarCamposBasicos()
+    {
+        $reglas = [];
+        $mensajes = [];
+        
+        foreach ($this->formularios as $index => $formulario) {
+            $reglas["formularios.{$index}.nombrepadre"] = 'required|string|max:255';
+            $reglas["formularios.{$index}.dnipadre"] = 'required|digits:8';
+            $reglas["formularios.{$index}.cuilpadre"] = 'required|digits:11';
+            $reglas["formularios.{$index}.tipoadjunto"] = 'required';
+            
+            $mensajes["formularios.{$index}.nombrepadre.required"] = "El nombre del progenitor es obligatorio (Hijo/a " . ($index + 1) . ")";
+            $mensajes["formularios.{$index}.dnipadre.required"] = "El DNI del progenitor es obligatorio (Hijo/a " . ($index + 1) . ")";
+            $mensajes["formularios.{$index}.dnipadre.digits"] = "El DNI debe tener 8 dígitos (Hijo/a " . ($index + 1) . ")";
+            $mensajes["formularios.{$index}.cuilpadre.required"] = "El CUIL del progenitor es obligatorio (Hijo/a " . ($index + 1) . ")";
+            $mensajes["formularios.{$index}.cuilpadre.digits"] = "El CUIL debe tener 11 dígitos (Hijo/a " . ($index + 1) . ")";
+            $mensajes["formularios.{$index}.tipoadjunto.required"] = "Debe seleccionar el tipo de adjunto (Hijo/a " . ($index + 1) . ")";
+        }
+        
+        try {
+            $this->validate($reglas, $mensajes);
+            return true;
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Los errores ya están en el componente
+            return false;
         }
     }
 
@@ -109,80 +152,63 @@ class AsignacionesFamiliares extends Component
             preg_match('/(\d+)\.tipoadjunto/', $key, $matches);
             $index = $matches[1];
             
+            // Si selecciona "No tengo acceso", eliminar archivo
             if ($value == 4) {
-                if (isset($this->archivos[$index])) {
-                    unset($this->archivos[$index]);
-                }
-                
-                $this->eliminarArchivoFisico($index);
-                
-                $this->formularios[$index]['archivo_actual'] = null;
+                $this->eliminarArchivoJS($index);
             }
         }
     }
 
-    public function eliminarArchivo($index)
+    /**
+     * Método llamado desde JavaScript después de eliminar archivo
+     */
+    public function archivoEliminadoJS($index)
     {
-        if (isset($this->archivos[$index])) {
-            unset($this->archivos[$index]);
-        }
-        
-        $this->eliminarArchivoFisico($index);
-        
         $this->formularios[$index]['archivo_actual'] = null;
-        
-        session()->flash('success', 'Archivo eliminado correctamente');
+        $this->dispatch('mostrarMensaje', mensaje: 'Archivo eliminado correctamente', tipo: 'success');
     }
 
-    private function eliminarArchivoFisico($index)
+    /**
+     * Método llamado desde JavaScript después de subir archivo
+     */
+    public function archivoSubidoJS($index)
     {
-        $nombreArchivo = auth()->user()->LEGAJO . '' . $this->anio . '' . $this->periodo . '_' . $this->formularios[$index]['dnihijo'];
-        $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
+        // Verificar que el archivo existe
+        $archivoExiste = $this->verificarArchivoExiste($this->formularios[$index]['dnihijo']);
         
-        foreach($extensiones as $ext) {
-            $path = "asignaciones-familiares/{$nombreArchivo}.{$ext}";
-            if(Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
+        if ($archivoExiste) {
+            $this->formularios[$index]['archivo_actual'] = $this->formularios[$index]['tipoadjunto'];
+            $this->dispatch('mostrarMensaje', mensaje: 'Archivo subido correctamente', tipo: 'success');
         }
+    }
+
+    /**
+     * Método para eliminar archivo (llamado desde JavaScript)
+     */
+    public function eliminarArchivoJS($index)
+    {
+        // Este método solo actualiza el estado en el componente
+        // La eliminación física se hace vía AJAX
+        $this->formularios[$index]['archivo_actual'] = null;
     }
 
     public function guardarTodosLosFormularios()
     {
-        $reglas = [];
-        $mensajes = [];
-        
+        // Solo validar archivos (los campos básicos ya fueron validados)
         foreach ($this->formularios as $index => $formulario) {
-            $reglas["formularios.{$index}.nombrepadre"] = 'required|string|max:255';
-            $reglas["formularios.{$index}.dnipadre"] = 'required|digits:8';
-            $reglas["formularios.{$index}.cuilpadre"] = 'required|digits:11';
-            $reglas["formularios.{$index}.tipoadjunto"] = 'required';
-            
             if ($formulario['tipoadjunto'] != 4) {
-                if (!isset($this->archivos[$index]) && !$formulario['archivo_actual']) {
-                    $reglas["formularios.{$index}.archivo_requerido"] = 'required';
-                    $mensajes["formularios.{$index}.archivo_requerido.required"] = "Debe cargar un archivo para el Hijo/a " . ($index + 1);
+                $archivoFisicoExiste = $this->verificarArchivoExiste($formulario['dnihijo']);
+                
+                if (!$archivoFisicoExiste) {
+                    $this->addError("formularios.{$index}.archivo_requerido", "Debe cargar un archivo para el Hijo/a " . ($index + 1));
+                    return;
                 }
             }
-            
-            $mensajes["formularios.{$index}.nombrepadre.required"] = "El nombre del progenitor es obligatorio (Hijo/a " . ($index + 1) . ")";
-            $mensajes["formularios.{$index}.dnipadre.required"] = "El DNI del progenitor es obligatorio (Hijo/a " . ($index + 1) . ")";
-            $mensajes["formularios.{$index}.dnipadre.digits"] = "El DNI debe tener 8 dígitos (Hijo/a " . ($index + 1) . ")";
-            $mensajes["formularios.{$index}.cuilpadre.required"] = "El CUIL del progenitor es obligatorio (Hijo/a " . ($index + 1) . ")";
-            $mensajes["formularios.{$index}.cuilpadre.digits"] = "El CUIL debe tener 11 dígitos (Hijo/a " . ($index + 1) . ")";
-            $mensajes["formularios.{$index}.tipoadjunto.required"] = "Debe seleccionar el tipo de adjunto (Hijo/a " . ($index + 1) . ")";
         }
-        
-        $this->validate($reglas, $mensajes);
         
         $legajo = Auth::user()->LEGAJO;
         
         foreach ($this->formularios as $index => $formulario) {
-            if (isset($this->archivos[$index]) && $this->archivos[$index]) {
-                $nombreArchivo = "{$legajo}{$this->anio}{$this->periodo}_{$formulario['dnihijo']}.{$this->archivos[$index]->extension()}";
-                $this->archivos[$index]->storeAs('asignaciones-familiares', $nombreArchivo, 'public');
-            }
-
             $existe = DB::connection('mysql')
                 ->table('in_ddjj_fami')
                 ->where('legajo', $legajo)
@@ -224,24 +250,6 @@ class AsignacionesFamiliares extends Component
         session()->flash('success', 'Toda la información ha sido guardada correctamente');
         
         $this->inicializarFormularios();
-        $this->archivos = [];
-    }
-
-    public function updatedArchivos($value, $key)
-    {
-        $index = $key;
-
-        if (isset($this->archivos[$index]) && $this->archivos[$index]->isValid()) {
-            $form = $this->formularios[$index];
-
-            $nombreArchivo = auth()->user()->LEGAJO . '' . $this->anio . '' . $this->periodo . '_' . $form['dnihijo'] . '.' . $this->archivos[$index]->getClientOriginalExtension();
-
-            $this->archivos[$index]->storeAs('asignaciones-familiares', $nombreArchivo, 'public');
-
-            $this->formularios[$index]['archivo_actual'] = $this->formularios[$index]['tipoadjunto'];
-            
-            $this->reset('archivos');
-        }
     }
 
     public function render()

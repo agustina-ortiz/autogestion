@@ -139,7 +139,7 @@
                         @for ($i = $startPage; $i <= $endPage; $i++)
                             @if ($i == $currentPage)
                                 <button 
-                                    class="px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-bold bg-gradient-to-r from-[#77BF43] to-[#BED630] text-white border border-[#77BF43] shadow-md">
+                                    class="px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-bold bg-[#77BF43] text-white border border-[#77BF43] shadow-md">
                                     {{ $i }}
                                 </button>
                             @else

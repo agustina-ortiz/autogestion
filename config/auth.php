@@ -112,4 +112,16 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Remember Me Duration
+    |--------------------------------------------------------------------------
+    |
+    | Duración en minutos de la cookie "remember me".
+    | 525600 = 1 año
+    |
+    */
+
+    'remember' => env('AUTH_REMEMBER_DURATION', 525600),
+
 ];

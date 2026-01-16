@@ -6,8 +6,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
-use PDO;
-use PDOException;
 
 class Recibos extends Component
 {
@@ -38,6 +36,32 @@ class Recibos extends Component
         $this->resetPage();
     }
 
+    private function colorPorTipo(string $tipo): string
+    {
+        return match ($tipo) {
+            'NOR' => '#16A34A', // verde  
+            'ADI' => '#630b70', // azul
+            'SAC' => '#ff6a00', // amarillo
+            'DDN' => '#DB2777', // rosa
+            'MUN' => '#da3f8d', // violeta
+            'AD1' => '#059669', // verde oscuro
+            'REY' => '#c1dc26', // rojo
+            'AYU' => '#0284C7', // celeste
+            'ASI' => '#4F46E5', // índigo   
+            'AD2' => '#0D9488', // teal
+            'AD3' => '#F97316', // naranja
+            'AD4' => '#9333EA', // púrpura
+            'ADH' => '#d77330', // rojo oscuro
+            'HSM' => '#15803D', // verde fuerte
+            'EGS' => '#A16207', // dorado
+            'BON' => '#1D4ED8', // azul fuerte 
+            'AD5' => '#402ffd', // índigo oscuro
+            'HSE' => '#65A30D', // lima
+            'NO2' => '#0F766E', // verde azulado
+            default => '#6B7280', // gris (no contemplado)
+        };
+    }
+
     public function getRecibosData()
     {
         try {
@@ -49,7 +73,7 @@ class Recibos extends Component
                 $e = oci_error();
                 throw new Exception("Error de conexión: " . $e['message']);
             }
-            
+
             $legajo = Auth::user()->LEGAJO;
             $page = $this->getPage();
             $offset = ($page - 1) * $this->perPage;
@@ -89,6 +113,7 @@ class Recibos extends Component
             // Obtener todos los resultados
             $rows = [];
             while ($row = oci_fetch_array($stmt, OCI_ASSOC)) {
+                $row['COLOR_TIPO'] = $this->colorPorTipo($row['TIPO_LIQ']);
                 $rows[] = $row;
             }
             

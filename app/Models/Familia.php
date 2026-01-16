@@ -107,35 +107,30 @@ class Familia extends Model
      */
     public function getEstadoPlanilla($numeroPlanilla, $anio)
     {
-        $campoPlanilla = 'PLANILLA' . $numeroPlanilla;
-        $nombreArchivo = str_pad($this->DNI, 8, '0', STR_PAD_LEFT) . 
-                        $numeroPlanilla . '-' . 
-                        $anio . '.jpg';
-        
-        $rutaCompleta = public_path('fotos-licencias/fotos-empleados/planillas/' . $nombreArchivo);
-        $archivoExiste = file_exists($rutaCompleta);
-        
-        // Verificar si existe en in_planillas
-        $existeEnPlanillas = Planilla::where('legajo', $this->LEGAJO)
+        // Buscar en la tabla in_planillas
+        $planilla = Planilla::where('legajo', $this->LEGAJO)
             ->where('dni', $this->DNI)
             ->where('planilla', $numeroPlanilla)
             ->where('anio', $anio)
-            ->exists();
+            ->first();
         
-        $campoBD = $this->$campoPlanilla;
-        
-        if ($archivoExiste && $existeEnPlanillas && $campoBD === 'S') {
-            return [
-                'estado' => 'subida',
-                'tiene_planilla' => true,
-            ];
-        } elseif ($archivoExiste && $existeEnPlanillas) {
-            return [
-                'estado' => 'proceso',
-                'tiene_planilla' => true,
-            ];
+        // Si existe registro en in_planillas
+        if ($planilla) {
+            // Verificar el campo 'confirmada'
+            if ($planilla->confirmada == 1) {
+                return [
+                    'estado' => 'subida',
+                    'tiene_planilla' => true,
+                ];
+            } elseif ($planilla->confirmada == 0) {
+                return [
+                    'estado' => 'proceso',
+                    'tiene_planilla' => true,
+                ];
+            }
         }
         
+        // Si no existe registro o confirmada no es 0 ni 1
         return [
             'estado' => 'pendiente',
             'tiene_planilla' => false,

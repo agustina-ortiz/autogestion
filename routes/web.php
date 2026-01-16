@@ -20,6 +20,10 @@ use App\Livewire\Perfil;
 use App\Livewire\SolicitarAguinaldoCheque;
 use App\Http\Controllers\ReciboPDFController;
 use App\Http\Controllers\PlanillaController;
+use App\Http\Controllers\PerfilFotoController;
+use App\Http\Controllers\AsignacionesFamiliaresController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PushController;
 use Livewire\Volt\Volt;
 
 // Ruta principal
@@ -47,6 +51,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Dashboard
     Route::view('dashboard', 'dashboard')->name('dashboard');
+
+    Route::get('/noticia/{id}', [DashboardController::class, 'verNoticia'])->name('noticia.ver');
     
     // Perfil
     Route::view('profile', 'profile')->name('profile');
@@ -100,8 +106,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/recibo/pdf/{nroRecibo}/{anio}/{mes}/{tipoLiq}', [ReciboPDFController::class, 'generarPDF'])
         ->name('recibo.pdf')
         ->middleware('auth');
-});
+
+    Route::post('/perfil/foto/subir', [PerfilFotoController::class, 'subirFoto'])
+        ->name('perfil.foto.subir');
+
+    Route::post('/asignaciones-familiares/subir-archivo', [AsignacionesFamiliaresController::class, 'subirArchivo'])
+        ->name('asignaciones-familiares.subir-archivo');
     
+    Route::post('/asignaciones-familiares/eliminar-archivo', [AsignacionesFamiliaresController::class, 'eliminarArchivo'])
+        ->name('asignaciones-familiares.eliminar-archivo');
+
+    // Push Notifications
+    Route::post('/push/subscribe', [PushController::class, 'subscribe'])->name('push.subscribe');
+});
+
 });
 
 require __DIR__.'/auth.php';

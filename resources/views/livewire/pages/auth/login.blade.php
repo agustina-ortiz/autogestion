@@ -13,7 +13,7 @@ new #[Layout('layouts.guest')] class extends Component
     #[Validate('required|string')]
     public string $claveweb = '';
 
-    public bool $remember = false;
+    public bool $remember = true;
 
     public bool $showPasswordHelp = false;
 
@@ -46,9 +46,12 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         // Intento de login normal con CLAVEWEB
+        // Configurar duración de "Recordarme" a 1 año (525600 minutos)
+        Auth::guard()->setRememberDuration(525600);
+
         if (Auth::attempt(['DNI' => $this->dni, 'password' => $this->claveweb], $this->remember)) {
             session()->regenerate();
-            $this->redirect(route('dashboard'), navigate: true);
+            $this->redirect(session()->pull('url.intended', route('dashboard')), navigate: true);
         } else {
             $this->addError('dni', 'Las credenciales proporcionadas no son correctas.');
         }
@@ -86,11 +89,13 @@ new #[Layout('layouts.guest')] class extends Component
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
                             </svg>
                         </div>
-                        <input 
-                            wire:model="dni" 
-                            id="dni" 
-                            type="text" 
-                            required 
+                        <input
+                            wire:model="dni"
+                            id="dni"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            required
                             autofocus
                             class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#77BF43] focus:border-transparent transition duration-200 placeholder-gray-400"
                             placeholder="Ingrese su DNI"
