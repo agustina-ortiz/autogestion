@@ -17,6 +17,7 @@ class AsignacionesFamiliares extends Component
     public $mismoProgenitor = [];
     public $anio;
     public $periodo;
+    public $cacheBuster; 
 
     public $tiposAdjunto = [
         1 => 'Recibo de Sueldo',
@@ -29,6 +30,7 @@ class AsignacionesFamiliares extends Component
     {
         $this->anio = Carbon::now()->year;
         $this->periodo = $this->calcularPeriodo();
+        $this->cacheBuster = time();
         $this->cargarHijos();
         $this->inicializarFormularios();
     }
@@ -38,6 +40,26 @@ class AsignacionesFamiliares extends Component
     {
         $mes = Carbon::now()->month;
         return $mes <= 6 ? 1 : 2;
+    }
+
+    /**
+     * Generar el nombre del archivo según la nueva nomenclatura
+     */
+    private function generarNombreArchivo($dnihijo)
+    {
+        $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
+        $dniFormateado = str_pad($dnihijo, 8, '0', STR_PAD_LEFT);
+        
+        return "{$legajo}-{$this->anio}{$this->periodo}{$dniFormateado}.jpg";
+    }
+
+    /**
+     * Obtener la ruta completa del archivo
+     */
+    private function obtenerRutaArchivo($dnihijo)
+    {
+        $nombreArchivo = $this->generarNombreArchivo($dnihijo);
+        return public_path("img/ddjj_fami/{$nombreArchivo}");
     }
 
     public function cargarHijos()
@@ -95,18 +117,25 @@ class AsignacionesFamiliares extends Component
      */
     private function verificarArchivoExiste($dnihijo)
     {
-        $legajo = Auth::user()->LEGAJO;
-        $nombreArchivo = "{$legajo}{$this->anio}{$this->periodo}_{$dnihijo}";
-        $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
-        
-        foreach($extensiones as $ext) {
-            $path = "asignaciones-familiares/{$nombreArchivo}.{$ext}";
-            if(Storage::disk('public')->exists($path)) {
-                return true;
-            }
-        }
-        
-        return false;
+        $rutaArchivo = $this->obtenerRutaArchivo($dnihijo);
+        return file_exists($rutaArchivo);
+    }
+
+    /**
+     * Obtener URL pública del archivo con cache buster
+     */
+    public function obtenerUrlArchivo($dnihijo)
+    {
+        $nombreArchivo = $this->generarNombreArchivo($dnihijo);
+        return asset("img/ddjj_fami/{$nombreArchivo}") . '?v=' . $this->cacheBuster;
+    }
+
+    /**
+     * Refrescar cache buster (llamado después de subir archivo)
+     */
+    public function refrescarCacheBuster()
+    {
+        $this->cacheBuster = time();
     }
 
     public function validarCamposBasicos()
@@ -165,7 +194,7 @@ class AsignacionesFamiliares extends Component
     public function archivoEliminadoJS($index)
     {
         $this->formularios[$index]['archivo_actual'] = null;
-        $this->dispatch('mostrarMensaje', mensaje: 'Archivo eliminado correctamente', tipo: 'success');
+        $this->refrescarCacheBuster();
     }
 
     /**
@@ -178,6 +207,7 @@ class AsignacionesFamiliares extends Component
         
         if ($archivoExiste) {
             $this->formularios[$index]['archivo_actual'] = $this->formularios[$index]['tipoadjunto'];
+            $this->refrescarCacheBuster();
             $this->dispatch('mostrarMensaje', mensaje: 'Archivo subido correctamente', tipo: 'success');
         }
     }
@@ -190,6 +220,7 @@ class AsignacionesFamiliares extends Component
         // Este método solo actualiza el estado en el componente
         // La eliminación física se hace vía AJAX
         $this->formularios[$index]['archivo_actual'] = null;
+        $this->refrescarCacheBuster();
     }
 
     public function guardarTodosLosFormularios()
@@ -249,7 +280,11 @@ class AsignacionesFamiliares extends Component
 
         session()->flash('success', 'Toda la información ha sido guardada correctamente');
         
+        $this->refrescarCacheBuster();
         $this->inicializarFormularios();
+        
+        // Mostrar SweetAlert2 de éxito
+        $this->dispatch('mostrarExito');
     }
 
     public function render()

@@ -6,14 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 use App\Models\Planilla;
 
 class PlanillaController extends Controller
 {
-    // NO usar __construct con middleware en Laravel 11
-
     public function subir(Request $request)
     {
         Log::info('===== PETICIÓN RECIBIDA =====', [
@@ -34,14 +31,14 @@ class PlanillaController extends Controller
         try {
             // Validar
             $request->validate([
-                'foto' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
+                'foto' => 'required|file|mimes:jpg|max:10240',
                 'dni' => 'required|numeric',
                 'planilla' => 'required|numeric',
                 'anio' => 'required|numeric',
             ], [
                 'foto.required' => 'Debe seleccionar un archivo',
                 'foto.file' => 'Debe seleccionar un archivo válido',
-                'foto.mimes' => 'Solo se permiten archivos JPG, PNG o PDF',
+                'foto.mimes' => 'Solo se permiten archivos JPG',
                 'foto.max' => 'El archivo no debe superar 10MB',
             ]);
 
@@ -72,45 +69,52 @@ class PlanillaController extends Controller
             // Determinar extensión final
             $extensionFinal = ($extension === 'pdf') ? 'pdf' : 'jpg';
 
-            // Generar nombre del archivo
-            $fileName = 'planilla_' . 
-                       str_pad($dni, 8, '0', STR_PAD_LEFT) . '_' .
-                       $planilla . '_' .
-                       $anio . '_' .
-                       time() . '.' . 
-                       $extensionFinal;
+            // Generar nombre del archivo: {dni}{planilla}-{año}.{extensión}
+            // Ejemplo: 123456781-2025.jpg o 123456782-2024.pdf
+            $dniPadded = str_pad($dni, 8, '0', STR_PAD_LEFT);
+            $fileName = $dniPadded . $planilla . '-' . $anio . '.' . $extensionFinal;
 
             Log::info('Nombre generado', ['fileName' => $fileName]);
 
-            // Guardar archivo en storage/app/public/planillas
+            // Ruta completa en public
+            $directorioDestino = public_path('fotos-licencias/fotos-empleados/planillas');
+            
+            // Crear directorio si no existe
+            if (!file_exists($directorioDestino)) {
+                mkdir($directorioDestino, 0755, true);
+                Log::info('Directorio creado', ['path' => $directorioDestino]);
+            }
+
+            $rutaCompleta = $directorioDestino . '/' . $fileName;
+
+            // Eliminar archivo anterior si existe (mismo DNI, planilla y año)
+            if (file_exists($rutaCompleta)) {
+                unlink($rutaCompleta);
+                Log::info('Archivo anterior eliminado', ['path' => $rutaCompleta]);
+            }
+
+            // Guardar archivo según el tipo
             if ($extension === 'pdf') {
-                Log::info('Guardando PDF en storage/app/public/planillas');
+                Log::info('Guardando PDF');
                 
-                // Guardar PDF directamente
-                $path = $file->storeAs('planillas', $fileName, 'public');
+                // Mover PDF directamente
+                $file->move($directorioDestino, $fileName);
                 
                 Log::info('PDF guardado', [
-                    'path' => $path,
-                    'full_path' => storage_path('app/public/' . $path)
+                    'path' => $rutaCompleta
                 ]);
                 
             } else {
                 Log::info('Procesando imagen');
                 
                 try {
-                    // Procesar con Intervention Image
+                    // Procesar con Intervention Image y convertir a JPG
                     $image = Image::read($file->getRealPath());
                     $image->toJpeg(90);
-                    $imageData = (string) $image->encode('jpg', 90);
-                    
-                    // Guardar en storage/app/public/planillas
-                    Storage::disk('public')->put('planillas/' . $fileName, $imageData);
-                    
-                    $path = 'planillas/' . $fileName;
+                    $image->save($rutaCompleta);
                     
                     Log::info('Imagen procesada y guardada', [
-                        'path' => $path,
-                        'full_path' => storage_path('app/public/' . $path)
+                        'path' => $rutaCompleta
                     ]);
                     
                 } catch (\Exception $e) {
@@ -119,27 +123,30 @@ class PlanillaController extends Controller
                     ]);
                     
                     // Fallback: guardar sin procesar
-                    $path = $file->storeAs('planillas', $fileName, 'public');
+                    $file->move($directorioDestino, $fileName);
                     
-                    Log::info('Imagen guardada sin procesar', ['path' => $path]);
+                    Log::info('Imagen guardada sin procesar', ['path' => $rutaCompleta]);
                 }
             }
 
-            // Verificar que se guardó en storage/app/public/planillas
-            if (!Storage::disk('public')->exists('planillas/' . $fileName)) {
-                throw new \Exception('El archivo no se guardó correctamente en storage/app/public/planillas');
+            // Verificar que se guardó correctamente
+            if (!file_exists($rutaCompleta)) {
+                throw new \Exception('El archivo no se guardó correctamente');
             }
 
-            $filesize = Storage::disk('public')->size('planillas/' . $fileName);
+            $filesize = filesize($rutaCompleta);
             
             if ($filesize === 0) {
                 throw new \Exception('El archivo guardado está vacío');
             }
 
-            Log::info('Archivo verificado en storage', [
+            // Establecer permisos apropiados
+            chmod($rutaCompleta, 0644);
+
+            Log::info('Archivo verificado', [
                 'size' => $filesize,
-                'path' => 'storage/app/public/planillas/' . $fileName,
-                'url' => Storage::disk('public')->url('planillas/' . $fileName)
+                'path' => $rutaCompleta,
+                'url' => asset('fotos-licencias/fotos-empleados/planillas/' . $fileName)
             ]);
 
             // Eliminar registro previo si existe
@@ -165,7 +172,7 @@ class PlanillaController extends Controller
             Log::info('===== PLANILLA SUBIDA EXITOSAMENTE =====', [
                 'archivo' => $fileName,
                 'size' => $filesize,
-                'ubicacion' => 'storage/app/public/planillas/' . $fileName
+                'ubicacion' => 'public/fotos-licencias/fotos-empleados/planillas/' . $fileName
             ]);
 
             return response()->json([

@@ -5,7 +5,6 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Familia;
 use App\Models\Planilla;
 
@@ -51,6 +50,13 @@ class Planillas extends Component
             $this->hijos = $hijosQuery->map(function ($hijo) {
                 $estado = $hijo->getEstadoPlanilla($this->planillaActual, $this->anioActual);
                 
+                // Obtener información adicional de la planilla si existe
+                $planilla = Planilla::where('legajo', $this->legajo ?? Auth::user()->LEGAJO)
+                    ->where('dni', $hijo->DNI)
+                    ->where('planilla', $this->planillaActual)
+                    ->where('anio', $this->anioActual)
+                    ->first();
+                
                 return (object)[
                     'nombre' => $hijo->NOMBRE,
                     'dni' => $hijo->DNI,
@@ -62,6 +68,8 @@ class Planillas extends Component
                     'archivo_planilla' => $hijo->{'PLANILLA' . $this->planillaActual},
                     'estado_planilla' => $estado['estado'],
                     'tiene_planilla' => $estado['tiene_planilla'],
+                    'confirmada' => $planilla ? $planilla->confirmada : null,
+                    'observaciones' => $planilla ? $planilla->observa : null,
                 ];
             })->toArray();
             
@@ -262,32 +270,48 @@ class Planillas extends Component
     public function verPlanilla($dni)
     {
         try {
-            // Buscar archivos en storage/app/public/planillas
-            $files = Storage::disk('public')->files('planillas');
+            // Buscar archivos en public/fotos-licencias/fotos-empleados/planillas
+            $directorioPublico = public_path('fotos-licencias/fotos-empleados/planillas');
+            
+            if (!file_exists($directorioPublico)) {
+                session()->flash('error', 'Directorio de planillas no encontrado.');
+                \Log::warning('Directorio no existe', ['path' => $directorioPublico]);
+                return;
+            }
             
             $dniPadded = str_pad($dni, 8, '0', STR_PAD_LEFT);
+            
+            // Buscar archivos que coincidan con el patrón: {dni}{planilla}-{año}.{ext}
+            $patronJpg = $dniPadded . $this->planillaActual . '-' . $this->anioActual . '.jpg';
+            $patronPdf = $dniPadded . $this->planillaActual . '-' . $this->anioActual . '.pdf';
+            
             $archivoEncontrado = false;
             
-            foreach ($files as $file) {
-                $fileName = basename($file);
+            $numAleatorio = rand(1, 99);
+
+            // Verificar JPG primero
+            if (file_exists($directorioPublico . '/' . $patronJpg)) {
+                $this->rutaPlanillaVer = asset('fotos-licencias/fotos-empleados/planillas/' . $patronJpg . "?" . $numAleatorio);
+                $this->extensionPlanillaVer = 'jpg';
+                $this->modalVerPlanilla = true;
+                $archivoEncontrado = true;
                 
-                // Buscar archivos que coincidan
-                if (str_contains($fileName, $dniPadded) && 
-                    str_contains($fileName, '_' . $this->planillaActual . '_') &&
-                    str_contains($fileName, '_' . $this->anioActual . '_')) {
-                    
-                    $this->rutaPlanillaVer = Storage::disk('public')->url($file);
-                    $this->extensionPlanillaVer = pathinfo($fileName, PATHINFO_EXTENSION);
-                    $this->modalVerPlanilla = true;
-                    $archivoEncontrado = true;
-                    
-                    \Log::info('Planilla encontrada', [
-                        'dni' => $dni,
-                        'archivo' => $fileName
-                    ]);
-                    
-                    break;
-                }
+                \Log::info('Planilla JPG encontrada', [
+                    'dni' => $dni,
+                    'archivo' => $patronJpg
+                ]);
+            }
+            // Verificar PDF
+            elseif (file_exists($directorioPublico . '/' . $patronPdf)) {
+                $this->rutaPlanillaVer = asset('fotos-licencias/fotos-empleados/planillas/' . $patronPdf);
+                $this->extensionPlanillaVer = 'pdf';
+                $this->modalVerPlanilla = true;
+                $archivoEncontrado = true;
+                
+                \Log::info('Planilla PDF encontrada', [
+                    'dni' => $dni,
+                    'archivo' => $patronPdf
+                ]);
             }
             
             if (!$archivoEncontrado) {
@@ -296,7 +320,9 @@ class Planillas extends Component
                 \Log::warning('Planilla no encontrada', [
                     'dni' => $dni,
                     'planilla' => $this->planillaActual,
-                    'anio' => $this->anioActual
+                    'anio' => $this->anioActual,
+                    'buscando_jpg' => $patronJpg,
+                    'buscando_pdf' => $patronPdf
                 ]);
             }
             

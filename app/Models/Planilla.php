@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Planilla extends Model
 {
@@ -20,6 +19,7 @@ class Planilla extends Model
         'dni',
         'fecha',
         'confirmada',
+        'observa',
     ];
 
     protected $casts = [
@@ -81,24 +81,28 @@ class Planilla extends Model
 
     /**
      * Obtener el nombre del archivo de la planilla
+     * Formato: {dni}{planilla}-{año}.{ext}
+     * Ejemplo: 123456781-2025.jpg
      */
     public function getNombreArchivo()
     {
         $dniPadded = str_pad($this->dni, 8, '0', STR_PAD_LEFT);
         
-        // Intentar primero con JPG, luego con PDF
+        // Verificar primero JPG, luego PDF
         $nombreJpg = $dniPadded . $this->planilla . '-' . $this->anio . '.jpg';
         $nombrePdf = $dniPadded . $this->planilla . '-' . $this->anio . '.pdf';
         
-        if (Storage::disk('planillas')->exists($nombreJpg)) {
+        $directorioPublico = public_path('fotos-licencias/fotos-empleados/planillas');
+        
+        if (file_exists($directorioPublico . '/' . $nombreJpg)) {
             return $nombreJpg;
         }
         
-        if (Storage::disk('planillas')->exists($nombrePdf)) {
+        if (file_exists($directorioPublico . '/' . $nombrePdf)) {
             return $nombrePdf;
         }
         
-        // Retornar JPG por defecto
+        // Retornar JPG por defecto (aunque no exista)
         return $nombreJpg;
     }
 
@@ -107,7 +111,10 @@ class Planilla extends Model
      */
     public function archivoExiste()
     {
-        return Storage::disk('planillas')->exists($this->getNombreArchivo());
+        $directorioPublico = public_path('fotos-licencias/fotos-empleados/planillas');
+        $nombreArchivo = $this->getNombreArchivo();
+        
+        return file_exists($directorioPublico . '/' . $nombreArchivo);
     }
 
     /**
@@ -116,7 +123,7 @@ class Planilla extends Model
     public function getUrlPublica()
     {
         if ($this->archivoExiste()) {
-            return Storage::disk('planillas')->url($this->getNombreArchivo());
+            return asset('fotos-licencias/fotos-empleados/planillas/' . $this->getNombreArchivo());
         }
         return null;
     }
@@ -128,5 +135,14 @@ class Planilla extends Model
     {
         $nombre = $this->getNombreArchivo();
         return pathinfo($nombre, PATHINFO_EXTENSION);
+    }
+
+    /**
+     * Obtener la ruta completa del archivo en el sistema
+     */
+    public function getRutaCompleta()
+    {
+        $directorioPublico = public_path('fotos-licencias/fotos-empleados/planillas');
+        return $directorioPublico . '/' . $this->getNombreArchivo();
     }
 }

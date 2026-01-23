@@ -73,54 +73,102 @@
                                         </span>
                                     </div>
 
-                                    {{-- Estado --}}
+                                    {{-- Estado Modernizado con Ancho Fijo --}}
                                     <div class="flex items-center gap-2">
                                         <span class="text-sm font-medium text-gray-700">Estado:</span>
                                         @if($hijo->estado_planilla === 'subida')
-                                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                                                Subida
+                                            <span class="inline-flex items-center justify-center w-[110px] px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-green-600 text-white shadow-[0_2px_4px_rgba(34,197,94,0.3)] transform hover:scale-105 transition-transform duration-200">
+                                                <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                                <span class="truncate">Subida</span>
                                             </span>
                                         @elseif($hijo->estado_planilla === 'proceso')
-                                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                                                En Proceso
+                                            <span class="inline-flex items-center justify-center w-[110px] px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-[0_2px_4px_rgba(59,130,246,0.3)] transform hover:scale-105 transition-transform duration-200">
+                                                <svg class="w-3 h-3 mr-1 flex-shrink-0 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                </svg>
+                                                <span class="truncate">En Proceso</span>
                                             </span>
                                         @else
-                                            <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                                                Pendiente
+                                            <span class="inline-flex items-center justify-center w-[110px] px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-[0_2px_4px_rgba(249,115,22,0.3)] transform hover:scale-105 transition-transform duration-200">
+                                                <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <span class="truncate">Pendiente</span>
                                             </span>
                                         @endif
                                     </div>
+
+                                    {{-- Observaciones --}}
+                                    @if($hijo->observaciones)
+                                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                            <div class="flex items-start gap-2">
+                                                <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <div>
+                                                    <p class="text-xs font-semibold text-yellow-800 mb-1">Observaciones:</p>
+                                                    <p class="text-xs text-yellow-700">{{ $hijo->observaciones }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
 
                                     {{-- Botones de Acción --}}
                                     <div class="flex flex-col gap-2 pt-3 border-t border-gray-200">
                                         <a 
                                             href="{{ route('planilla.descargar', ['dni' => $hijo->dni, 'nombre' => $hijo->nombre]) }}"
                                             target="_blank"
-                                            class="bg-[#00b3ea] hover:bg-[#07a5d5] text-white font-semibold py-2.5 px-4 rounded text-sm text-center transition-colors duration-200 flex items-center justify-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            class="bg-gradient-to-r from-[#00b3ea] to-[#07a5d5] hover:from-[#07a5d5] hover:to-[#0095c4] text-white font-semibold py-2.5 px-4 rounded-lg text-sm text-center transition-all duration-300 shadow-[0_2px_4px_rgba(0,179,234,0.3)] hover:shadow-[0_4px_8px_rgba(0,179,234,0.5)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                             </svg>
-                                            Ver Planilla
+                                            <span class="truncate">Descargar Planilla</span>
                                         </a>
 
-                                        <button 
-                                            wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
-                                            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-4 rounded text-sm transition-colors duration-200 flex items-center justify-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                            </svg>
-                                            Subir Planilla
-                                        </button>
+                                        {{-- Botón condicional según estado --}}
+                                        @if($hijo->confirmada === 1)
+                                            {{-- Planilla confirmada - Botón deshabilitado --}}
+                                            <button 
+                                                disabled
+                                                class="bg-gray-300 text-gray-500 font-semibold py-2.5 px-4 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <span class="truncate">Planilla Confirmada</span>
+                                            </button>
+                                        @elseif($hijo->tiene_planilla && $hijo->confirmada === 0)
+                                            {{-- Planilla subida pero no confirmada - Permitir resubir --}}
+                                            <button 
+                                                wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
+                                                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-all duration-300 shadow-[0_2px_4px_rgba(249,115,22,0.3)] hover:shadow-[0_4px_8px_rgba(249,115,22,0.5)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                </svg>
+                                                <span class="truncate">Resubir Planilla</span>
+                                            </button>
+                                        @else
+                                            {{-- Sin planilla - Botón para subir --}}
+                                            <button 
+                                                wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
+                                                class="bg-gradient-to-r from-[#77BF43] to-[#5da832] hover:from-[#5da832] hover:to-[#4a8f28] text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-all duration-300 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                </svg>
+                                                <span class="truncate">Subir Planilla</span>
+                                            </button>
+                                        @endif
 
                                         @if($hijo->tiene_planilla)
                                             <button 
                                                 wire:click="verPlanilla({{ $hijo->dni }})"
-                                                class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2.5 px-4 rounded text-sm transition-colors duration-200 flex items-center justify-center gap-2">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-all duration-300 shadow-[0_2px_4px_rgba(168,85,247,0.3)] hover:shadow-[0_4px_8px_rgba(168,85,247,0.5)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                 </svg>
-                                                Ver Planilla Subida
+                                                <span class="truncate">Ver Planilla Subida</span>
                                             </button>
                                         @endif
                                     </div>
@@ -136,9 +184,10 @@
                                 <tr>
                                     <th class="px-4 py-2 border">Nombre</th>
                                     <th class="px-4 py-2 border">DNI</th>
-                                    <th class="px-4 py-2 border">Fecha Nacimiento</th>
-                                    <th class="px-4 py-2 border">Estado</th>
-                                    <th class="px-4 py-2 border">Acciones</th>
+                                    <th class="px-1 py-2 border">Nacimiento</th>
+                                    <th class="px-4 py-2 border w-[140px]">Estado</th>
+                                    <th class="px-4 py-2 border">Observaciones</th>
+                                    <th class="px-4 py-2 border w-[300px]">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -146,44 +195,106 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-2 border">{{ $hijo->nombre }}</td>
                                         <td class="px-4 py-2 border text-center">{{ $hijo->dni }}</td>
-                                        <td class="px-4 py-2 border text-center">
+                                        <td class="px-1 py-2 border text-center">
                                             {{ $hijo->fecha_nac ? \Carbon\Carbon::parse($hijo->fecha_nac)->format('d/m/Y') : '-' }}
                                         </td>
                                         <td class="px-4 py-2 border text-center">
                                             @if($hijo->estado_planilla === 'subida')
-                                                <span class="bg-green-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                                    Subida
+                                                <span class="inline-flex items-center justify-center w-[110px] px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-green-600 text-white shadow-[0_2px_4px_rgba(34,197,94,0.3)] transform hover:scale-105 transition-transform duration-200">
+                                                    <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                    </svg>
+                                                    <span class="truncate">Subida</span>
                                                 </span>
                                             @elseif($hijo->estado_planilla === 'proceso')
-                                                <span class="bg-blue-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                                    En Proceso
+                                                <span class="inline-flex items-center justify-center w-[110px] px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-[0_2px_4px_rgba(59,130,246,0.3)] transform hover:scale-105 transition-transform duration-200">
+                                                    <svg class="w-3 h-3 mr-1 flex-shrink-0 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                    </svg>
+                                                    <span class="truncate">En Proceso</span>
                                                 </span>
                                             @else
-                                                <span class="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                                                    Pendiente
+                                                <span class="inline-flex items-center justify-center w-[110px] px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-[0_2px_4px_rgba(249,115,22,0.3)] transform hover:scale-105 transition-transform duration-200">
+                                                    <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                    </svg>
+                                                    <span class="truncate">Pendiente</span>
                                                 </span>
                                             @endif
                                         </td>
                                         <td class="px-4 py-2 border text-center">
-                                            <div class="flex justify-center gap-2">
+                                            @if($hijo->observaciones)
+                                                <div class="flex items-center justify-center gap-1">
+                                                    <svg class="w-4 h-4 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                    </svg>
+                                                    <span class="text-sm text-gray-700" title="{{ $hijo->observaciones }}">
+                                                        {{ $hijo->observaciones }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <span class="text-gray-400 text-sm">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-1.5 py-2 border text-center">
+                                            <div class="flex justify-left gap-2 flex-wrap">
                                                 <a 
                                                     href="{{ route('planilla.descargar', ['dni' => $hijo->dni, 'nombre' => $hijo->nombre]) }}"
                                                     target="_blank"
-                                                    class="bg-[#00b3ea] hover:bg-[#07a5d5] text-white font-bold py-2 px-4 rounded text-sm inline-block">
-                                                    Ver
+                                                    title="Descargar planilla"
+                                                    class="w-[90px] bg-gradient-to-r from-[#00b3ea] to-[#07a5d5] hover:from-[#07a5d5] hover:to-[#0095c4] text-white font-semibold py-2 px-2 rounded-lg text-xs transition-all duration-300 shadow-[0_2px_4px_rgba(0,179,234,0.3)] hover:shadow-[0_4px_8px_rgba(0,179,234,0.5)] hover:-translate-y-0.5 inline-flex items-center justify-center gap-1">
+                                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                    </svg>
+                                                    <span class="truncate">Descargar</span>
                                                 </a>
 
-                                                <button 
-                                                    wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
-                                                    class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded text-sm">
-                                                    Subir
-                                                </button>
+                                                {{-- Botón condicional según estado con ancho fijo --}}
+                                                @if($hijo->confirmada === 1)
+                                                    {{-- Planilla confirmada - Botón deshabilitado --}}
+                                                    <button 
+                                                        disabled
+                                                        title="Planilla confirmada por RRHH"
+                                                        class="w-[90px] bg-gray-300 text-gray-500 font-semibold py-2 px-2 rounded-lg text-xs cursor-not-allowed opacity-60 inline-flex items-center justify-center gap-1">
+                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                        </svg>
+                                                        <span class="truncate">Confirmada</span>
+                                                    </button>
+                                                @elseif($hijo->tiene_planilla && $hijo->confirmada === 0)
+                                                    {{-- Planilla subida pero no confirmada - Permitir resubir --}}
+                                                    <button 
+                                                        wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
+                                                        title="Reemplazar planilla actual"
+                                                        class="w-[90px] bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-2 px-2 rounded-lg text-xs transition-all duration-300 shadow-[0_2px_4px_rgba(249,115,22,0.3)] hover:shadow-[0_4px_8px_rgba(249,115,22,0.5)] hover:-translate-y-0.5 inline-flex items-center justify-center gap-1">
+                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                        </svg>
+                                                        <span class="truncate">Resubir</span>
+                                                    </button>
+                                                @else
+                                                    {{-- Sin planilla - Botón para subir --}}
+                                                    <button 
+                                                        wire:click="seleccionarHijo({{ $hijo->dni }}, '{{ $hijo->nombre }}')"
+                                                        title="Subir planilla"
+                                                        class="w-[90px] bg-gradient-to-r from-[#77BF43] to-[#5da832] hover:from-[#5da832] hover:to-[#4a8f28] text-white font-semibold py-2 px-2 rounded-lg text-xs transition-all duration-300 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] hover:-translate-y-0.5 inline-flex items-center justify-center gap-1">
+                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                        </svg>
+                                                        <span class="truncate">Subir</span>
+                                                    </button>
+                                                @endif
 
                                                 @if($hijo->tiene_planilla)
                                                     <button 
                                                         wire:click="verPlanilla({{ $hijo->dni }})"
-                                                        class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm">
-                                                        👁️ Ver
+                                                        title="Ver planilla subida"
+                                                        class="w-[90px] bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-2 px-2 rounded-lg text-xs transition-all duration-300 shadow-[0_2px_4px_rgba(168,85,247,0.3)] hover:shadow-[0_4px_8px_rgba(168,85,247,0.5)] hover:-translate-y-0.5 inline-flex items-center justify-center gap-1">
+                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                        </svg>
+                                                        <span class="truncate">Ver</span>
                                                     </button>
                                                 @endif
                                             </div>
@@ -201,11 +312,11 @@
                 
                 <div class="mt-6 sm:mt-8 flex justify-center">
                     <a href="{{ route('hijos') }}" 
-                    class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm sm:text-base">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="bg-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 inline-flex items-center gap-2 text-sm sm:text-base">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
-                        Volver a Hijos
+                        <span class="truncate">Volver a Hijos</span>
                     </a>
                 </div>
             </div>
@@ -269,17 +380,18 @@
 
                             <div>
                                 <label class="block text-gray-700 text-xs sm:text-sm font-bold mb-2">
-                                    Archivo de la Planilla (JPG, PNG o PDF)
+                                    Archivo de la Planilla (JPG)
                                 </label>
                                 <input 
                                     type="file" 
                                     name="foto"
                                     id="foto-input"
-                                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                    accept="image/jpg"
                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
                                     required
                                     onchange="mostrarVistaPrevia(this)"
                                 >
+                                <p class="text-xs text-gray-500 mt-1">Formato: JPG. Máximo 10MB</p>
                                 <div id="error-foto" class="text-red-500 text-xs mt-1 hidden"></div>
                             </div>
 
@@ -304,14 +416,14 @@
                                 type="button" 
                                 onclick="cerrarModalUpload()"
                                 id="btn-cancelar"
-                                class="bg-gray-500 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-sm sm:text-base">
+                                class="bg-gray-500 hover:from-gray-500 hover:to-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm sm:text-base transition-all duration-300 shadow-[0_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)] hover:-translate-y-0.5">
                                 Cancelar
                             </button>
                             <button 
                                 type="button"
                                 onclick="subirPlanillaAjax()"
                                 id="btn-guardar"
-                                class="bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded text-sm sm:text-base">
+                                class="bg-gradient-to-r from-[#77BF43] to-[#5da832] hover:from-[#5da832] hover:to-[#4a8f28] text-white font-semibold py-2 px-4 rounded-lg text-sm sm:text-base transition-all duration-300 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] hover:-translate-y-0.5">
                                 Guardar
                             </button>
                         </div>
@@ -332,18 +444,24 @@
                             <a 
                                 href="{{ $rutaPlanillaVer }}" 
                                 target="_blank"
-                                class="flex-1 sm:flex-none bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 sm:px-4 rounded text-xs sm:text-sm text-center">
-                                🔍 Ver completo
+                                class="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm text-center transition-all duration-300 shadow-[0_2px_4px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_8px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 inline-flex items-center justify-center gap-1">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <span class="truncate">Ver completo</span>
                             </a>
                             <a 
                                 href="{{ $rutaPlanillaVer }}" 
                                 download
-                                class="flex-1 sm:flex-none bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 sm:px-4 rounded text-xs sm:text-sm text-center">
-                                💾 Descargar
+                                class="flex-1 sm:flex-none bg-gradient-to-r from-[#77BF43] to-[#5da832] hover:from-[#5da832] hover:to-[#4a8f28] text-white font-semibold py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm text-center transition-all duration-300 shadow-[0_2px_4px_rgba(119,191,67,0.3)] hover:shadow-[0_4px_8px_rgba(119,191,67,0.5)] hover:-translate-y-0.5 inline-flex items-center justify-center gap-1">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                <span class="truncate">Descargar</span>
                             </a>
                             <button 
                                 wire:click="cerrarModalVer"
-                                class="flex-1 sm:flex-none bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-3 sm:px-4 rounded text-xs sm:text-sm">
+                                class="flex-1 sm:flex-none bg-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all duration-300 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] hover:-translate-y-0.5">
                                 Cerrar
                             </button>
                         </div>
@@ -414,10 +532,10 @@
                     return;
                 }
                 
-                const validExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+                const validExtensions = ['jpg'];
                 const extension = fileName.split('.').pop();
                 if (!validExtensions.includes(extension)) {
-                    errorFoto.textContent = 'Solo se permiten archivos JPG, PNG o PDF';
+                    errorFoto.textContent = 'Solo se permiten archivos JPG';
                     errorFoto.classList.remove('hidden');
                     input.value = '';
                     vistaPrevia.classList.add('hidden');

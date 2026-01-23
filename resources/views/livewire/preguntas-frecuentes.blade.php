@@ -2,7 +2,7 @@
 <div>
     <x-slot:title>Preguntas Frecuentes - Sistema Autogestión</x-slot:title>
 
-    <main class="max-w-5xl mx-auto p-6">
+    <main class="max-w-5xl mx-auto p-6 pb-16">
         <!-- Header -->
         <div class="mb-4">
             <h1 class="text-3xl font-bold text-[#77BF43] mb-3">
@@ -115,13 +115,14 @@
         </div>
 
         <!-- Botón volver -->
-        <div class="mt-8 mx-auto">
-            <a href="{{ route('dashboard') }}" 
-               class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="hidden md:flex justify-center mt-10">
+            <a 
+                href="{{ route('dashboard') }}" 
+                class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:from-gray-600 hover:to-gray-700 hover:-translate-y-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)] border-0 inline-flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
-                Volver al inicio
+                Volver al Inicio
             </a>
         </div>
     </main>

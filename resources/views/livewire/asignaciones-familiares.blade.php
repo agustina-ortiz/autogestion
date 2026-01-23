@@ -2,6 +2,10 @@
 <div class="pb-8">
     <x-slot:title>Asignaciones Familiares - Sistema Autogestión</x-slot:title>
 
+    @push('head')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @endpush
+
     <main class="max-w-6xl mx-auto p-6">
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-black">
@@ -222,11 +226,14 @@
                                     <input 
                                         type="file" 
                                         id="archivo-{{ $index }}"
-                                        accept="image/*,application/pdf"
+                                        accept=".jpg"
                                         @if($formularios[$index]['tipoadjunto'] == 4) disabled @endif
                                         class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#77BF43] file:text-white hover:file:bg-[#6AB03A] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                         onchange="archivoSeleccionado({{ $index }})"
                                     />
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Solo se permiten archivos JPG
+                                    </p>
                                     <!-- Indicador de archivo seleccionado -->
                                     <div id="archivo-seleccionado-{{ $index }}" style="display: none;" class="mt-2 flex items-center justify-between text-sm bg-green-50 border border-green-200 rounded p-2">
                                         <div class="flex items-center text-green-700">
@@ -261,20 +268,6 @@
                             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                                 <p class="font-medium text-gray-800 mb-2">Archivo actual:</p>
                                 @if($formularios[$index]['archivo_actual'] && $formularios[$index]['tipoadjunto'] != 4)
-                                    @php
-                                        $nombreArchivo = auth()->user()->LEGAJO . '' . $anio . '' . $periodo . '_' . $formularios[$index]['dnihijo'];
-                                        $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
-                                        $archivoEncontrado = null;
-                                        
-                                        foreach($extensiones as $ext) {
-                                            $path = "asignaciones-familiares/{$nombreArchivo}.{$ext}";
-                                            if(Storage::disk('public')->exists($path)) {
-                                                $archivoEncontrado = $path;
-                                                break;
-                                            }
-                                        }
-                                    @endphp
-                                    
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -284,13 +277,11 @@
                                                 <p class="text-sm text-gray-700">
                                                     {{ $tiposAdjunto[$formularios[$index]['archivo_actual']] ?? 'Archivo cargado' }}
                                                 </p>
-                                                @if($archivoEncontrado)
-                                                    <a href="{{ Storage::url($archivoEncontrado) }}" 
-                                                       target="_blank" 
-                                                       class="text-xs text-blue-600 hover:underline">
-                                                        Ver archivo
-                                                    </a>
-                                                @endif
+                                                <a href="{{ $this->obtenerUrlArchivo($formularios[$index]['dnihijo']) }}" 
+                                                target="_blank" 
+                                                class="text-xs text-blue-600 hover:underline">
+                                                    Ver archivo
+                                                </a>
                                             </div>
                                         </div>
                                         <button 
@@ -357,7 +348,7 @@
         </div>
     </main>
 
-    @push('scripts')
+        @push('scripts')
     <script>
         // Obtener el token CSRF
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -376,6 +367,32 @@
             const file = fileInput.files[0];
             
             if (file) {
+                // Validar extensión
+                const extension = file.name.split('.').pop().toLowerCase();
+                if (extension !== 'jpg') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Archivo no válido',
+                        text: `El archivo "${file.name}" no es válido. Solo se permiten archivos JPG`,
+                        confirmButtonColor: '#77BF43'
+                    });
+                    fileInput.value = '';
+                    return;
+                }
+                
+                // Validar tamaño (5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Archivo muy grande',
+                        text: `El archivo "${file.name}" supera el tamaño máximo de 5MB`,
+                        confirmButtonColor: '#77BF43'
+                    });
+                    fileInput.value = '';
+                    return;
+                }
+                
                 // Guardar el archivo en memoria para subirlo después
                 archivosPendientes[index] = file;
                 
@@ -389,10 +406,31 @@
          * Limpiar archivo seleccionado
          */
         function limpiarArchivo(index) {
-            const fileInput = document.getElementById(`archivo-${index}`);
-            fileInput.value = '';
-            delete archivosPendientes[index];
-            document.getElementById(`archivo-seleccionado-${index}`).style.display = 'none';
+            Swal.fire({
+                title: '¿Descartar archivo?',
+                text: "El archivo seleccionado no ha sido guardado aún",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#77BF43',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, descartar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const fileInput = document.getElementById(`archivo-${index}`);
+                    fileInput.value = '';
+                    delete archivosPendientes[index];
+                    document.getElementById(`archivo-seleccionado-${index}`).style.display = 'none';
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Descartado',
+                        text: 'El archivo ha sido descartado',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
         }
 
         /**
@@ -408,10 +446,12 @@
                 
                 if (indicesArchivos.length > 0) {
                     // Mensaje específico cuando hay archivos seleccionados pero faltan datos
-                    mostrarMensaje(
-                        'Ha seleccionado archivos, pero hay campos obligatorios sin completar. Por favor complete todos los datos del progenitor (nombre, DNI, CUIL y tipo de adjunto) antes de continuar.', 
-                        'error'
-                    );
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Campos incompletos',
+                        html: 'Ha seleccionado archivos, pero hay campos obligatorios sin completar.<br><br>Por favor complete todos los datos del progenitor (nombre, DNI, CUIL y tipo de adjunto) antes de continuar.',
+                        confirmButtonColor: '#77BF43'
+                    });
                 }
                 
                 // Scroll al inicio para ver errores de validación
@@ -438,8 +478,16 @@
                 return true; // No hay archivos para subir
             }
             
-            // Mostrar loading general
-            document.getElementById('loading-general').style.display = 'flex';
+            // Mostrar loading con SweetAlert2
+            Swal.fire({
+                title: 'Subiendo archivos...',
+                html: 'Por favor espere mientras se procesan los archivos',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             let todosExitosos = true;
             
@@ -465,24 +513,36 @@
                     const data = await response.json();
                     
                     if (!data.success) {
-                        mostrarMensaje(`Error al subir archivo del Hijo/a ${parseInt(index) + 1}: ${data.message}`, 'error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al subir archivo',
+                            text: `Error al subir archivo del Hijo/a ${parseInt(index) + 1}: ${data.message}`,
+                            confirmButtonColor: '#77BF43'
+                        });
                         todosExitosos = false;
                         break;
                     }
                     
                     // Actualizar estado en Livewire Y ESPERAR la sincronización
                     await @this.set('formularios.' + index + '.archivo_actual', formularios[index]['tipoadjunto']);
+
+                    // Refrescar cache buster después de subir
+                    await @this.call('refrescarCacheBuster');
                     
                 } catch (error) {
                     console.error('Error:', error);
-                    mostrarMensaje(`Error al subir archivo del Hijo/a ${parseInt(index) + 1}`, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Error al subir archivo del Hijo/a ${parseInt(index) + 1}`,
+                        confirmButtonColor: '#77BF43'
+                    });
                     todosExitosos = false;
                     break;
                 }
             }
-            
-            // Ocultar loading general
-            document.getElementById('loading-general').style.display = 'none';
+        
+            Swal.close();
             
             if (todosExitosos) {
                 // Limpiar archivos pendientes
@@ -499,67 +559,102 @@
         }
         
         /**
-         * Eliminar archivo vía AJAX
+         * Eliminar archivo vía AJAX con confirmación SweetAlert2
          */
         function eliminarArchivo(index) {
-            if (!confirm('¿Está seguro que desea eliminar este archivo?')) {
-                return;
-            }
+            const hijoNumero = parseInt(index) + 1;
+            const nombreHijo = formularios[index]['nombre'];
             
-            const formData = new FormData();
-            formData.append('index', index);
-            formData.append('dnihijo', formularios[index]['dnihijo']);
-            formData.append('anio', '{{ $anio }}');
-            formData.append('periodo', '{{ $periodo }}');
-            
-            fetch('{{ route("asignaciones-familiares.eliminar-archivo") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    @this.call('archivoEliminadoJS', index);
-                } else {
-                    mostrarMensaje(data.message || 'Error al eliminar el archivo', 'error');
+            Swal.fire({
+                title: '¿Eliminar archivo?',
+                html: `¿Está seguro que desea eliminar el archivo del<br><strong>Hijo/a ${hijoNumero}: ${nombreHijo}</strong>?<br><br>Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#77BF43',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar loading
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        html: 'Por favor espere',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    const formData = new FormData();
+                    formData.append('index', index);
+                    formData.append('dnihijo', formularios[index]['dnihijo']);
+                    formData.append('anio', '{{ $anio }}');
+                    formData.append('periodo', '{{ $periodo }}');
+                    
+                    fetch('{{ route("asignaciones-familiares.eliminar-archivo") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            @this.call('archivoEliminadoJS', index);
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Eliminado',
+                                text: 'El archivo ha sido eliminado correctamente',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Error al eliminar el archivo',
+                                confirmButtonColor: '#77BF43'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al eliminar el archivo',
+                            confirmButtonColor: '#77BF43'
+                        });
+                    });
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarMensaje('Error al eliminar el archivo', 'error');
             });
         }
         
         /**
-         * Mostrar mensaje temporal
+         * Mostrar mensaje temporal (mantener para compatibilidad si es necesario)
          */
         function mostrarMensaje(mensaje, tipo) {
-            const contenedor = document.getElementById('mensaje-dinamico');
-            
-            let clases = '';
             if (tipo === 'success') {
-                clases = 'bg-green-100 border border-green-400 text-green-700';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: mensaje,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
             } else if (tipo === 'error') {
-                clases = 'bg-red-100 border border-red-400 text-red-700';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                    confirmButtonColor: '#77BF43'
+                });
             }
-            
-            contenedor.className = `${clases} px-4 py-3 rounded-lg mb-6 flex items-center`;
-            contenedor.innerHTML = `
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                ${mensaje}
-            `;
-            
-            contenedor.style.display = 'flex';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            setTimeout(() => {
-                contenedor.style.display = 'none';
-            }, 5000);
         }
         
         // Interceptar el click del botón guardar
@@ -569,6 +664,15 @@
                 if (exitoso) {
                     @this.call('guardarTodosLosFormularios');
                 }
+            });
+
+            Livewire.on('mostrarExito', () => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Guardado exitoso!',
+                    text: 'Toda la información ha sido guardada correctamente',
+                    confirmButtonColor: '#77BF43'
+                });
             });
         });
     </script>

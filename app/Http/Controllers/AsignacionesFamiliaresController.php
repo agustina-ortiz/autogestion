@@ -3,12 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 class AsignacionesFamiliaresController extends Controller
 {
+    private function generarNombreArchivo($legajo, $anio, $periodo, $dnihijo)
+    {
+        $legajoFormateado = str_pad($legajo, 8, '0', STR_PAD_LEFT);
+        $dniFormateado = str_pad($dnihijo, 8, '0', STR_PAD_LEFT);
+        
+        return "{$legajoFormateado}-{$anio}{$periodo}{$dniFormateado}.jpg";
+    }
+
     /**
      * Subir archivo de asignaciones familiares vía AJAX
      */
@@ -16,11 +24,14 @@ class AsignacionesFamiliaresController extends Controller
     {
         try {
             $request->validate([
-                'archivo' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
+                'archivo' => 'required|file|mimes:jpg|max:5120',
                 'index' => 'required|integer',
                 'dnihijo' => 'required',
                 'anio' => 'required',
                 'periodo' => 'required'
+            ], [
+                'archivo.mimes' => 'El archivo debe ser una imagen JPG',
+                'archivo.max' => 'El archivo no debe superar los 5MB',
             ]);
 
             $legajo = Auth::user()->LEGAJO;
@@ -31,38 +42,45 @@ class AsignacionesFamiliaresController extends Controller
 
             // Obtener el archivo
             $archivo = $request->file('archivo');
-            $extension = $archivo->getClientOriginalExtension();
             
-            // Nombre del archivo: LEGAJOAÑOPERIODO_DNIHIJO.extension
-            $nombreArchivo = "{$legajo}{$anio}{$periodo}_{$dnihijo}.{$extension}";
-
-            // Eliminar archivos previos de este hijo/a con diferentes extensiones
-            $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
-            foreach ($extensiones as $ext) {
-                $pathAnterior = "asignaciones-familiares/{$legajo}{$anio}{$periodo}_{$dnihijo}.{$ext}";
-                if (Storage::disk('public')->exists($pathAnterior)) {
-                    Storage::disk('public')->delete($pathAnterior);
-                    Log::info("Archivo anterior eliminado: {$pathAnterior}");
-                }
+            // Generar nombre según nueva nomenclatura
+            $nombreArchivo = $this->generarNombreArchivo($legajo, $anio, $periodo, $dnihijo);
+            
+            // Crear directorio si no existe
+            $directorio = public_path('img/ddjj_fami');
+            if (!File::exists($directorio)) {
+                File::makeDirectory($directorio, 0755, true);
+                Log::info("Directorio creado: {$directorio}");
             }
-
-            // Guardar el nuevo archivo
-            $path = $archivo->storeAs('asignaciones-familiares', $nombreArchivo, 'public');
+            
+            $rutaCompleta = "{$directorio}/{$nombreArchivo}";
+            
+            // Eliminar archivo anterior si existe
+            if (File::exists($rutaCompleta)) {
+                File::delete($rutaCompleta);
+                Log::info("Archivo anterior eliminado: {$nombreArchivo}");
+            }
+            
+            // Mover el archivo a la nueva ubicación
+            $archivo->move($directorio, $nombreArchivo);
 
             Log::info("Archivo guardado exitosamente", [
                 'legajo' => $legajo,
+                'legajo_formateado' => str_pad($legajo, 8, '0', STR_PAD_LEFT),
                 'index' => $index,
                 'dnihijo' => $dnihijo,
-                'path' => $path,
-                'nombre' => $nombreArchivo
+                'dni_formateado' => str_pad($dnihijo, 8, '0', STR_PAD_LEFT),
+                'anio' => $anio,
+                'periodo' => $periodo,
+                'nombre' => $nombreArchivo,
+                'ruta' => $rutaCompleta
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Archivo subido correctamente',
                 'filename' => $nombreArchivo,
-                'path' => $path,
-                'url' => Storage::url($path)
+                'url' => asset("img/ddjj_fami/{$nombreArchivo}")
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -107,25 +125,31 @@ class AsignacionesFamiliaresController extends Controller
             $anio = $request->input('anio');
             $periodo = $request->input('periodo');
 
-            // Eliminar archivos con cualquier extensión
-            $extensiones = ['jpg', 'jpeg', 'png', 'pdf'];
-            $eliminado = false;
+            // Generar nombre según nueva nomenclatura
+            $nombreArchivo = $this->generarNombreArchivo($legajo, $anio, $periodo, $dnihijo);
+            $rutaCompleta = public_path("img/ddjj_fami/{$nombreArchivo}");
 
-            foreach ($extensiones as $ext) {
-                $path = "asignaciones-familiares/{$legajo}{$anio}{$periodo}_{$dnihijo}.{$ext}";
-                if (Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
-                    $eliminado = true;
-                    Log::info("Archivo eliminado: {$path}");
-                }
-            }
+            if (File::exists($rutaCompleta)) {
+                File::delete($rutaCompleta);
+                
+                Log::info("Archivo eliminado exitosamente", [
+                    'legajo' => $legajo,
+                    'dnihijo' => $dnihijo,
+                    'anio' => $anio,
+                    'periodo' => $periodo,
+                    'archivo' => $nombreArchivo
+                ]);
 
-            if ($eliminado) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Archivo eliminado correctamente'
                 ]);
             } else {
+                Log::warning("Intento de eliminar archivo inexistente", [
+                    'archivo' => $nombreArchivo,
+                    'ruta' => $rutaCompleta
+                ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => 'No se encontró ningún archivo para eliminar'
@@ -134,7 +158,8 @@ class AsignacionesFamiliaresController extends Controller
 
         } catch (\Exception $e) {
             Log::error("Error al eliminar archivo de asignaciones familiares", [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([

@@ -18,8 +18,8 @@ class Compensatorios extends Component
 
     public function mount()
     {
+        $this->fechaDesde = Carbon::now()->startOfMonth()->format('Y-m-d');
         $this->fechaHasta = Carbon::now()->format('Y-m-d');
-        $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
     }
 
     // Resetear paginación cuando cambian los filtros

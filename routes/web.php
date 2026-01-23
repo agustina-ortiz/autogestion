@@ -10,14 +10,11 @@ use App\Livewire\ReciboDetalle;
 use App\Livewire\Asistencias;
 use App\Livewire\Compensatorios;
 use App\Livewire\Solicitudes;
-use App\Livewire\SolicitarAdelanto;
-use App\Livewire\SolicitarCheque;
 use App\Livewire\Planillas;
 use App\Livewire\AsignacionesFamiliares;
 use App\Livewire\Hijos;
 use App\Livewire\PreguntasFrecuentes;
 use App\Livewire\Perfil;
-use App\Livewire\SolicitarAguinaldoCheque;
 use App\Http\Controllers\ReciboPDFController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\PerfilFotoController;
@@ -46,6 +43,8 @@ Volt::route('/primera-contrasena', 'pages.auth.primera-contrasena')
     ->middleware('guest')
     ->name('primera.contrasena');
 
+Route::get('/reloj', App\Livewire\Reloj::class)->name('reloj');
+
 // Rutas protegidas por autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
     
@@ -72,9 +71,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Solicitudes (Livewire)
     Route::middleware('auth')->group(function () {
     Route::get('/solicitudes', Solicitudes::class)->name('solicitudes');
-    Route::get('/solicitudes/adelanto', SolicitarAdelanto::class)->name('solicitudes.adelanto');
-    Route::get('/solicitudes/cheque', SolicitarCheque::class)->name('solicitudes.cheque');
-    Route::get('/solicitudes/aguinaldo', SolicitarAguinaldoCheque::class)->name('solicitudes.aguinaldo');
     
     // Ver Anticipo
     Route::get('/anticipo', AnticipoJubilatorio::class)->name('anticipo.jubilatorio');

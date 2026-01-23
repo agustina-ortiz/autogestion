@@ -10,110 +10,46 @@ use Carbon\Carbon;
 
 class Solicitudes extends Component
 {
-    // Propiedades para adelantos
-    public $tipoAdelanto;
-    public $fechaDesdeAdelantos;
-    public $fechaHastaAdelantos;
-    public $montoMaximoAdelanto;
-    public $fechaDepositoAdelantos;
-    
-    // Propiedades para cheques
-    public $tipoCheque;
-    public $fechaTopeCheque;
-    
-    // Propiedades para aguinaldo
-    public $tipoAguinaldo;
-    public $fechaTopeAguinaldo;
-    public $mostrarAguinaldo = false;
+    // Tipos de movimiento vigentes (colección dinámica)
+    public $tiposMovimientoVigentes = [];
     
     // Propiedades generales
-    public $mesActual;
-    public $anioActual;
     public $solicitudes = [];
 
-    // Propiedades para el modal de edición
+    // Control de modal dinámico
+    public $mostrarModal = false;
+    public $tipoMovimientoSeleccionado = null;
     public $mostrarModalEdicion = false;
+
+    // Propiedades del formulario dinámico
+    public $montoSolicitado;
+    public $formaCobro = '';
+
+    // Propiedades para edición
     public $solicitudEditando = null;
     public $montoEdicion = null;
 
-    // Propiedad para control de botones
-    public $tieneSolicitudAdelantoPendiente = false;
-    public $tieneSolicitudChequePendiente = false;
-    public $tieneSolicitudAguinaldoPendiente = false;
-    public $periodoAdelantosHabilitado = false;
-    public $periodoChequesHabilitado = false;
-    public $periodoAguinaldoHabilitado = false;
+    // Control de solicitudes pendientes por tipo
+    public $solicitudesPendientesPorTipo = [];
 
     public function mount()
     {
-        // Inicializar fechas y mes
         $this->inicializarDatos();
-        
-        // Cargar las solicitudes del usuario
         $this->cargarSolicitudes();
-        
-        // Verificar si tiene solicitudes pendientes
         $this->verificarSolicitudesPendientes();
-
-        // Verificar si los períodos están habilitados
-        $this->verificarPeriodosHabilitados();
     }
 
     /**
-     * Inicializa los datos desde in_tipo_movimiento
+     * Inicializa los datos y carga tipos de movimiento vigentes
      */
     private function inicializarDatos()
     {
-        $hoy = Carbon::now();
-        
-        // Mes y año actual
-        $this->anioActual = $hoy->year;
-        $this->mesActual = strtoupper($hoy->locale('es')->translatedFormat('F'));
-
-        // Verificar si es junio o diciembre para mostrar aguinaldo
-        $this->mostrarAguinaldo = in_array($hoy->month, [6, 12]);
-
-        // Obtener tipo adelanto de sueldo (ID 5)
-        $this->tipoAdelanto = TipoMovimiento::find(TipoMovimiento::ADELANTO_SUELDO);
-        
-        if ($this->tipoAdelanto) {
-            $this->fechaDesdeAdelantos = $this->tipoAdelanto->getFechaDesdeFormateada();
-            $this->fechaHastaAdelantos = $this->tipoAdelanto->getFechaHastaFormateada();
-            $this->fechaDepositoAdelantos = $this->tipoAdelanto->getFechaAcreditacionFormateada();
-            $this->montoMaximoAdelanto = $this->tipoAdelanto->importe_maximo ?? 250000.00;
-        } else {
-            // Valores por defecto si no existe el tipo
-            $this->fechaDesdeAdelantos = $hoy->copy()->startOfMonth()->format('d/m/Y');
-            $this->fechaHastaAdelantos = $hoy->copy()->startOfMonth()->addDays(6)->format('d/m/Y');
-            $this->fechaDepositoAdelantos = $hoy->copy()->startOfMonth()->addDays(9)->format('d/m/Y');
-            $this->montoMaximoAdelanto = 250000.00;
-        }
-
-        // Obtener tipo sueldo por cheque (ID 6)
-        $this->tipoCheque = TipoMovimiento::find(TipoMovimiento::SUELDO_CHEQUE);
-        
-        if ($this->tipoCheque) {
-            $this->fechaTopeCheque = $this->tipoCheque->getFechaHastaFormateada();
-        } else {
-            // Valor por defecto si no existe el tipo
-            $this->fechaTopeCheque = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
-        }
-
-        // Obtener tipo aguinaldo por cheque (ID 7) solo si es junio o diciembre
-        if ($this->mostrarAguinaldo) {
-            $this->tipoAguinaldo = TipoMovimiento::find(TipoMovimiento::AGUINALDO_CHEQUE);
-            
-            if ($this->tipoAguinaldo) {
-                $this->fechaTopeAguinaldo = $this->tipoAguinaldo->getFechaHastaFormateada();
-            } else {
-                // Valor por defecto si no existe el tipo
-                $this->fechaTopeAguinaldo = $hoy->copy()->startOfMonth()->addDays(26)->format('d/m/Y');
-            }
-        }
+        // Cargar todos los tipos de movimiento vigentes de forma dinámica
+        $this->tiposMovimientoVigentes = TipoMovimiento::vigentes()->get();
     }
 
     /**
-     * Verifica si el usuario tiene solicitudes pendientes de adelanto, cheque o aguinaldo este mes
+     * Verifica si el usuario tiene solicitudes pendientes para cada tipo
      */
     private function verificarSolicitudesPendientes()
     {
@@ -121,83 +57,46 @@ class Solicitudes extends Component
             $legajoUsuario = Auth::user()->LEGAJO;
             $hoy = Carbon::now();
             
-            // Verificar adelanto pendiente este mes
-            $adelantoPendiente = Solicitud::porLegajo($legajoUsuario)
-                ->porTipoMovimiento(TipoMovimiento::ADELANTO_SUELDO)
-                ->whereYear('fecha_solicitud', $hoy->year)
-                ->whereMonth('fecha_solicitud', $hoy->month)
-                ->first();
+            $this->solicitudesPendientesPorTipo = [];
             
-            $this->tieneSolicitudAdelantoPendiente = $adelantoPendiente !== null;
-            
-            // Verificar cheque pendiente este mes
-            $chequePendiente = Solicitud::porLegajo($legajoUsuario)
-                ->porTipoMovimiento(TipoMovimiento::SUELDO_CHEQUE)
-                ->whereYear('fecha_solicitud', $hoy->year)
-                ->whereMonth('fecha_solicitud', $hoy->month)
-                ->first();
-            
-            $this->tieneSolicitudChequePendiente = $chequePendiente !== null;
-            
-            // Verificar aguinaldo pendiente este mes (solo si se muestra)
-            if ($this->mostrarAguinaldo) {
-                $aguinaldoPendiente = Solicitud::porLegajo($legajoUsuario)
-                    ->porTipoMovimiento(TipoMovimiento::AGUINALDO_CHEQUE)
+            foreach ($this->tiposMovimientoVigentes as $tipo) {
+                $solicitudPendiente = Solicitud::porLegajo($legajoUsuario)
+                    ->porTipoMovimiento($tipo->id)
                     ->whereYear('fecha_solicitud', $hoy->year)
                     ->whereMonth('fecha_solicitud', $hoy->month)
                     ->first();
                 
-                $this->tieneSolicitudAguinaldoPendiente = $aguinaldoPendiente !== null;
+                $this->solicitudesPendientesPorTipo[$tipo->id] = $solicitudPendiente !== null;
             }
             
         } catch (\Exception $e) {
-            $this->tieneSolicitudAdelantoPendiente = false;
-            $this->tieneSolicitudChequePendiente = false;
-            $this->tieneSolicitudAguinaldoPendiente = false;
+            $this->solicitudesPendientesPorTipo = [];
         }
     }
 
     /**
-     * Verifica si los períodos de adelantos, cheques y aguinaldo están habilitados
+     * Verifica si un tipo tiene solicitud pendiente
      */
-    private function verificarPeriodosHabilitados()
+    public function tieneSolicitudPendiente($tipoId)
     {
-        // Verificar período de adelantos
-        if ($this->tipoAdelanto) {
-            $this->periodoAdelantosHabilitado = $this->tipoAdelanto->estaEnPeriodoHabilitado();
-        } else {
-            $this->periodoAdelantosHabilitado = false;
-        }
-        
-        // Verificar período de cheques
-        if ($this->tipoCheque) {
-            $this->periodoChequesHabilitado = $this->tipoCheque->estaEnPeriodoHabilitado();
-        } else {
-            $this->periodoChequesHabilitado = false;
-        }
-        
-        // Verificar período de aguinaldo (solo si se muestra)
-        if ($this->mostrarAguinaldo && $this->tipoAguinaldo) {
-            $this->periodoAguinaldoHabilitado = $this->tipoAguinaldo->estaEnPeriodoHabilitado();
-        } else {
-            $this->periodoAguinaldoHabilitado = false;
-        }
+        return $this->solicitudesPendientesPorTipo[$tipoId] ?? false;
     }
 
     /**
-     * Carga las solicitudes del usuario desde la base de datos
+     * Carga las solicitudes del usuario
      */
     private function cargarSolicitudes()
     {
         try {
             $legajoUsuario = Auth::user()->LEGAJO;
             
-            // Obtener todas las solicitudes del usuario ordenadas por fecha
             $this->solicitudes = Solicitud::porLegajo($legajoUsuario)
                 ->with('tipoMovimiento')
                 ->masRecientes()
                 ->get()
                 ->map(function ($solicitud) {
+                    $color = $solicitud->tipoMovimiento ? $solicitud->tipoMovimiento->getColorSeccion() : ['badge' => 'gray-100', 'badge-text' => 'gray-800'];
+                    
                     return (object)[
                         'id' => $solicitud->id,
                         'tipo' => $solicitud->tipoMovimiento->tipo_movimiento ?? 'Desconocido',
@@ -206,9 +105,12 @@ class Solicitudes extends Component
                         'estado' => $solicitud->getNombreEstado(),
                         'estado_raw' => $solicitud->estado,
                         'monto' => $solicitud->importe,
+                        'requiere_importe' => $solicitud->tipoMovimiento ? $solicitud->tipoMovimiento->requiereImporte() : false,
                         'observaciones' => $solicitud->forma_pago === 'cheque' 
                             ? 'Forma de pago: Cheque' 
                             : 'Forma de pago: Depósito',
+                        'color_badge' => $color['badge'],
+                        'color_badge_text' => $color['badge-text'],
                     ];
                 })
                 ->toArray();
@@ -219,27 +121,129 @@ class Solicitudes extends Component
         }
     }
 
+    // =========================
+    // GESTIÓN DE MODAL DINÁMICO
+    // =========================
+
     /**
-     * Abre el modal para editar el monto de un adelanto
+     * Abre el modal para un tipo de movimiento específico
+     */
+    public function abrirModal($tipoMovimientoId)
+    {
+        $tipo = TipoMovimiento::find($tipoMovimientoId);
+        
+        if (!$tipo || !$tipo->estaVigente() || $this->tieneSolicitudPendiente($tipoMovimientoId)) {
+            return;
+        }
+
+        $this->tipoMovimientoSeleccionado = $tipo;
+        $this->montoSolicitado = '';
+        $this->formaCobro = '';
+        $this->mostrarModal = true;
+    }
+
+    /**
+     * Confirma la solicitud del tipo de movimiento seleccionado
+     */
+    public function confirmarSolicitud()
+    {
+        if (!$this->tipoMovimientoSeleccionado) {
+            session()->flash('error', 'No se ha seleccionado un tipo de movimiento.');
+            return;
+        }
+
+        // Validar monto si es requerido
+        if ($this->tipoMovimientoSeleccionado->requiereImporte()) {
+            if (empty($this->montoSolicitado) || $this->montoSolicitado <= 0) {
+                session()->flash('error', 'Debe ingresar un monto válido mayor a $0.');
+                return;
+            }
+
+            if (!$this->tipoMovimientoSeleccionado->importeEsValido($this->montoSolicitado)) {
+                session()->flash('error', 'El monto no puede superar $' . number_format($this->tipoMovimientoSeleccionado->importe_maximo, 0, ',', '.'));
+                return;
+            }
+        }
+
+        // Validar forma de cobro si es necesario
+        if ($this->tipoMovimientoSeleccionado->permiteSeleccionarFormaPago()) {
+            if (empty($this->formaCobro)) {
+                session()->flash('error', 'Debe seleccionar una forma de cobro.');
+                return;
+            }
+        } else {
+            // Si no permite seleccionar, usar la forma de pago del tipo de movimiento
+            $this->formaCobro = $this->tipoMovimientoSeleccionado->forma_pago;
+        }
+
+        try {
+            $legajoUsuario = Auth::user()->LEGAJO;
+            $formaPago = $this->formaCobro;
+            
+            // Crear la solicitud
+            Solicitud::create([
+                'legajo' => $legajoUsuario,
+                'fecha_solicitud' => now(),
+                'tipo_movimiento' => $this->tipoMovimientoSeleccionado->id,
+                'origen' => Solicitud::ORIGEN_AUTOGESTION,
+                'estado' => Solicitud::ESTADO_PENDIENTE,
+                'forma_pago' => $formaPago,
+                'importe' => $this->tipoMovimientoSeleccionado->requiereImporte() ? $this->montoSolicitado : null,
+            ]);
+            
+            // Mensaje de éxito
+            $mensaje = '¡Solicitud de ' . strtolower($this->tipoMovimientoSeleccionado->tipo_movimiento) . ' enviada correctamente';
+            if ($this->tipoMovimientoSeleccionado->requiereImporte()) {
+                $mensaje .= ' por $' . number_format($this->montoSolicitado, 0, ',', '.');
+            }
+            $mensaje .= '!';
+            
+            session()->flash('success', $mensaje);
+            
+            $this->cerrarModal();
+            $this->cargarSolicitudes();
+            $this->verificarSolicitudesPendientes();
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al procesar la solicitud: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Cierra el modal dinámico
+     */
+    public function cerrarModal()
+    {
+        $this->mostrarModal = false;
+        $this->tipoMovimientoSeleccionado = null;
+        $this->montoSolicitado = '';
+        $this->formaCobro = '';
+    }
+
+    // =========================
+    // EDICIÓN Y ELIMINACIÓN
+    // =========================
+
+    /**
+     * Edita el monto de una solicitud (solo para tipos que requieren importe)
      */
     public function editarMonto($solicitudId)
     {
         try {
             $solicitud = Solicitud::find($solicitudId);
             
-            // Verificar que la solicitud existe y pertenece al usuario
             if (!$solicitud || $solicitud->legajo !== Auth::user()->LEGAJO) {
                 session()->flash('error', 'Solicitud no encontrada.');
                 return;
             }
 
-            // Verificar que sea un adelanto
-            if ($solicitud->tipo_movimiento !== TipoMovimiento::ADELANTO_SUELDO) {
-                session()->flash('error', 'Solo se pueden editar solicitudes de adelanto.');
+            // Verificar que el tipo de movimiento requiera importe
+            $tipoMovimiento = $solicitud->tipoMovimiento;
+            if (!$tipoMovimiento || !$tipoMovimiento->requiereImporte()) {
+                session()->flash('error', 'Solo se pueden editar solicitudes que requieren monto.');
                 return;
             }
 
-            // Verificar que esté pendiente
             if ($solicitud->estado !== Solicitud::ESTADO_PENDIENTE) {
                 session()->flash('error', 'Solo se pueden editar solicitudes pendientes.');
                 return;
@@ -255,46 +259,39 @@ class Solicitudes extends Component
     }
 
     /**
-     * Guarda el monto editado
+     * Guarda la edición del monto
      */
     public function guardarEdicion()
     {
         try {
-            // Validar el monto
             if (empty($this->montoEdicion) || $this->montoEdicion <= 0) {
                 session()->flash('error', 'Debe ingresar un monto válido mayor a $0.');
                 return;
             }
 
-            // Validar que no supere el máximo
-            if ($this->montoEdicion > $this->montoMaximoAdelanto) {
-                session()->flash('error', 'El monto no puede superar $' . number_format($this->montoMaximoAdelanto, 2, ',', '.'));
-                return;
-            }
-
             $solicitud = Solicitud::find($this->solicitudEditando);
             
-            // Verificar que la solicitud existe y pertenece al usuario
             if (!$solicitud || $solicitud->legajo !== Auth::user()->LEGAJO) {
                 session()->flash('error', 'Solicitud no encontrada.');
                 return;
             }
 
-            // Verificar que esté pendiente
+            $tipoMovimiento = $solicitud->tipoMovimiento;
+            if ($tipoMovimiento && !$tipoMovimiento->importeEsValido($this->montoEdicion)) {
+                session()->flash('error', 'El monto no puede superar $' . number_format($tipoMovimiento->importe_maximo, 0, ',', '.'));
+                return;
+            }
+
             if ($solicitud->estado !== Solicitud::ESTADO_PENDIENTE) {
                 session()->flash('error', 'Solo se pueden editar solicitudes pendientes.');
                 return;
             }
 
-            // Actualizar el monto
-            $solicitud->update([
-                'importe' => $this->montoEdicion
-            ]);
+            $solicitud->update(['importe' => $this->montoEdicion]);
 
-            session()->flash('success', 'Monto actualizado correctamente a $' . number_format($this->montoEdicion, 2, ',', '.'));
+            session()->flash('success', 'Monto actualizado correctamente a $' . number_format($this->montoEdicion, 0, ',', '.'));
             
-            // Cerrar el modal y recargar solicitudes
-            $this->cerrarModal();
+            $this->cerrarModalEdicion();
             $this->cargarSolicitudes();
 
         } catch (\Exception $e) {
@@ -305,7 +302,7 @@ class Solicitudes extends Component
     /**
      * Cierra el modal de edición
      */
-    public function cerrarModal()
+    public function cerrarModalEdicion()
     {
         $this->mostrarModalEdicion = false;
         $this->solicitudEditando = null;
@@ -320,27 +317,21 @@ class Solicitudes extends Component
         try {
             $solicitud = Solicitud::find($solicitudId);
             
-            // Verificar que la solicitud existe y pertenece al usuario
             if (!$solicitud || $solicitud->legajo !== Auth::user()->LEGAJO) {
                 session()->flash('error', 'Solicitud no encontrada.');
                 return;
             }
 
-            // Verificar que esté pendiente
             if ($solicitud->estado !== Solicitud::ESTADO_PENDIENTE) {
                 session()->flash('error', 'Solo se pueden eliminar solicitudes pendientes.');
                 return;
             }
 
-            // Guardar el tipo para el mensaje
             $tipo = $solicitud->tipoMovimiento->tipo_movimiento ?? 'solicitud';
-
-            // Eliminar la solicitud
             $solicitud->delete();
 
             session()->flash('success', ucfirst($tipo) . ' eliminada correctamente.');
             
-            // Recargar solicitudes y verificar pendientes
             $this->cargarSolicitudes();
             $this->verificarSolicitudesPendientes();
 

@@ -20,9 +20,9 @@ class Asistencias extends Component
 
     public function mount()
     {
-        // Por defecto: último mes
+        // Por defecto: desde el primer día del mes actual hasta hoy
         $this->fechaHasta = Carbon::now()->format('Y-m-d');
-        $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
+        $this->fechaDesde = Carbon::now()->startOfMonth()->format('Y-m-d');
         
         // Empleado logueado
         $this->empleado = auth()->user();
@@ -203,9 +203,9 @@ class Asistencias extends Component
 
     public function limpiarFiltros()
     {
-        // Restaurar valores por defecto
+        // Restaurar valores por defecto: primer día del mes actual hasta hoy
         $this->fechaHasta = Carbon::now()->format('Y-m-d');
-        $this->fechaDesde = Carbon::now()->subMonth()->format('Y-m-d');
+        $this->fechaDesde = Carbon::now()->startOfMonth()->format('Y-m-d');
         
         // Resetear página
         $this->resetPage();
