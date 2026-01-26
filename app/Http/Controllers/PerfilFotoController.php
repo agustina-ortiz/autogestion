@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 
 class PerfilFotoController extends Controller
@@ -23,7 +22,16 @@ class PerfilFotoController extends Controller
 
             $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
             $nombreArchivo = $legajo . '.jpg';
-            $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
+            
+            // Ruta directa al directorio público
+            $directorio = public_path('fotos-licencias/fotos-empleados');
+            $rutaCompleta = $directorio . '/' . $nombreArchivo;
+            $marcadorEliminada = $directorio . '/' . $legajo . '_eliminada.txt';
+            
+            // Asegurar que el directorio existe
+            if (!file_exists($directorio)) {
+                mkdir($directorio, 0775, true);
+            }
             
             // Obtener el archivo subido
             $archivo = $request->file('foto');
@@ -34,27 +42,21 @@ class PerfilFotoController extends Controller
             // Redimensionar si es muy grande (mantener proporción, max 800px)
             $imagen->scaleDown(width: 800);
             
-            // Guardar como JPG
-            $rutaCompleta = storage_path('app/public/fotos-empleados/' . $nombreArchivo);
-            
-            // Asegurar que el directorio existe
-            $directorio = dirname($rutaCompleta);
-            if (!file_exists($directorio)) {
-                mkdir($directorio, 0775, true);
-            }
-            
             // Guardar la imagen como JPG con calidad 85
             $imagen->toJpeg(quality: 85)->save($rutaCompleta);
             
+            // Establecer permisos correctos
+            chmod($rutaCompleta, 0664);
+            
             // Eliminar el marcador si existe
-            if (Storage::disk('public')->exists($marcadorEliminada)) {
-                Storage::disk('public')->delete($marcadorEliminada);
+            if (file_exists($marcadorEliminada)) {
+                unlink($marcadorEliminada);
             }
             
             return response()->json([
                 'success' => true,
                 'message' => 'Foto actualizada correctamente',
-                'url' => asset('storage/fotos-empleados/' . $nombreArchivo) . '?t=' . time()
+                'url' => asset('fotos-licencias/fotos-empleados/' . $nombreArchivo) . '?t=' . time()
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {

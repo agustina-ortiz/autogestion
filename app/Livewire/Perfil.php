@@ -5,7 +5,6 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use App\Helpers\FotoHelper;
 
 class Perfil extends Component
@@ -15,7 +14,6 @@ class Perfil extends Component
     public $telefono = '';
     public $mail = '';
     public $fotoActualUrl;
-    public $eliminarFotoFlag = false;
     
     public function mount()
     {
@@ -50,15 +48,23 @@ class Perfil extends Component
         try {
             $legajo = str_pad(Auth::user()->LEGAJO, 8, '0', STR_PAD_LEFT);
             $nombreArchivo = $legajo . '.jpg';
-            $marcadorEliminada = 'fotos-empleados/' . $legajo . '_eliminada.txt';
             
-            // Eliminar de storage local si existe
-            if (Storage::disk('public')->exists('fotos-empleados/' . $nombreArchivo)) {
-                Storage::disk('public')->delete('fotos-empleados/' . $nombreArchivo);
+            // Ruta directa al directorio público
+            $directorio = public_path('fotos-licencias/fotos-empleados');
+            $rutaArchivo = $directorio . '/' . $nombreArchivo;
+            $marcadorEliminada = $directorio . '/' . $legajo . '_eliminada.txt';
+            
+            // Eliminar foto si existe
+            if (file_exists($rutaArchivo)) {
+                unlink($rutaArchivo);
             }
             
             // Crear archivo marcador para indicar que la foto fue eliminada
-            Storage::disk('public')->put($marcadorEliminada, 'eliminada');
+            if (!file_exists($directorio)) {
+                mkdir($directorio, 0775, true);
+            }
+            file_put_contents($marcadorEliminada, 'eliminada');
+            chmod($marcadorEliminada, 0664);
             
             // Actualizar la vista
             $this->cargarFotoActual();
