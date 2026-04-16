@@ -26,7 +26,7 @@
                     <span class="font-medium">Pase la tarjeta por el lector</span>
                 </div>
             </div>
-            <div class="gradient-green rounded-3xl px-8 py-6 text-center text-white shadow-2xl shadow-primary-green/30 w-full">
+            <div wire:ignore class="gradient-green rounded-3xl px-8 py-6 text-center text-white shadow-2xl shadow-primary-green/30 w-full">
                 <div id="fecha-display" class="text-sm md:text-base opacity-90 mb-2 uppercase tracking-widest font-medium">
                     {{ $fecha }}
                 </div>
@@ -55,7 +55,6 @@
     <input 
         type="text" 
         class="absolute opacity-0 pointer-events-none" 
-        wire:model="tarjeta"
         id="tarjeta" 
         autofocus 
         autocomplete="off"
@@ -95,6 +94,7 @@
 <script>
     let tiempoFoto = null;
     let tiempoResultado = null;
+    let timeoutLectura;
     const video = document.querySelector("#videoElement");
     const tarjetaInput = document.getElementById("tarjeta");
     
@@ -119,12 +119,21 @@
     // Mantener foco constantemente
     setInterval(mantenerFoco, 500);
     
-    // Capturar foto y fichar cuando se presiona Enter
-    tarjetaInput.addEventListener('keypress', function(event) {
-        if (event.keyCode === 13 || event.which === 13) {
-            event.preventDefault();
-            capturarYFichar();
-        }
+    // AGREGA ESTO EN SU LUGAR:
+    tarjetaInput.addEventListener('input', function() {
+        clearTimeout(timeoutLectura);
+        
+        timeoutLectura = setTimeout(async () => {
+            const valorTarjeta = this.value.trim();
+            
+            if (valorTarjeta.length > 0) {
+                // Limpiamos el input para que quede listo para el próximo empleado
+                this.value = '';
+                
+                // Ejecutamos la captura y el envío a Livewire
+                await capturarYFichar(valorTarjeta);
+            }
+        }, 700); // ms es suficiente para que el lector termine de escribir
     });
     
     // Prevenir pérdida de foco
@@ -141,7 +150,7 @@
         }, 10);
     });
     
-    async function capturarYFichar() {
+    async function capturarYFichar(valorTarjeta) {
         const canvas = document.getElementById('micanvas');
         
         canvas.width = video.videoWidth;
@@ -155,10 +164,15 @@
         if (tiempoResultado) clearTimeout(tiempoResultado);
         
         // Programar limpieza de foto después de 10 segundos
-        tiempoFoto = setTimeout(() => {
+        tiempoFoto = setTimeout(async () => {
+            // 1. Limpiar el canvas
             const canvas = document.getElementById("micanvas");
             const context = canvas.getContext("2d");
             context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 2. NUEVO: Llamar a Livewire para ocultar el cuadro de texto blanco
+            await $wire.limpiarResultado(); 
+            
             tiempoFoto = null;
         }, 10000);
         
@@ -167,34 +181,24 @@
         
         // IMPORTANTE: Esperar a que Livewire procese la respuesta
         try {
-            await $wire.fichar(fotoBase64);
-            
-            // Programar limpieza de resultado después de 10 segundos
-            tiempoResultado = setTimeout(() => {
-                $wire.limpiarResultado();
-                tiempoResultado = null;
-            }, 10000);
+            // Pasamos el valor de la tarjeta directamente como argumento
+            await $wire.fichar(valorTarjeta, fotoBase64);
         } catch (error) {
             console.error("Error al fichar:", error);
         }
         
-        // Devolver foco inmediatamente
-        setTimeout(() => {
-            tarjetaInput.focus();
-        }, 100);
+        // Asegurar foco después de la operación
+        setTimeout(() => tarjetaInput.focus(), 100);
     }
     
-    // Reloj en tiempo real
+    // El reloj NO se detendrá ahora porque el contenedor tiene wire:ignore
     function actualizarReloj() {
         const now = new Date();
-        
         const horas = String(now.getHours()).padStart(2, '0');
         const minutos = String(now.getMinutes()).padStart(2, '0');
         const segundos = String(now.getSeconds()).padStart(2, '0');
-        
-        document.getElementById('reloj').textContent = horas + ':' + minutos + ':' + segundos;
-        
-        setTimeout(actualizarReloj, 500);
+        document.getElementById('reloj').textContent = `${horas}:${minutos}:${segundos}`;
+        requestAnimationFrame(actualizarReloj); // Más fluido que setTimeout
     }
     
     // Iniciar reloj

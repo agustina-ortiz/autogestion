@@ -51,14 +51,17 @@ class Reloj extends Component
         }
     }
     
-    public function fichar($fotoBase64 = null)
+    public function fichar($numeroTarjeta, $fotoBase64 = null)
     {
         try {
+            // Usamos el parámetro directamente
+            $this->tarjeta = $numeroTarjeta; 
+            
             $fecha = $this->obtenerFechaActual();
             $hora = $this->obtenerHoraActual();
             
             $tarjetaOriginal = $this->tarjeta;
-            $tarjeta = intdiv($this->tarjeta, 10);
+            $tarjeta = intdiv((int)$this->tarjeta, 10);
             
             if ($tarjeta < 1) {
                 $this->resultado = '
@@ -274,6 +277,8 @@ class Reloj extends Component
     {
         $this->mostrarResultado = false;
         $this->resultado = '';
+        // Opcional: Despachar el evento para que el JS sepa que ya se limpió
+        $this->dispatch('limpiarResultado');
     }
     
     public function render()
