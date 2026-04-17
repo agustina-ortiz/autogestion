@@ -32,7 +32,7 @@ class Compensatorio extends Model
      * Scope para obtener total de días por tarjeta
      * Solo toma el registro más reciente (por fecha)
      */
-    public function scopeTotalDiasPorTarjeta($query, $codtar)
+    public static function totalDiasPorTarjeta($codtar): int
     {
         $resultado = DB::table('munimer_inasi.in_compensa')
             ->selectRaw("
@@ -45,6 +45,14 @@ class Compensatorio extends Model
             ->where('CODTAR', $codtar)
             ->value('dias');
 
-        return (int) ($resultado ?? 0);
+        $legajo = DB::table('munimer_inasi.in_maestro')
+            ->where('TARJETA', $codtar)
+            ->value('LEGAJO');
+
+        $tomados = $legajo
+            ? Movimiento::compensatoriosTomados($legajo)->count()
+            : 0;
+
+        return round((float)(($resultado ?? 0) - $tomados), 2);
     }
 }
