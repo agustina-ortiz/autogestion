@@ -40,7 +40,6 @@ Route::post('/logout', function () {
 })->name('logout');
 
 Volt::route('/primera-contrasena', 'pages.auth.primera-contrasena')
-    ->middleware('guest')
     ->name('primera.contrasena');
 
 Route::get('/reloj', App\Livewire\Reloj::class)->name('reloj');

@@ -151,6 +151,10 @@
     });
     
     async function capturarYFichar(valorTarjeta) {
+        console.log('=== VALOR RECIBIDO DEL LECTOR ===', valorTarjeta);
+        console.log('Longitud:', valorTarjeta.length);
+        console.log('Char codes:', [...valorTarjeta].map(c => c.charCodeAt(0)));
+        
         const canvas = document.getElementById('micanvas');
         
         canvas.width = video.videoWidth;

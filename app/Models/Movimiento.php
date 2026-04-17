@@ -33,10 +33,10 @@ class Movimiento extends Model
      */
     public function scopeCompensatoriosTomados($query, $legajo)
     {
-        return $query->where('LEGAJO', $legajo)
-                     ->where('CODIGO', 10)
-                     ->where('FECINASI', '>', '2016-11-30')
-                     ->orderBy('FECINASI');
+        return $query->where('legajo', $legajo)
+                    ->where('codigo', 10)
+                    ->where('fecinasi', '>', '2016-11-30')
+                    ->orderBy('fecinasi');
     }
 
     /**

@@ -45,7 +45,8 @@
                         @endif
 
                         @if($noticia->ARCHIVO)
-                            <a href="{{ asset('storage/noticias/' . $noticia->ARCHIVO) }}"
+                           <!--  <a href="{{ asset('storage/noticias/' . $noticia->ARCHIVO) }}" -->
+                            <a href="https://inasi.mercedes.gob.ar/fotos-legajo/fotos-empleados/noticias/{{ $noticia->ARCHIVO }}"
                                target="_blank"
                                class="flex items-center gap-3 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors group">
                                 <div class="flex-shrink-0 w-10 h-10 bg-[#77BF43] bg-opacity-10 rounded-full flex items-center justify-center group-hover:bg-opacity-20 transition-colors">

@@ -18,6 +18,9 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/public/planillas
+/storage/app/public/fotos-empleados
+/storage/app/public/asignaciones-familiares
 /vendor
 Homestead.json
 Homestead.yaml

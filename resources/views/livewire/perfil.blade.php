@@ -196,6 +196,13 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    
+                    <!-- Cambiar Contraseña -->
+                    <div>
+                        <a href="{{ route('primera.contrasena') }}" wire:navigate class="px-6 py-2 bg-[#77bf43] text-white rounded-lg hover:opacity-90 transition-opacity font-medium inline-flex items-center gap-2">
+                            Cambiar Contraseña
+                        </a>
+                    </div>
 
                     <!-- Botones -->
                     <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">

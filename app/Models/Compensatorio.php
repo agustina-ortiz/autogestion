@@ -34,18 +34,17 @@ class Compensatorio extends Model
      */
     public function scopeTotalDiasPorTarjeta($query, $codtar)
     {
-        $registro = $query->where('CODTAR', $codtar)
-                         ->orderBy('FECHA', 'DESC')
-                         ->first();
-        
-        if (!$registro) {
-            return 0;
-        }
+        $resultado = DB::table('munimer_inasi.in_compensa')
+            ->selectRaw("
+                SUM(
+                    COMP151 / 4 +
+                    COMP152 / IF(FECHA < '2016-11-01', 4, 3) +
+                    COMP153 / 3
+                ) AS dias
+            ")
+            ->where('CODTAR', $codtar)
+            ->value('dias');
 
-        $divisor152 = $registro->FECHA < '2016-11-01' ? 4 : 3;
-        
-        return ($registro->COMP151 / 4) + 
-               ($registro->COMP152 / $divisor152) + 
-               ($registro->COMP153 / 3);
+        return (int) ($resultado ?? 0);
     }
 }

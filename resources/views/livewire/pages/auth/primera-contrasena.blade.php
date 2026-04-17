@@ -15,8 +15,8 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function mount(): void
     {
-        // Verificar que existe el DNI en sesión
-        if (!session()->has('first_login_dni')) {
+        // Permitir acceso en dos casos: primer login (DNI en sesión) o usuario ya autenticado
+        if (!session()->has('first_login_dni') && !Auth::check()) {
             $this->redirect(route('login'), navigate: true);
         }
     }
@@ -25,29 +25,30 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $this->validate();
 
-        $dni = session('first_login_dni');
+        if (session()->has('first_login_dni')) {
+            // Flujo de primer login
+            $dni = session('first_login_dni');
+            $empleado = \App\Models\Maestro::where('DNI', $dni)->first();
 
-        // Buscar el empleado
-        $empleado = \App\Models\Maestro::where('DNI', $dni)->first();
+            if (!$empleado) {
+                session()->forget('first_login_dni');
+                $this->redirect(route('login'), navigate: true);
+                return;
+            }
 
-        if (!$empleado) {
+            $empleado->CLAVEWEB = $this->password;
+            $empleado->save();
+
             session()->forget('first_login_dni');
-            $this->redirect(route('login'), navigate: true);
-            return;
+            Auth::loginUsingId($empleado->id, true);
+            session()->regenerate();
+        } else {
+            // Usuario ya autenticado cambiando su contraseña
+            $empleado = Auth::user();
+            $empleado->CLAVEWEB = $this->password;
+            $empleado->save();
         }
 
-        // Actualizar la contraseña
-        $empleado->CLAVEWEB = $this->password;
-        $empleado->save();
-
-        // Limpiar la sesión temporal
-        session()->forget('first_login_dni');
-
-        // Iniciar sesión automáticamente
-        Auth::loginUsingId($empleado->id, true);
-        session()->regenerate();
-
-        // Redirigir al dashboard
         $this->redirect(route('dashboard'), navigate: true);
     }
 }; ?>
