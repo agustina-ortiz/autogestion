@@ -21,6 +21,8 @@
 /storage/app/public/planillas
 /storage/app/public/fotos-empleados
 /storage/app/public/asignaciones-familiares
+/public/fotos-licencias
+/public/img/ddjj_fami
 /vendor
 Homestead.json
 Homestead.yaml
