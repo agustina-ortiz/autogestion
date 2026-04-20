@@ -6,6 +6,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use DateTime;
 
@@ -140,6 +141,8 @@ class Reloj extends Component
                 $this->resetTarjeta();
                 return;
             }
+
+            $ip_reloj = request()->header('X-Forwarded-For') ?? request()->header('X-Real-IP') ?? request()->ip();
             
             $fichada = DB::connection('mysql')
                 ->table('in_horas')
@@ -204,7 +207,8 @@ class Reloj extends Component
                     ->insertGetId([
                         'CODTAR' => $tarjeta,
                         'FECHA' => $fecha,
-                        'HORA' => $hora
+                        'HORA' => $hora,
+                        'IP_RELOJ' => $ip_reloj,
                     ]);
                 
                 // LAYOUT HORIZONTAL: Ícono a la izquierda, información a la derecha
