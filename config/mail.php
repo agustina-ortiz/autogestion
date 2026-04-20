@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'perfil_notificacion_to' => env('PERFIL_NOTIFICACION_MAIL', 'recursoshumanos@mercedes.gob.ar'),
+
 ];

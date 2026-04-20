@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PerfilActualizado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Laravel\Facades\Image;
 
 class PerfilFotoController extends Controller
@@ -52,11 +55,15 @@ class PerfilFotoController extends Controller
             if (file_exists($marcadorEliminada)) {
                 unlink($marcadorEliminada);
             }
-            
+
+            $urlFoto = asset('fotos-licencias/fotos-empleados/' . $nombreArchivo);
+
+            $this->notificarFoto($urlFoto);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Foto actualizada correctamente',
-                'url' => asset('fotos-licencias/fotos-empleados/' . $nombreArchivo) . '?t=' . time()
+                'url' => $urlFoto . '?t=' . time()
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -74,6 +81,31 @@ class PerfilFotoController extends Controller
                 'success' => false,
                 'message' => 'Error al procesar la imagen. Por favor, intente con otra imagen.'
             ], 500);
+        }
+    }
+
+    private function notificarFoto(string $urlFoto): void
+    {
+        try {
+            $empleado = DB::table('in_maestro')
+                ->where('LEGAJO', Auth::user()->LEGAJO)
+                ->first();
+
+            if (!$empleado) {
+                return;
+            }
+
+            Mail::to(config('mail.perfil_notificacion_to'))->send(new PerfilActualizado(
+                nombre: $empleado->NOMBRE ?? '',
+                legajo: (string) $empleado->LEGAJO,
+                motivo: 'Actualización de foto de perfil',
+                mensaje: 'El empleado subió una nueva foto de perfil.',
+                imagen: $urlFoto,
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error al enviar mail de notificación de foto: ' . $e->getMessage(), [
+                'legajo' => Auth::user()->LEGAJO ?? null,
+            ]);
         }
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
+use App\Mail\PerfilActualizado;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
@@ -47,6 +49,19 @@ new #[Layout('layouts.guest')] class extends Component
             $empleado = Auth::user();
             $empleado->CLAVEWEB = $this->password;
             $empleado->save();
+
+            try {
+                Mail::to(config('mail.perfil_notificacion_to'))->send(new PerfilActualizado(
+                    nombre: $empleado->NOMBRE ?? '',
+                    legajo: (string) $empleado->LEGAJO,
+                    motivo: 'Cambio de contraseña',
+                    mensaje: 'El empleado modificó su contraseña desde autogestión.',
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Error al enviar mail de notificación de contraseña: ' . $e->getMessage(), [
+                    'legajo' => $empleado->LEGAJO ?? null,
+                ]);
+            }
         }
 
         $this->redirect(route('dashboard'), navigate: true);

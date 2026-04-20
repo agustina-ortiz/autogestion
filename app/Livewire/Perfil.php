@@ -5,7 +5,9 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Helpers\FotoHelper;
+use App\Mail\PerfilActualizado;
 
 class Perfil extends Component
 {
@@ -65,10 +67,12 @@ class Perfil extends Component
             }
             file_put_contents($marcadorEliminada, 'eliminada');
             chmod($marcadorEliminada, 0664);
-            
+
             // Actualizar la vista
             $this->cargarFotoActual();
-            
+
+            $this->notificarFoto('Eliminación de foto de perfil', 'El empleado eliminó su foto de perfil.');
+
             session()->flash('success', 'Foto eliminada correctamente.');
             
         } catch (\Exception $e) {
@@ -106,50 +110,105 @@ class Perfil extends Component
     {
         // Validar los datos
         $this->validate();
-        
+
         try {
-            $cambiosRealizados = false;
+            $empleado = DB::table('in_maestro')
+                ->where('LEGAJO', Auth::user()->LEGAJO)
+                ->first();
 
-            // Preparar datos para actualizar (solo si tienen valor)
             $datosActualizar = [];
-            
-            if ($this->domicilio !== null && $this->domicilio !== '') {
+            $cambios = [];
+
+            if ($this->domicilio !== null && $this->domicilio !== '' && $this->domicilio !== ($empleado->DOMICILIO ?? '')) {
                 $datosActualizar['DOMICILIO'] = $this->domicilio;
+                $cambios['direccion'] = ['nuevo' => $this->domicilio, 'anterior' => $empleado->DOMICILIO ?? ''];
             }
-            
-            if ($this->telefono !== null && $this->telefono !== '') {
+
+            if ($this->telefono !== null && $this->telefono !== '' && $this->telefono !== ($empleado->TELEFONO ?? '')) {
                 $datosActualizar['TELEFONO'] = $this->telefono;
+                $cambios['telefono'] = ['nuevo' => $this->telefono, 'anterior' => $empleado->TELEFONO ?? ''];
             }
-            
-            if ($this->mail !== null && $this->mail !== '') {
+
+            if ($this->mail !== null && $this->mail !== '' && $this->mail !== ($empleado->MAIL ?? '')) {
                 $datosActualizar['MAIL'] = $this->mail;
+                $cambios['email'] = ['nuevo' => $this->mail, 'anterior' => $empleado->MAIL ?? ''];
             }
 
-            // Actualizar datos de contacto solo si hay datos para actualizar
-            if (!empty($datosActualizar)) {
-                $affected = DB::table('in_maestro')
-                    ->where('LEGAJO', Auth::user()->LEGAJO)
-                    ->update($datosActualizar);
-
-                if ($affected > 0) {
-                    $cambiosRealizados = true;
-                }
-            }
-
-            // Mostrar mensaje apropiado
-            if ($cambiosRealizados) {
-                session()->flash('success', 'Datos de contacto actualizados correctamente.');
-            } else {
+            if (empty($datosActualizar)) {
                 session()->flash('error', 'No se realizaron cambios. Verifica que los datos sean diferentes.');
+                return;
             }
-            
+
+            DB::table('in_maestro')
+                ->where('LEGAJO', Auth::user()->LEGAJO)
+                ->update($datosActualizar);
+
+            $this->notificarCambios($empleado, $cambios);
+
+            session()->flash('success', 'Datos de contacto actualizados correctamente.');
+
         } catch (\Exception $e) {
             \Log::error('Error al actualizar perfil: ' . $e->getMessage(), [
                 'legajo' => Auth::user()->LEGAJO,
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             session()->flash('error', 'Hubo un error al actualizar tus datos. Por favor, intenta nuevamente.');
+        }
+    }
+
+    private function notificarFoto(string $motivo, string $mensaje, ?string $imagen = null): void
+    {
+        try {
+            $empleado = DB::table('in_maestro')
+                ->where('LEGAJO', Auth::user()->LEGAJO)
+                ->first();
+
+            if (!$empleado) {
+                return;
+            }
+
+            Mail::to(config('mail.perfil_notificacion_to'))->send(new PerfilActualizado(
+                nombre: $empleado->NOMBRE ?? '',
+                legajo: (string) $empleado->LEGAJO,
+                motivo: $motivo,
+                mensaje: $mensaje,
+                imagen: $imagen,
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error al enviar mail de notificación de foto: ' . $e->getMessage(), [
+                'legajo' => Auth::user()->LEGAJO ?? null,
+            ]);
+        }
+    }
+
+    private function notificarCambios($empleado, array $cambios): void
+    {
+        $etiquetas = [
+            'direccion' => 'domicilio',
+            'telefono' => 'teléfono',
+            'email' => 'correo electrónico',
+        ];
+        $campos = array_map(fn ($k) => $etiquetas[$k], array_keys($cambios));
+        $mensaje = 'El empleado actualizó: ' . implode(', ', $campos) . '.';
+
+        try {
+            Mail::to(config('mail.perfil_notificacion_to'))->send(new PerfilActualizado(
+                nombre: $empleado->NOMBRE ?? '',
+                legajo: (string) $empleado->LEGAJO,
+                motivo: 'Actualización de datos de perfil',
+                mensaje: $mensaje,
+                direccion: $cambios['direccion']['nuevo'] ?? null,
+                direccion1: $cambios['direccion']['anterior'] ?? null,
+                telefono: $cambios['telefono']['nuevo'] ?? null,
+                telefono1: $cambios['telefono']['anterior'] ?? null,
+                email: $cambios['email']['nuevo'] ?? null,
+                email1: $cambios['email']['anterior'] ?? null,
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error al enviar mail de notificación de perfil: ' . $e->getMessage(), [
+                'legajo' => $empleado->LEGAJO ?? null,
+            ]);
         }
     }
     
