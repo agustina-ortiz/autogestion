@@ -7,6 +7,8 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AsignacionesFamiliaresActualizada;
 use App\Models\Familia;
 use Carbon\Carbon;
 
@@ -278,10 +280,22 @@ class AsignacionesFamiliares extends Component
             }
         }
 
+        $formulariosMail = $this->formularios; // capturar ANTES de reinicializar
+
         session()->flash('success', 'Toda la información ha sido guardada correctamente');
         
         $this->refrescarCacheBuster();
         $this->inicializarFormularios();
+
+        Mail::to(config('mail.perfil_notificacion_to'))  // ← nombre correcto de la key
+            ->send(new AsignacionesFamiliaresActualizada(
+                nombre:       Auth::user()->NOMBRE,
+                legajo:       Auth::user()->LEGAJO,
+                anio:         $this->anio,
+                periodo:      $this->periodo,
+                formularios:  $formulariosMail,           // ← variable capturada antes
+                tiposAdjunto: $this->tiposAdjunto,
+            ));
         
         // Mostrar SweetAlert2 de éxito
         $this->dispatch('mostrarExito');
