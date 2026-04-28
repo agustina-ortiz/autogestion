@@ -234,7 +234,6 @@ class Familia extends Model
         return self::join('in_maestro as m', 'm.legajo', '=', 'in_familia.LEGAJO')
             ->where('in_familia.LEGAJO', $legajo)
             ->whereIn('in_familia.TIPOFAMI', [1, 2, 3, 4])
-            ->where('m.sexo', 1)
             ->count();
     }
 

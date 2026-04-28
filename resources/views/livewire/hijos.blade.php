@@ -36,29 +36,31 @@
             </div>
 
             <!-- DDJJ Asignaciones Familiares -->
-            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-[#77BF43]">
-                <div class="flex items-center gap-4 mb-4">
-                    <svg class="w-12 h-12 stroke-[#77BF43]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                        <circle cx="10" cy="13" r="1"/>
-                        <circle cx="10" cy="17" r="1"/>
-                    </svg>
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-800">DDJJ Asignaciones</h2>
-                        <p class="text-sm text-gray-600">Declaración jurada para asignaciones familiares</p>
+            @if(auth()->user()->SEXO === 1)
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-[#77BF43]">
+                    <div class="flex items-center gap-4 mb-4">
+                        <svg class="w-12 h-12 stroke-[#77BF43]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <circle cx="10" cy="13" r="1"/>
+                            <circle cx="10" cy="17" r="1"/>
+                        </svg>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">DDJJ Asignaciones</h2>
+                            <p class="text-sm text-gray-600">Declaración jurada para asignaciones familiares</p>
+                        </div>
                     </div>
+                    <a href="{{ route('asignaciones.familiares') }}" 
+                    class="inline-flex items-center px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#5fa335] transition-colors shadow-md">
+                        Ir a DDJJ
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
                 </div>
-                <a href="{{ route('asignaciones.familiares') }}" 
-                   class="inline-flex items-center px-6 py-2 bg-[#77BF43] text-white font-semibold rounded-lg hover:bg-[#5fa335] transition-colors shadow-md">
-                    Ir a DDJJ
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                </a>
-            </div>
+            @endif
         </div>
 
         <!-- Botón volver -->
