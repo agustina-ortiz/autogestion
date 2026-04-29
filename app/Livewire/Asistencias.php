@@ -95,8 +95,8 @@ class Asistencias extends Component
 
         // Combinar ambas queries
         $allFichadas = $fichadasNormales->unionAll($inasistencias)
-            ->orderBy('fecha', 'desc')
-            ->orderBy('hora', 'desc');
+            ->orderBy('fecha', 'asc')
+            ->orderBy('hora', 'asc');
 
         // Obtener el total de registros
         $totalRecords = $allFichadas->count();
@@ -113,6 +113,27 @@ class Asistencias extends Component
             'totalRecords' => $totalRecords,
             'offset' => $offset
         ];
+    }
+
+    private function getUltimasFichadas()
+    {
+        $legajo = $this->legajo;
+
+        return DB::table('munimer_inasi.in_horas as h')
+            ->join('munimer_inasi.in_maestro as m', function($join) use ($legajo) {
+                $join->on('m.tarjeta', '=', 'h.codtar')
+                    ->where('m.legajo', '=', $legajo);
+            })
+            ->select(
+                'h.fecha as fecha',
+                'h.hora as hora'
+            )
+            ->where('m.legajo', $legajo)
+            ->orderBy('h.fecha', 'desc')
+            ->orderBy('h.hora', 'desc')
+            ->limit(3)
+            ->get()
+            ->toArray();
     }
 
     private function cargarNovedades()
@@ -215,6 +236,7 @@ class Asistencias extends Component
     {
         $fichadasData = $this->getFichadasData();
         $novedades = $this->cargarNovedades();
+        $ultimasFichadas = $this->getUltimasFichadas();
         
         $totalPages = ceil($fichadasData['totalRecords'] / $this->perPage);
         $currentPage = $this->getPage();
@@ -228,7 +250,8 @@ class Asistencias extends Component
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
             'novedades' => $novedades,
-            'year' => $year
+            'year' => $year,
+            'ultimasFichadas' => $ultimasFichadas,
         ])->layout('components.layouts.autogestion');
     }
 }

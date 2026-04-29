@@ -222,6 +222,57 @@
         </div>
     </div>
 
+    {{-- Últimas 3 Fichadas --}}
+    <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-2 h-5 bg-[#77BF43] rounded-full"></div>
+            <h2 class="text-[#77BF43] text-sm font-bold uppercase tracking-wide">Últimas Fichadas</h2>
+        </div>
+
+        @if(count($ultimasFichadas) > 0)
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                @foreach($ultimasFichadas as $i => $uf)
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-3
+                                border-l-4 border-l-[#BED630]">
+                        
+                        {{-- Ícono --}}
+                        <div class="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center bg-[#BED630]/30">
+                            <svg class="w-4 h-4 text-[#77BF43]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+
+                        {{-- Datos --}}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wide">
+                                {{ $i === 0 ? 'Última' : ($i === 1 ? 'Anterior' : 'Hace 2') }}
+                            </p>
+                            <p class="text-sm font-bold text-gray-800 leading-tight">
+                                {{ \Carbon\Carbon::parse($uf->fecha)->format('d/m/Y') }}
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5 font-mono">
+                                {{ $uf->hora }}
+                            </p>
+                        </div>
+
+                        {{-- Badge --}}
+                        <div class="flex-shrink-0">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#77BF43]/10 text-[#77BF43]">
+                                Fichada
+                            </span>
+                        </div>
+
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 text-sm text-gray-400 text-center">
+                No se encontraron fichadas registradas
+            </div>
+        @endif
+    </div>
+
     <!-- Tabla de Fichadas -->
     <h2 class="text-[#77BF43] text-xl font-bold mb-4 uppercase hidden md:block">Fichadas</h2>
     <div class="bg-white/90 backdrop-blur-md shadow-xl overflow-hidden border border-white/50 rounded-xl transform hover:scale-[1.01] transition-all duration-300 mb-6">
