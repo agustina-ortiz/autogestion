@@ -34,7 +34,12 @@
       "Bash(sudo chmod:*)",
       "Bash(crontab -l:*)",
       "Bash(crontab:*)",
-      "Bash(/usr/bin/php artisan schedule:list:*)"
+      "Bash(/usr/bin/php artisan schedule:list:*)",
+      "Bash(apache2ctl:*)",
+      "Bash(nslookup:*)",
+      "Bash(dig:*)",
+      "Read(//etc/**)",
+      "Bash(systemctl list-units *)"
     ],
     "deny": [],
     "ask": []

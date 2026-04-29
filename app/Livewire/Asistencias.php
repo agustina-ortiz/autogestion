@@ -95,8 +95,8 @@ class Asistencias extends Component
 
         // Combinar ambas queries
         $allFichadas = $fichadasNormales->unionAll($inasistencias)
-            ->orderBy('fecha', 'asc')
-            ->orderBy('hora', 'asc');
+            ->orderBy('fecha', 'desc')
+            ->orderBy('hora', 'desc');
 
         // Obtener el total de registros
         $totalRecords = $allFichadas->count();
