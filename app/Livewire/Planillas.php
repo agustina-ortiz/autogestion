@@ -92,7 +92,7 @@ class Planillas extends Component
     {
         $mes = now()->month;
         
-        if (in_array($mes, [2, 3, 4])) {
+        if (in_array($mes, [2, 3, 4, 5, 6])) {
             return 1;
         } elseif (in_array($mes, [11, 12, 1])) {
             return 2;
