@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PushSubscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PushController extends Controller
 {
@@ -15,7 +16,8 @@ class PushController extends Controller
             ['endpoint' => $data['endpoint']],
             [
                 'p256dh' => $data['keys']['p256dh'],
-                'auth' => $data['keys']['auth'],
+                'auth'   => $data['keys']['auth'],
+                'legajo' => Auth::user()?->LEGAJO,
             ]
         );
 

@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class PushSubscription extends Model
 {
-    protected $fillable = ['endpoint', 'p256dh', 'auth'];
+    protected $fillable = ['endpoint', 'p256dh', 'auth', 'legajo'];
 }

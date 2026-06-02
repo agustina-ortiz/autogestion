@@ -15,6 +15,7 @@ use App\Livewire\AsignacionesFamiliares;
 use App\Livewire\Hijos;
 use App\Livewire\PreguntasFrecuentes;
 use App\Livewire\Perfil;
+use App\Livewire\Evaluaciones;
 use App\Http\Controllers\ReciboPDFController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\PerfilFotoController;
@@ -96,6 +97,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Preguntas Frecuentes
     Route::get('/preguntas-frecuentes', PreguntasFrecuentes::class)->name('preguntas.frecuentes');
     Route::get('/perfil', Perfil::class)->name('perfil');
+
+    // Evaluaciones de desempeño
+    Route::get('/evaluaciones', Evaluaciones::class)->name('evaluaciones');
 
     // Ruta para generar el PDF del recibo
     Route::get('/recibo/pdf/{nroRecibo}/{anio}/{mes}/{tipoLiq}', [ReciboPDFController::class, 'generarPDF'])
