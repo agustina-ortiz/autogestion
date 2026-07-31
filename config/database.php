@@ -83,6 +83,29 @@ return [
             ]) : [],
         ],
 
+        // INASI nuevo. Base todavia en desarrollo: por ahora solo se lee de aca
+        // la fecha de corte de recibos (tabla corte_recibos). El resto sigue
+        // yendo por mysql1, que es la base productiva con los datos reales.
+        'mysql2' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL_INASI_NUEVO'),
+            'host' => env('DB_HOST_INASI_NUEVO', '127.0.0.1'),
+            'port' => env('DB_PORT_INASI_NUEVO', '3306'),
+            'database' => env('DB_DATABASE_INASI_NUEVO', 'munimer_inasinuevo'),
+            'username' => env('DB_USERNAME_INASI_NUEVO', 'root'),
+            'password' => env('DB_PASSWORD_INASI_NUEVO', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

@@ -37,7 +37,8 @@ Portal de autogestión de Recursos Humanos para municipalidad argentina. Permite
 | Conexion | Motor | Base | Uso |
 |----------|-------|------|-----|
 | `mysql` (default) | MySQL | in_maestro | Datos de la aplicacion |
-| `mysql1` | MySQL | munimer_inasi | Sistema legado INASI |
+| `mysql1` | MySQL | munimer_inasi | Sistema legado INASI (productiva) |
+| `mysql2` | MySQL | munimer_inasinuevo | INASI nuevo, en desarrollo. Solo `corte_recibos` |
 | Oracle OCI | Oracle | — | Recibos de sueldo (conexion directa, NO Eloquent) |
 | SQLite | SQLite | — | Tests / desarrollo |
 
@@ -181,7 +182,12 @@ resources/views/
 - Consultas SQL directas con OCI, NO Eloquent
 - Paginacion con ROWNUM a nivel SQL
 - Tipos de recibo con colores: NOR, ADI, SAC, DDN, MUN, etc.
-- Filtrado: excluye recibos de hoy y manana
+- Visibilidad: solo se muestran los recibos emitidos hasta la **fecha de corte**
+  que define RRHH desde INASI (tabla `corte_recibos` en `mysql2`, historial de
+  solo alta: la vigente es la de mayor `id`). Ver `App\Services\ReciboVisibilidad`.
+  Si no se puede leer la fecha, no se muestra ningun recibo (falla cerrado).
+- La condicion se aplica en los **tres** lugares que leen recibos: `Recibos`,
+  `ReciboDetalle` y `ReciboPDFController`. No agregar un cuarto sin el filtro.
 
 ---
 

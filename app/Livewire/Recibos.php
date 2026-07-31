@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ReciboVisibilidad;
+use Exception;
 
 class Recibos extends Component
 {
@@ -77,14 +79,20 @@ class Recibos extends Component
             $legajo = Auth::user()->LEGAJO;
             $page = $this->getPage();
             $offset = ($page - 1) * $this->perPage;
-            
+
+            // Solo se muestran los recibos ya cobrados. La fecha la define RRHH
+            // desde INASI el dia que se acredita el pago.
+            $hasta = ReciboVisibilidad::fechaCorte();
+            $visibles = ReciboVisibilidad::condicionSql();
+
             // Consulta para contar total de registros
-            $sqlCount = "SELECT COUNT(*) as total FROM per_recibo_cab 
+            $sqlCount = "SELECT COUNT(*) as total FROM per_recibo_cab
                          WHERE legajo = :legajo
-                         AND fecha_emision < (CURRENT_DATE - 1)";
-            
+                         AND {$visibles}";
+
             $stmtCount = oci_parse($conn, $sqlCount);
             oci_bind_by_name($stmtCount, ':legajo', $legajo);
+            oci_bind_by_name($stmtCount, ':hasta', $hasta);
             oci_execute($stmtCount);
             $rowCount = oci_fetch_array($stmtCount, OCI_ASSOC);
             $totalRecords = $rowCount['TOTAL'];
@@ -92,19 +100,20 @@ class Recibos extends Component
             // Consulta para obtener registros paginados
             $sql = "SELECT * FROM (
                         SELECT a.*, ROWNUM rnum FROM (
-                            SELECT * FROM per_recibo_cab 
+                            SELECT * FROM per_recibo_cab
                             WHERE legajo = :legajo
-                            AND fecha_emision < (CURRENT_DATE - 1)
+                            AND {$visibles}
                             ORDER BY anio DESC, nro_recibo DESC
                         ) a WHERE ROWNUM <= :end_row
                     ) WHERE rnum > :start_row";
-            
+
             $stmt = oci_parse($conn, $sql);
-            
+
             $end_row = $offset + $this->perPage;
             $start_row = $offset;
-            
+
             oci_bind_by_name($stmt, ':legajo', $legajo);
+            oci_bind_by_name($stmt, ':hasta', $hasta);
             oci_bind_by_name($stmt, ':end_row', $end_row);
             oci_bind_by_name($stmt, ':start_row', $start_row);
             

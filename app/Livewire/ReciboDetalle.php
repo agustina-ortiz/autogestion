@@ -5,6 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ReciboVisibilidad;
+use Exception;
 use PDO;
 use PDOException;
 
@@ -43,20 +45,26 @@ class ReciboDetalle extends Component
             
             $legajo = Auth::user()->LEGAJO;
             
+            // La cabecera se acota a los recibos ya cobrados: sin esto se podia
+            // ver por URL un recibo que todavia no figura en el listado.
+            $hasta = ReciboVisibilidad::fechaCorte();
+
             // Consulta cabecera
-            $sqlCab = "SELECT * FROM per_recibo_cab 
-                        WHERE legajo = :legajo 
-                        AND nro_recibo = :numero 
-                        AND anio = :anio 
-                        AND mes = :mes 
-                        AND tipo_liq = :tipo";
-            
+            $sqlCab = "SELECT * FROM per_recibo_cab
+                        WHERE legajo = :legajo
+                        AND nro_recibo = :numero
+                        AND anio = :anio
+                        AND mes = :mes
+                        AND tipo_liq = :tipo
+                        AND " . ReciboVisibilidad::condicionSql();
+
             $stmtCab = oci_parse($conn, $sqlCab);
             oci_bind_by_name($stmtCab, ':legajo', $legajo);
             oci_bind_by_name($stmtCab, ':numero', $this->numero);
             oci_bind_by_name($stmtCab, ':anio', $this->anio);
             oci_bind_by_name($stmtCab, ':mes', $this->mes);
             oci_bind_by_name($stmtCab, ':tipo', $this->tipo);
+            oci_bind_by_name($stmtCab, ':hasta', $hasta);
             oci_execute($stmtCab);
             
             $this->recibo = oci_fetch_array($stmtCab, OCI_ASSOC);

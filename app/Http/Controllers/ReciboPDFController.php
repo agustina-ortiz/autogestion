@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\ReciboPDF;
+use App\Services\ReciboVisibilidad;
 use Exception;
 
 class ReciboPDFController extends Controller
@@ -55,34 +57,53 @@ class ReciboPDFController extends Controller
             // PASO 1: Obtener los datos del recibo desde Oracle
             Log::info('Consultando recibo en Oracle...');
             
-            $sqlRecibo = "SELECT * FROM PER_RECIBO_CAB 
-                          WHERE NRO_RECIBO = :nroRecibo 
-                          AND ANIO = :anio 
-                          AND MES = :mes 
-                          AND TIPO_LIQ = :tipoLiq";
-            
+            // El recibo se busca acotado al legajo del usuario autenticado: sin esto
+            // cualquier empleado logueado podria descargar el recibo de otro
+            // probando numeros en la URL.
+            $legajoAutenticado = Auth::user()->LEGAJO;
+
+            // Ademas del legajo, se acota a los recibos ya cobrados segun la
+            // fecha de corte que define RRHH desde INASI.
+            $hasta = ReciboVisibilidad::fechaCorte();
+
+            $sqlRecibo = "SELECT * FROM PER_RECIBO_CAB
+                          WHERE LEGAJO = :legajo
+                          AND NRO_RECIBO = :nroRecibo
+                          AND ANIO = :anio
+                          AND MES = :mes
+                          AND TIPO_LIQ = :tipoLiq
+                          AND " . ReciboVisibilidad::condicionSql();
+
             $stmtRecibo = oci_parse($conn, $sqlRecibo);
+            oci_bind_by_name($stmtRecibo, ':legajo', $legajoAutenticado);
             oci_bind_by_name($stmtRecibo, ':nroRecibo', $nroRecibo);
             oci_bind_by_name($stmtRecibo, ':anio', $anio);
             oci_bind_by_name($stmtRecibo, ':mes', $mes);
             oci_bind_by_name($stmtRecibo, ':tipoLiq', $tipoLiq);
-            
+            oci_bind_by_name($stmtRecibo, ':hasta', $hasta);
+
             oci_execute($stmtRecibo);
-            
+
             $recibo = oci_fetch_array($stmtRecibo, OCI_ASSOC);
 
             if (!$recibo) {
                 oci_free_statement($stmtRecibo);
                 oci_close($conn);
-                
-                Log::warning('Recibo no encontrado en Oracle');
+
+                Log::warning('Recibo no encontrado en Oracle', [
+                    'legajo_solicitante' => $legajoAutenticado,
+                    'nroRecibo'          => $nroRecibo,
+                    'anio'               => $anio,
+                    'mes'                => $mes,
+                    'tipoLiq'            => $tipoLiq,
+                ]);
                 return response('<html><body style="font-family: Arial; padding: 40px;">
                     <h1 style="color: red;">❌ Recibo no encontrado</h1>
                     <ul>
                         <li>Número: ' . $nroRecibo . '</li>
                         <li>Año: ' . $anio . '</li>
                         <li>Mes: ' . $mes . '</li>
-                        <li>Tipo: ' . $tipoLiq . '</li>
+                        <li>Tipo: ' . htmlspecialchars($tipoLiq) . '</li>
                     </ul>
                     <p><a href="javascript:history.back()">← Volver</a></p>
                 </body></html>', 404);
