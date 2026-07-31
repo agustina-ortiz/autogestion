@@ -89,6 +89,12 @@ ID, FECHAVTO (fecha de vencimiento para filtrar)
 ### Tablas en INASI (mysql1)
 - `in_movimie` — Historial de movimientos
 - `in_compensa` — Compensatorios
+- `in_desempeno` — Evaluaciones de desempeno (modelo `Evaluacion`)
+
+### Tablas en INASI nuevo (mysql2)
+- `corte_recibos` — Fecha de corte de visibilidad de recibos. Solo lectura desde
+  el portal: la escribe INASI. Historial de solo alta (`id`, `fecha_hasta`,
+  `usuario_id`, `created_at`); la vigente es la de mayor `id`.
 
 ### Oracle (recibos de sueldo)
 - `per_recibo_cab` — Cabecera de recibos (consulta SQL directa con ROWNUM para paginacion)
@@ -123,10 +129,16 @@ ID, FECHAVTO (fecha de vencimiento para filtrar)
 | Asig. familiares | `/asignaciones-familiares` | `App\Livewire\AsignacionesFamiliares` |
 | Preguntas frecuentes | `/preguntas-frecuentes` | `App\Livewire\PreguntasFrecuentes` |
 | Perfil | `/perfil` | `App\Livewire\Perfil` |
+| Evaluaciones | `/evaluaciones` | `App\Livewire\Evaluaciones` |
 | Reloj | `/reloj` | `App\Livewire\Reloj` (layout especial) |
 | Primera contrasena | `/primera-contrasena` | Livewire Volt |
 
 Todas las rutas de modulos requieren middleware `auth` + `verified`.
+
+**No hay concepto de rol ni de administrador.** `auth` + `verified` es todo el
+control de acceso que existe: cualquier empleado autenticado alcanza cualquier
+ruta. Si se agrega una pantalla de gestion (por ejemplo para RRHH), hay que
+construirle la restriccion aparte.
 
 ---
 
@@ -143,7 +155,10 @@ app/
 │   └── AsignacionesFamiliaresController.php
 ├── Livewire/                       — Todos los componentes interactivos
 ├── Models/                         — Eloquent models
-├── Services/ReciboPDF.php          — Logica de generacion PDF recibos
+├── Console/Commands/SendEvaluacionesPush.php — Push de evaluaciones nuevas
+├── Services/
+│   ├── ReciboPDF.php               — Logica de generacion PDF recibos
+│   └── ReciboVisibilidad.php       — Hasta que fecha se muestran los recibos
 
 public/
 ├── fotos-licencias/fotos-empleados/{legajo}.jpg  — Fotos de perfil
@@ -208,6 +223,9 @@ composer test         # limpia config + PHPUnit
 # Artisan
 php artisan migrate
 php artisan tinker
+
+# Comandos propios
+php artisan push:evaluaciones   # push de evaluaciones de desempeno nuevas
 ```
 
 ---
@@ -217,6 +235,10 @@ php artisan tinker
 - Las contrasenas en `CLAVEWEB` son **texto plano** — es una limitacion conocida del sistema legado INASI. No cambiar sin coordinacion con el sistema origen.
 - La encriptacion de sesiones esta **deshabilitada** (`SESSION_ENCRYPT=false`).
 - No hay rate limiting explicito en las rutas (fuera del throttle global de Laravel).
+- **Toda consulta a recibos tiene que acotarse al legajo de la sesion.** Las
+  rutas de recibo reciben el numero por URL: si la consulta no filtra por
+  `Auth::user()->LEGAJO`, un empleado puede leer el recibo de otro tanteando
+  numeros. Aplica a `Recibos`, `ReciboDetalle` y `ReciboPDFController`.
 
 ---
 
