@@ -96,7 +96,9 @@ en desarrollo. En produccion falla.
 
 - `in_movimie` — Historial de movimientos (modelo `Movimiento`)
 - `in_compensa` — Compensatorios (modelo `Compensatorio`)
-- `in_desempeno` — Evaluaciones de desempeno (modelo `Evaluacion`)
+- `in_desempeno` — Evaluaciones de desempeno (modelo `Evaluacion`). `PUNTUACION`
+  se guarda como numero y se le muestra al empleado como letra: 1=A, 2=B, 3=C.
+  **A es la mejor** (verde, amarillo, rojo). Ver `Evaluacion::CALIFICACIONES`
 - `in_fecha_recibos` — Fecha de corte de recibos que mantiene INASI viejo. Una
   sola fila que se pisa, sin `id`. Provisoria hasta que suba INASI nuevo, que
   vuelve a `corte_recibos`. Ver `ReciboVisibilidad`

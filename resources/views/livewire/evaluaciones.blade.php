@@ -26,7 +26,7 @@
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
-                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Puntuación</th>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Calificación</th>
                                 <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Observaciones</th>
                             </tr>
                         </thead>
@@ -37,12 +37,8 @@
                                         {{ \Carbon\Carbon::parse($evaluacion->FECHA)->format('d/m/Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold
-                                            @if($evaluacion->PUNTUACION >= 8) bg-green-100 text-green-700
-                                            @elseif($evaluacion->PUNTUACION >= 5) bg-yellow-100 text-yellow-700
-                                            @else bg-red-100 text-red-700
-                                            @endif">
-                                            {{ $evaluacion->PUNTUACION }}
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold {{ $evaluacion->calificacion_color }}">
+                                            {{ $evaluacion->calificacion }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-gray-600">
