@@ -32,7 +32,14 @@
                     <!-- Links y Archivos -->
                     <div class="mt-6 pt-6 border-t border-gray-200 space-y-4">
                         @if($noticia->LINK)
-                            @php $esEvaluaciones = str_contains($noticia->LINK, 'evaluaciones'); @endphp
+                            @php
+                                // Se compara la ruta completa, no si el texto aparece en algun
+                                // lado: con str_contains, un link a un archivo como
+                                // /formularios/formulario_evaluaciones.pdf tambien matcheaba y
+                                // terminaba mandando al listado en vez de abrir el PDF.
+                                $rutaDelLink = trim(parse_url($noticia->LINK, PHP_URL_PATH) ?? '', '/');
+                                $esEvaluaciones = $rutaDelLink === 'evaluaciones';
+                            @endphp
                             @if($esEvaluaciones)
                                 <a href="{{ route('evaluaciones') }}"
                                    class="flex items-center gap-3 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors group">
