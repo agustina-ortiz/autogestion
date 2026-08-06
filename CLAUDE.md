@@ -97,8 +97,9 @@ en desarrollo. En produccion falla.
 - `in_movimie` — Historial de movimientos (modelo `Movimiento`)
 - `in_compensa` — Compensatorios (modelo `Compensatorio`)
 - `in_desempeno` — Evaluaciones de desempeno (modelo `Evaluacion`)
-- `in_fecha_recibos` — Copia de la fecha de corte de recibos que mantiene INASI
-  viejo, con las mismas columnas que `corte_recibos`. Ver `ReciboVisibilidad`
+- `in_fecha_recibos` — Fecha de corte de recibos que mantiene INASI viejo. Una
+  sola fila que se pisa, sin `id`. Provisoria hasta que suba INASI nuevo, que
+  vuelve a `corte_recibos`. Ver `ReciboVisibilidad`
 
 ### Tablas en INASI nuevo (mysql2)
 - `corte_recibos` — Fecha de corte de visibilidad de recibos. Solo lectura desde
@@ -220,9 +221,11 @@ resources/views/
 - Una vez que la fuente **existe**, se falla cerrado: si la lectura da error o la
   tabla esta vacia no se muestra ningun recibo. El fallback al criterio anterior
   es solo para el entorno que todavia no tiene ninguna de las dos tablas.
-- Las dos tablas son historial de solo alta con las mismas columnas
-  (`fecha_hasta`, `usuario_id`, `created_at`). La vigente es la ultima fila: se
-  ordena por `id` si la tabla lo tiene, si no por `created_at`.
+- Las dos tablas comparten la columna `fecha_hasta` pero no la forma:
+  - `corte_recibos`: historial de solo alta con `id`. La vigente es la de mayor `id`.
+  - `in_fecha_recibos`: **provisoria**, una unica fila que INASI pisa con UPDATE
+    cada vez que cambia la fecha. No tiene `id` y no se ordena.
+  Lo unico que el codigo necesita de cualquiera de las dos es `fecha_hasta`.
 - El portal **solo lee**. Las carga INASI, no la autogestion.
 - La condicion se aplica en los **tres** lugares que leen recibos: `Recibos`,
   `ReciboDetalle` y `ReciboPDFController`. No agregar un cuarto sin el filtro.

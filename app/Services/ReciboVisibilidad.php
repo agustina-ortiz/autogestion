@@ -22,9 +22,11 @@ use Throwable;
  *      corte: recibos emitidos hasta ayer. Es transitorio, para no dejar el
  *      listado en blanco mientras la tabla no exista.
  *
- * Las dos tablas son historial de solo alta con las mismas columnas
- * (`fecha_hasta`, `usuario_id`, `created_at`): la fecha vigente es la de la
- * ultima fila. El portal solo lee, nunca escribe en ninguna de las dos.
+ * Las dos tablas tienen la columna `fecha_hasta`, pero no la misma forma:
+ * `corte_recibos` es historial de solo alta con `id`, asi que la vigente es la
+ * fila de mayor id; `in_fecha_recibos` es provisoria y guarda una unica fila
+ * que INASI pisa cada vez que cambia la fecha. Por eso solo se ordena cuando
+ * hay `id`. El portal solo lee, nunca escribe en ninguna de las dos.
  */
 class ReciboVisibilidad
 {
@@ -69,10 +71,16 @@ class ReciboVisibilidad
     private static function leerDe(string $conexion, string $tabla): string
     {
         try {
-            $fecha = DB::connection($conexion)
-                ->table($tabla)
-                ->orderByDesc(self::columnaDeOrden($conexion, $tabla))
-                ->value('fecha_hasta');
+            $consulta = DB::connection($conexion)->table($tabla);
+
+            // corte_recibos es historial de solo alta, asi que la vigente es la
+            // de mayor id. La copia de INASI viejo es una unica fila que se
+            // pisa, no tiene id y no hace falta ordenarla.
+            if (self::tieneColumnaId($conexion, $tabla)) {
+                $consulta->orderByDesc('id');
+            }
+
+            $fecha = $consulta->value('fecha_hasta');
         } catch (Throwable $e) {
             Log::error('No se pudo leer la fecha de corte de recibos desde INASI', [
                 'tabla' => $tabla,
@@ -95,21 +103,19 @@ class ReciboVisibilidad
     }
 
     /**
-     * Por que columna se ordena para quedarse con la fila mas reciente.
+     * Si la tabla tiene columna `id`, o sea si es un historial ordenable.
      *
-     * `corte_recibos` tiene `id` autoincremental, pero la copia de INASI viejo
-     * la crea otro sistema y puede no tenerlo. Si no esta, se ordena por
-     * `created_at`.
+     * Ante la duda devuelve false: sin ordenar igual se lee la fila, mientras
+     * que ordenar por una columna inexistente tiraria error y dejaria el
+     * listado de recibos en blanco.
      */
-    private static function columnaDeOrden(string $conexion, string $tabla): string
+    private static function tieneColumnaId(string $conexion, string $tabla): bool
     {
         try {
-            $columnas = Schema::connection($conexion)->getColumnListing($tabla);
+            return in_array('id', Schema::connection($conexion)->getColumnListing($tabla), true);
         } catch (Throwable $e) {
-            return 'id';
+            return false;
         }
-
-        return in_array('id', $columnas, true) ? 'id' : 'created_at';
     }
 
     /**
