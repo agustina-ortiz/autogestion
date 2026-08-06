@@ -32,36 +32,17 @@
                     <!-- Links y Archivos -->
                     <div class="mt-6 pt-6 border-t border-gray-200 space-y-4">
                         @if($noticia->LINK)
-                            @php
-                                // Se compara la ruta completa, no si el texto aparece en algun
-                                // lado: con str_contains, un link a un archivo como
-                                // /formularios/formulario_evaluaciones.pdf tambien matcheaba y
-                                // terminaba mandando al listado en vez de abrir el PDF.
-                                $rutaDelLink = trim(parse_url($noticia->LINK, PHP_URL_PATH) ?? '', '/');
-                                $esEvaluaciones = $rutaDelLink === 'evaluaciones';
-                            @endphp
-                            @if($esEvaluaciones)
-                                <a href="{{ route('evaluaciones') }}"
-                                   class="flex items-center gap-3 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors group">
-                                    <div class="flex-shrink-0 w-10 h-10 bg-[#77BF43] bg-opacity-10 rounded-full flex items-center justify-center group-hover:bg-opacity-20 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-                                        </svg>
-                                    </div>
-                                    <span>Ver mis evaluaciones de desempeño</span>
-                                </a>
-                            @else
-                                <a href="{{ $noticia->LINK }}"
-                                   target="_blank"
-                                   class="flex items-center gap-3 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors group">
-                                    <div class="flex-shrink-0 w-10 h-10 bg-[#77BF43] bg-opacity-10 rounded-full flex items-center justify-center group-hover:bg-opacity-20 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                        </svg>
-                                    </div>
-                                    <span class="break-all">Ver más información</span>
-                                </a>
-                            @endif
+                            {{-- El link se abre tal cual lo carga RRHH, sin casos especiales. --}}
+                            <a href="{{ $noticia->LINK }}"
+                               target="_blank"
+                               class="flex items-center gap-3 text-[#77BF43] hover:text-[#5a9532] font-semibold transition-colors group">
+                                <div class="flex-shrink-0 w-10 h-10 bg-[#77BF43] bg-opacity-10 rounded-full flex items-center justify-center group-hover:bg-opacity-20 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </div>
+                                <span class="break-all">Ver más información</span>
+                            </a>
                         @endif
 
                         @if($noticia->ARCHIVO)
