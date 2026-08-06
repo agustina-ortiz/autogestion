@@ -207,7 +207,14 @@ resources/views/
 - Visibilidad: solo se muestran los recibos emitidos hasta la **fecha de corte**
   que define RRHH desde INASI (tabla `corte_recibos` en `mysql2`, historial de
   solo alta: la vigente es la de mayor `id`). Ver `App\Services\ReciboVisibilidad`.
-  Si no se puede leer la fecha, no se muestra ningun recibo (falla cerrado).
+- El corte depende de que INASI nuevo exista en el entorno, y eso se decide por
+  **`DB_DATABASE_INASI_NUEVO` en el `.env`**:
+  - **Sin la variable** (produccion mientras INASI nuevo no este publicado): se
+    usa el criterio anterior, recibos emitidos hasta ayer. No se lee `mysql2`.
+  - **Con la variable**: rige el corte de `corte_recibos`, y si no se puede leer
+    la fecha no se muestra ningun recibo (falla cerrado).
+  El dia que INASI nuevo suba a produccion alcanza con agregar las variables
+  `DB_*_INASI_NUEVO` al `.env`: el corte se activa solo, sin tocar codigo.
 - La condicion se aplica en los **tres** lugares que leen recibos: `Recibos`,
   `ReciboDetalle` y `ReciboPDFController`. No agregar un cuarto sin el filtro.
 

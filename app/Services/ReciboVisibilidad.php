@@ -29,6 +29,13 @@ class ReciboVisibilidad
      */
     public static function fechaCorte(): string
     {
+        // Mientras INASI nuevo no exista en este entorno no hay tabla que leer.
+        // Se mantiene el criterio anterior (recibos emitidos hasta ayer) en vez
+        // de fallar cerrado, que dejaria el listado en blanco para todos.
+        if (!self::inasiNuevoDisponible()) {
+            return now()->subDay()->format('Y-m-d');
+        }
+
         try {
             $fecha = DB::connection('mysql2')
                 ->table('corte_recibos')
@@ -49,6 +56,19 @@ class ReciboVisibilidad
         }
 
         return substr((string) $fecha, 0, 10);
+    }
+
+    /**
+     * Si el entorno tiene configurado INASI nuevo (conexion mysql2).
+     *
+     * Se decide por DB_DATABASE_INASI_NUEVO en el .env: mientras esa base no
+     * este publicada, la variable no se define y la tabla corte_recibos no
+     * existe. El dia que INASI nuevo suba, se agregan las variables al .env y
+     * el corte empieza a regir solo, sin tocar codigo.
+     */
+    private static function inasiNuevoDisponible(): bool
+    {
+        return filled(config('database.connections.mysql2.database'));
     }
 
     /**

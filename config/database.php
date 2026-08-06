@@ -91,7 +91,10 @@ return [
             'url' => env('DB_URL_INASI_NUEVO'),
             'host' => env('DB_HOST_INASI_NUEVO', '127.0.0.1'),
             'port' => env('DB_PORT_INASI_NUEVO', '3306'),
-            'database' => env('DB_DATABASE_INASI_NUEVO', 'munimer_inasinuevo'),
+            // Sin default a proposito: si la variable no esta en .env, INASI
+            // nuevo todavia no existe en ese entorno y ReciboVisibilidad usa
+            // el criterio anterior en vez de dejar los recibos en blanco.
+            'database' => env('DB_DATABASE_INASI_NUEVO'),
             'username' => env('DB_USERNAME_INASI_NUEVO', 'root'),
             'password' => env('DB_PASSWORD_INASI_NUEVO', ''),
             'unix_socket' => env('DB_SOCKET', ''),
