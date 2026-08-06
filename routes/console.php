@@ -13,3 +13,11 @@ Schedule::command('push:noticias')
     ->everyFiveMinutes()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/push.log'));
+
+// Evaluaciones de desempeño: no necesitan aviso inmediato, alcanza cada hora.
+// Antes de activarlo por primera vez correr `php artisan push:evaluaciones
+// --solo-marcar` para no notificar todo el historial de golpe.
+Schedule::command('push:evaluaciones')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/push.log'));

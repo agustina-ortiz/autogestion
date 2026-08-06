@@ -37,7 +37,7 @@ Portal de autogestión de Recursos Humanos para municipalidad argentina. Permite
 | Conexion | Motor | Base | Uso |
 |----------|-------|------|-----|
 | `mysql` (default) | MySQL | in_maestro | Datos de la aplicacion |
-| `mysql1` | MySQL | munimer_inasi | Sistema legado INASI (productiva) |
+| `mysql1` | MySQL | munimer_inasi | Definida en config, **sin credenciales en `.env`**. No usarla |
 | `mysql2` | MySQL | munimer_inasinuevo | INASI nuevo, en desarrollo. Solo `corte_recibos` |
 | Oracle OCI | Oracle | — | Recibos de sueldo (conexion directa, NO Eloquent) |
 | SQLite | SQLite | — | Tests / desarrollo |
@@ -86,9 +86,16 @@ ID, FECHAVTO (fecha de vencimiento para filtrar)
 **sessions** — Sesiones (driver: database)
 **cache** — Cache (driver: database)
 
-### Tablas en INASI (mysql1)
-- `in_movimie` — Historial de movimientos
-- `in_compensa` — Compensatorios
+### Tablas en INASI viejo (base `munimer_inasi`)
+
+Se acceden por la conexion **por defecto** (`mysql`) con la base calificada en el
+nombre de tabla: `munimer_inasi.in_compensa`. **No** por la conexion `mysql1`:
+esa entrada de `config/database.php` no tiene variables en `.env`, asi que cae a
+los defaults (`127.0.0.1` / `root` / sin password) y solo funciona por casualidad
+en desarrollo. En produccion falla.
+
+- `in_movimie` — Historial de movimientos (modelo `Movimiento`)
+- `in_compensa` — Compensatorios (modelo `Compensatorio`)
 - `in_desempeno` — Evaluaciones de desempeno (modelo `Evaluacion`)
 
 ### Tablas en INASI nuevo (mysql2)
@@ -225,7 +232,9 @@ php artisan migrate
 php artisan tinker
 
 # Comandos propios
-php artisan push:evaluaciones   # push de evaluaciones de desempeno nuevas
+php artisan push:evaluaciones   # push de evaluaciones de desempeno nuevas (agendado cada hora)
+php artisan push:evaluaciones --solo-marcar   # marca el historial como notificado sin enviar
+                                              # (correr UNA vez antes de activar el cron)
 ```
 
 ---
