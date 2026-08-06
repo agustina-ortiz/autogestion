@@ -97,6 +97,8 @@ en desarrollo. En produccion falla.
 - `in_movimie` — Historial de movimientos (modelo `Movimiento`)
 - `in_compensa` — Compensatorios (modelo `Compensatorio`)
 - `in_desempeno` — Evaluaciones de desempeno (modelo `Evaluacion`)
+- `in_fecha_recibos` — Copia de la fecha de corte de recibos que mantiene INASI
+  viejo, con las mismas columnas que `corte_recibos`. Ver `ReciboVisibilidad`
 
 ### Tablas en INASI nuevo (mysql2)
 - `corte_recibos` — Fecha de corte de visibilidad de recibos. Solo lectura desde
@@ -205,16 +207,23 @@ resources/views/
 - Paginacion con ROWNUM a nivel SQL
 - Tipos de recibo con colores: NOR, ADI, SAC, DDN, MUN, etc.
 - Visibilidad: solo se muestran los recibos emitidos hasta la **fecha de corte**
-  que define RRHH desde INASI (tabla `corte_recibos` en `mysql2`, historial de
-  solo alta: la vigente es la de mayor `id`). Ver `App\Services\ReciboVisibilidad`.
-- El corte depende de que INASI nuevo exista en el entorno, y eso se decide por
-  **`DB_DATABASE_INASI_NUEVO` en el `.env`**:
-  - **Sin la variable** (produccion mientras INASI nuevo no este publicado): se
-    usa el criterio anterior, recibos emitidos hasta ayer. No se lee `mysql2`.
-  - **Con la variable**: rige el corte de `corte_recibos`, y si no se puede leer
-    la fecha no se muestra ningun recibo (falla cerrado).
-  El dia que INASI nuevo suba a produccion alcanza con agregar las variables
-  `DB_*_INASI_NUEVO` al `.env`: el corte se activa solo, sin tocar codigo.
+  que define RRHH desde INASI. Ver `App\Services\ReciboVisibilidad`.
+- La fecha se busca en **tres niveles**, en este orden:
+  1. `corte_recibos` en `mysql2` (INASI nuevo), si el `.env` define
+     `DB_DATABASE_INASI_NUEVO`.
+  2. `munimer_inasi.in_fecha_recibos` (INASI viejo, conexion por defecto), si la
+     tabla existe. Es la copia que mantiene INASI viejo para los entornos donde
+     todavia no esta INASI nuevo.
+  3. Si no existe ninguna de las dos, criterio anterior a la fecha de corte:
+     recibos emitidos hasta ayer. Transitorio, para no dejar el listado en
+     blanco.
+- Una vez que la fuente **existe**, se falla cerrado: si la lectura da error o la
+  tabla esta vacia no se muestra ningun recibo. El fallback al criterio anterior
+  es solo para el entorno que todavia no tiene ninguna de las dos tablas.
+- Las dos tablas son historial de solo alta con las mismas columnas
+  (`fecha_hasta`, `usuario_id`, `created_at`). La vigente es la ultima fila: se
+  ordena por `id` si la tabla lo tiene, si no por `created_at`.
+- El portal **solo lee**. Las carga INASI, no la autogestion.
 - La condicion se aplica en los **tres** lugares que leen recibos: `Recibos`,
   `ReciboDetalle` y `ReciboPDFController`. No agregar un cuarto sin el filtro.
 

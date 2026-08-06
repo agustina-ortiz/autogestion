@@ -4,45 +4,79 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 /**
  * Decide hasta que fecha de emision se le muestran los recibos al empleado.
  *
- * La fecha la define RRHH desde INASI cada vez que se acredita un pago, en la
- * tabla corte_recibos de munimer_inasinuevo (conexion mysql2). Esa tabla es
- * historial de solo alta: la fecha vigente es la de la fila de mayor id.
+ * La fecha la define RRHH desde INASI cada vez que se acredita un pago. Segun
+ * el entorno la fuente cambia, y se busca en este orden:
  *
- * El portal solo lee. Nunca escribe en corte_recibos.
+ *   1. `corte_recibos` en munimer_inasinuevo (conexion mysql2), donde INASI
+ *      nuevo esta publicado. Se sabe por DB_DATABASE_INASI_NUEVO en el .env.
+ *   2. `in_fecha_recibos` en munimer_inasi (INASI viejo, conexion por defecto).
+ *      Es la copia que mantiene INASI viejo para los entornos donde todavia no
+ *      existe INASI nuevo.
+ *   3. Si ninguna de las dos esta, se usa el criterio anterior a la fecha de
+ *      corte: recibos emitidos hasta ayer. Es transitorio, para no dejar el
+ *      listado en blanco mientras la tabla no exista.
+ *
+ * Las dos tablas son historial de solo alta con las mismas columnas
+ * (`fecha_hasta`, `usuario_id`, `created_at`): la fecha vigente es la de la
+ * ultima fila. El portal solo lee, nunca escribe en ninguna de las dos.
  */
 class ReciboVisibilidad
 {
     /**
-     * Fecha imposible que se usa cuando no hay corte definido o no se pudo
-     * leer. Deja la condicion sin coincidencias, de modo que ante cualquier
-     * duda no se muestra ningun recibo en vez de mostrarlos todos.
+     * Fecha imposible que se usa cuando hay una fuente de corte definida pero
+     * no se pudo leer. Deja la condicion sin coincidencias, de modo que ante
+     * cualquier duda no se muestra ningun recibo en vez de mostrarlos todos.
      */
     private const SIN_CORTE = '1000-01-01';
+
+    /**
+     * Copia de la fecha de corte en INASI viejo, con la base calificada porque
+     * se consulta por la conexion por defecto.
+     */
+    private const TABLA_INASI_VIEJO = 'munimer_inasi.in_fecha_recibos';
 
     /**
      * Fecha de corte vigente, en formato YYYY-MM-DD.
      */
     public static function fechaCorte(): string
     {
-        // Mientras INASI nuevo no exista en este entorno no hay tabla que leer.
-        // Se mantiene el criterio anterior (recibos emitidos hasta ayer) en vez
-        // de fallar cerrado, que dejaria el listado en blanco para todos.
-        if (!self::inasiNuevoDisponible()) {
-            return now()->subDay()->format('Y-m-d');
+        if (self::inasiNuevoDisponible()) {
+            return self::leerDe('mysql2', 'corte_recibos');
         }
 
+        if (self::existeTablaInasiViejo()) {
+            return self::leerDe('mysql', self::TABLA_INASI_VIEJO);
+        }
+
+        // Ninguna de las dos fuentes existe todavia en este entorno. Se mantiene
+        // el criterio anterior en vez de fallar cerrado, que dejaria el listado
+        // en blanco para todos los empleados.
+        return now()->subDay()->format('Y-m-d');
+    }
+
+    /**
+     * Ultima fecha de corte cargada en la tabla indicada.
+     *
+     * A partir de aca si se falla cerrado: la fuente existe, asi que un error
+     * de lectura es una falla real y no un entorno sin configurar.
+     */
+    private static function leerDe(string $conexion, string $tabla): string
+    {
         try {
-            $fecha = DB::connection('mysql2')
-                ->table('corte_recibos')
-                ->orderByDesc('id')
+            $fecha = DB::connection($conexion)
+                ->table($tabla)
+                ->orderByDesc(self::columnaDeOrden($conexion, $tabla))
                 ->value('fecha_hasta');
         } catch (Throwable $e) {
             Log::error('No se pudo leer la fecha de corte de recibos desde INASI', [
+                'tabla' => $tabla,
+                'conexion' => $conexion,
                 'mensaje' => $e->getMessage(),
             ]);
 
@@ -50,7 +84,9 @@ class ReciboVisibilidad
         }
 
         if (!$fecha) {
-            Log::warning('corte_recibos esta vacia: no se muestra ningun recibo');
+            Log::warning('La tabla de corte de recibos esta vacia: no se muestra ningun recibo', [
+                'tabla' => $tabla,
+            ]);
 
             return self::SIN_CORTE;
         }
@@ -59,16 +95,53 @@ class ReciboVisibilidad
     }
 
     /**
+     * Por que columna se ordena para quedarse con la fila mas reciente.
+     *
+     * `corte_recibos` tiene `id` autoincremental, pero la copia de INASI viejo
+     * la crea otro sistema y puede no tenerlo. Si no esta, se ordena por
+     * `created_at`.
+     */
+    private static function columnaDeOrden(string $conexion, string $tabla): string
+    {
+        try {
+            $columnas = Schema::connection($conexion)->getColumnListing($tabla);
+        } catch (Throwable $e) {
+            return 'id';
+        }
+
+        return in_array('id', $columnas, true) ? 'id' : 'created_at';
+    }
+
+    /**
      * Si el entorno tiene configurado INASI nuevo (conexion mysql2).
      *
      * Se decide por DB_DATABASE_INASI_NUEVO en el .env: mientras esa base no
-     * este publicada, la variable no se define y la tabla corte_recibos no
-     * existe. El dia que INASI nuevo suba, se agregan las variables al .env y
-     * el corte empieza a regir solo, sin tocar codigo.
+     * este publicada, la variable no se define. El dia que INASI nuevo suba, se
+     * agregan las variables al .env y pasa a mandar corte_recibos, sin tocar
+     * codigo.
      */
     private static function inasiNuevoDisponible(): bool
     {
         return filled(config('database.connections.mysql2.database'));
+    }
+
+    /**
+     * Si INASI viejo ya tiene creada la copia de la fecha de corte.
+     *
+     * Mientras el equipo de INASI no la cree, la consulta tiraria "table
+     * doesn't exist" en cada carga de la pantalla de recibos.
+     */
+    private static function existeTablaInasiViejo(): bool
+    {
+        try {
+            return Schema::connection('mysql')->hasTable(self::TABLA_INASI_VIEJO);
+        } catch (Throwable $e) {
+            Log::error('No se pudo verificar la tabla de corte de recibos en INASI viejo', [
+                'mensaje' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     /**
